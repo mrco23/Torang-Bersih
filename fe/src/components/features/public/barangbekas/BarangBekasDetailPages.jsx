@@ -51,9 +51,6 @@ const BarangBekasDetailPage = () => {
         {/* MAIN GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
-          {/* ==========================================
-              KOLOM KIRI: FOTO (Span 5)
-              ========================================== */}
           <div className="lg:col-span-5 flex flex-col gap-4">
             <div className="w-full aspect-[4/3] sm:aspect-square rounded-3xl overflow-hidden bg-[var(--gray-shine)] relative group">
               {product.status_ketersediaan === "Terjual" && (
@@ -87,12 +84,10 @@ const BarangBekasDetailPage = () => {
                   </button>
                 ))}
               </div>
-            )}
+           )}
           </div>
 
-          {/* ==========================================
-              KOLOM TENGAH: DETAIL INFO (Span 4)
-              ========================================== */}
+         
           <div className="lg:col-span-4 flex flex-col pt-2">
             
             {/* Judul & Badge Kategori */}
