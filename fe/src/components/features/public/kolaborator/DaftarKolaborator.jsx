@@ -17,7 +17,7 @@ function DaftarKolaborator() {
   ]);
   console.log(setKolaborator);
   return (
-    <div className="w-full px-4 py-8 pt-24 md:px-6">
+    <div className="w-full z-9999 bg-white  px-4 py-8 pt-24 md:px-6">
       <div className="mx-auto w-full max-w-6xl space-y-8">
         <div className={`flex justify-between`}>
           <p className="text-3xl font-semibold">Daftar Kolaborator</p>

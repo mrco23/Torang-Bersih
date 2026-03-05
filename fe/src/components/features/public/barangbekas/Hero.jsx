@@ -1,5 +1,6 @@
 import React from "react";
 import Svg from "../kolaborator/Svg"; // Pastikan path import Svg sudah benar
+import FloatingIcons from "../kolaborator/FloatingIcons";
 
 const Hero = () => {
   return (
@@ -16,11 +17,8 @@ const Hero = () => {
         </button>
       </div>
 
-      <img
-        src="/images/kolaborator-hero.png"
-        alt="kolaborator-hero.png"
-        className="h-100 w-full object-cover"
-      />
+     <FloatingIcons/>
+     
     </div>
   );
 };
