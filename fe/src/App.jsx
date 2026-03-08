@@ -24,7 +24,9 @@ import NotFoundPage from "./pages/NotFoundPage";
 import LandingPage from "./pages/public/LandingPage";
 import PetaPage from "./pages/public/PetaPage";
 import KolaboratorPage from "./pages/public/KolaboratorPage";
+import DetailKolaborator from "./pages/public/DetailKolabolator";
 import AsetPage from "./pages/public/AsetPage";
+import DetailAset from "./pages/public/DetailAset";
 import BarangBekasPage from "./pages/public/BarangBekasPage";
 import BarangBekasDetailPage from "./components/features/public/barangbekas/BarangBekasDetailPages";
 import LaporanPage from "./pages/public/LaporanPage";
@@ -69,7 +71,9 @@ function App() {
         <Route index element={<LandingPage />} />
         <Route path="peta" element={<PetaPage />} />
         <Route path="kolaborator" element={<KolaboratorPage />} />
+        <Route path="kolaborator/:id" element={<DetailKolaborator />} />
         <Route path="aset" element={<AsetPage />} />
+        <Route path="aset/:id" element={<DetailAset />} />
         <Route path="barang-bekas" element={<BarangBekasPage />} />
         <Route path="/barang-bekas/:id" element={<BarangBekasDetailPage />} />
         <Route path="laporan" element={<LaporanPage />} />

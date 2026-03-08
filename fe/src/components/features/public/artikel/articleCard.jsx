@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // <-- Tambahkan import ini
+import { Link } from "react-router-dom"; 
 import { FaComment } from "react-icons/fa";
 import { AiTwotoneLike } from "react-icons/ai";
 

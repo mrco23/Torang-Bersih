@@ -1,12 +1,36 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-function DaftarKolaborator() {
+function DaftarAset() {
   const [kolaborator, setKolaborator] = useState([
     {
       nama: "BSID Kolaborator",
       kategori: "Komunitas",
       lokasi: "Jalan Bukit Dago Utara II",
+      penanggungJawab: "Admin BSID",
+    },
+    {
+      nama: "BSID Kolaborator",
+      kategori: "Komunitas",
+      lokasi: "Jalan Mekarsari, Bekasi Raya",
+      penanggungJawab: "Admin BSID",
+    },
+    {
+      nama: "BSID Kolaborator",
+      kategori: "Komunitas",
+      lokasi: "Jalan Mekarsari, Bekasi Raya",
+      penanggungJawab: "Admin BSID",
+    },
+    {
+      nama: "BSID Kolaborator",
+      kategori: "Komunitas",
+      lokasi: "Jalan Mekarsari, Bekasi Raya",
+      penanggungJawab: "Admin BSID",
+    },
+    {
+      nama: "BSID Kolaborator",
+      kategori: "Komunitas",
+      lokasi: "Jalan Mekarsari, Bekasi Raya",
       penanggungJawab: "Admin BSID",
     },
     {
@@ -21,7 +45,7 @@ function DaftarKolaborator() {
     <div className="z-9999 w-full bg-white px-4 py-8 pt-24 md:px-6">
       <div className="mx-auto w-full max-w-6xl space-y-8">
         <div className={`flex justify-between`}>
-          <p className="text-3xl font-semibold">Daftar Kolaborator</p>
+          <p className="text-3xl font-semibold">Tambahkan Aset</p>
           <button
             onClick={() => {}}
             className="flex items-center gap-2 rounded-full border border-(--primary) px-10 py-1.5 font-medium text-(--primary) transition-colors hover:bg-indigo-50"
@@ -51,7 +75,7 @@ function DaftarKolaborator() {
         </div>
         {kolaborator.map(({ nama, kategori, lokasi, penanggungJawab }) => {
           return (
-            <Kolaborator
+            <AsetItem
               key={nama}
               nama={nama}
               kategori={kategori}
@@ -65,7 +89,7 @@ function DaftarKolaborator() {
   );
 }
 
-function Kolaborator({ nama, kategori, lokasi, penanggungJawab }) {
+function AsetItem({ nama, kategori, lokasi, penanggungJawab }) {
   return (
     <div className="flex h-[84px] overflow-hidden rounded-md border border-gray-200 bg-white shadow-sm">
       <div className="w-[42px] flex-shrink-0 bg-[#22247A]"></div>
@@ -93,7 +117,7 @@ function Kolaborator({ nama, kategori, lokasi, penanggungJawab }) {
         </div>
         <div className="col-span-3 flex items-center justify-around pl-6 text-[14px] font-medium text-gray-800">
           <span>{penanggungJawab}</span>
-          <Link to="/kolaborator/id" >
+          <Link to="/aset/id" >
             <svg
               width="30"
               height="30"
@@ -117,4 +141,4 @@ function Kolaborator({ nama, kategori, lokasi, penanggungJawab }) {
   );
 }
 
-export default DaftarKolaborator;
+export default DaftarAset;
