@@ -30,6 +30,7 @@ import DetailAset from "./pages/public/DetailAset";
 import BarangBekasPage from "./pages/public/BarangBekasPage";
 import BarangBekasDetailPage from "./components/features/public/barangbekas/BarangBekasDetailPages";
 import LaporanPage from "./pages/public/LaporanPage";
+import DetailLaporan from "./pages/public/DetailLaporan";
 import ArtikelPage from "./pages/public/ArtikelPage";
 import ArticleDetailPage from "./components/features/public/artikel/DetailArticle";
 
@@ -77,6 +78,7 @@ function App() {
         <Route path="barang-bekas" element={<BarangBekasPage />} />
         <Route path="/barang-bekas/:id" element={<BarangBekasDetailPage />} />
         <Route path="laporan" element={<LaporanPage />} />
+        <Route path="/laporan/:id" element={<DetailLaporan />} />
         <Route path="artikel" element={<ArtikelPage />} />
         <Route path="/artikel/:id" element={<ArticleDetailPage />} />
 

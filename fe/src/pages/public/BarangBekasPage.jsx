@@ -277,7 +277,7 @@ const BarangBekasPage = () => {
 
               <hr className="my-5 border-gray-100" />
 
-              {/* Contoh Filter Tambahan (Kondisi) */}
+              
               <h3 className="mb-4 text-sm font-bold tracking-wider text-[var(--dark)] uppercase">
                 Kondisi
               </h3>
