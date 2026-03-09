@@ -1,0 +1,15 @@
+meta {
+  name: Delete Referensi (Admin)
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{base_url}}/referensi/jenis-kolaborator/{{ref_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{admin_access_token}}
+}

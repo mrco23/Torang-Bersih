@@ -1,0 +1,15 @@
+meta {
+  name: Delete Marketplace Item
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/marketplace/{{marketplace_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}

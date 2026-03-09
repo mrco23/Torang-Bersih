@@ -5,6 +5,8 @@ from app.api.routes.social_auth_route import social_auth_bp
 from app.api.routes.referensi_route import referensi_bp
 from app.api.routes.kolaborator_route import kolaborator_bp
 from app.api.routes.aset_route import aset_bp
+from app.api.routes.laporan_route import laporan_bp
+from app.api.routes.marketplace_route import marketplace_bp
 
 
 def register_routes(app: Flask) -> None:
@@ -14,3 +16,5 @@ def register_routes(app: Flask) -> None:
     app.register_blueprint(referensi_bp)
     app.register_blueprint(kolaborator_bp)
     app.register_blueprint(aset_bp)
+    app.register_blueprint(laporan_bp)
+    app.register_blueprint(marketplace_bp)

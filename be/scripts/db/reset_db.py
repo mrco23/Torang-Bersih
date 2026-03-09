@@ -30,9 +30,9 @@ def reset_db(seed_after=False):
         db.drop_all()
         print("Semua tabel berhasil dihapus.")
 
-        print("Membuat ulang tabel...")
-        db.create_all()
-        print("Semua tabel berhasil dibuat.")
+        # print("Membuat ulang tabel...")
+        # db.create_all()
+        # print("Semua tabel berhasil dibuat.")
 
         if seed_after:
             print("\nMenjalankan seeder...")

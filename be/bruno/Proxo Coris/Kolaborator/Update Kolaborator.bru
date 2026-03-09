@@ -1,0 +1,21 @@
+meta {
+  name: Update Kolaborator
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/kolaborator/{{kolaborator_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}
+
+body:json {
+  {
+    "nama_organisasi": "Komunitas Test Updated"
+  }
+}

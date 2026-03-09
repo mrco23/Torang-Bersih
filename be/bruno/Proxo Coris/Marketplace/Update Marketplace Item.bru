@@ -1,0 +1,23 @@
+meta {
+  name: Update Marketplace Item
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/marketplace/{{marketplace_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}
+
+body:json {
+  {
+    "nama_barang": "Botol Plastik Update",
+    "harga": 15000,
+    "status_ketersediaan": "dipesan"
+  }
+}

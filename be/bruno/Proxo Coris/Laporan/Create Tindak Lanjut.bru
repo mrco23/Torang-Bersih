@@ -1,0 +1,23 @@
+meta {
+  name: Create Tindak Lanjut
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/laporan/{{laporan_id}}/tindak-lanjut
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}
+
+body:json {
+  {
+    "tindak_lanjut_penanganan": "Pembersihan area",
+    "tim_penindak": "Tim Kebersihan RT 05",
+    "catatan": "Area sudah dibersihkan sebagian"
+  }
+}

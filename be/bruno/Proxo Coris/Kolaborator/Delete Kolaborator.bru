@@ -1,0 +1,15 @@
+meta {
+  name: Delete Kolaborator
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/kolaborator/{{kolaborator_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}

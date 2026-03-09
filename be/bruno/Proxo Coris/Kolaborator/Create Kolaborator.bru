@@ -1,0 +1,37 @@
+meta {
+  name: Create Kolaborator
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/kolaborator
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}
+
+body:json {
+  {
+    "nama_organisasi": "Komunitas Test",
+    "jenis_kolaborator_id": "{{ref_jenis_kolaborator_id}}",
+    "deskripsi": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",
+    "email": "test@komunitas.com",
+    "kabupaten_kota": "Kota Bandung",
+    "alamat_lengkap": "Jl. Test No. 1",
+    "latitude": -6.9175,
+    "longitude": 107.6191,
+    "penanggung_jawab": "Test PIC",
+    "kontak": "+6281000000001",
+    "sosmed": "https://instagram.com/test"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("kolaborator_id", res.body.data.id);
+  }
+}

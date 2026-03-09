@@ -1,0 +1,21 @@
+meta {
+  name: Update Aset
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/aset/{{aset_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}
+
+body:json {
+  {
+    "nama_aset": "Bank Sampah Test Updated"
+  }
+}

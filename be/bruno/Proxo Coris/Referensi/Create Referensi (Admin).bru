@@ -1,0 +1,21 @@
+meta {
+  name: Create Referensi (Admin)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/referensi/jenis-kolaborator
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{admin_access_token}}
+}
+
+body:json {
+  {
+    "nama": "Perusahaan"
+  }
+}

@@ -11,7 +11,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app import create_app
 from app.config.environment import TestingConfig
 from app.config.extensions import db
-from app.database.models import User, UserRole
+from app.database.models import (
+    User, UserRole,
+    RefJenisKolaborator, RefKategoriAset, RefJenisSampah,
+    RefKategoriBarang, RefKategoriArtikel,
+    Kolaborator, Aset, LaporanSampahIlegal, Karakteristik, BentukTimbulan,
+    MarketplaceDaurUlang, KondisiBarang,
+)
 from app.utils.password import hash_password
 
 
@@ -19,7 +25,7 @@ from app.utils.password import hash_password
 def app():
     """Create application for testing."""
     app = create_app(TestingConfig)
-    
+
     with app.app_context():
         db.create_all()
         yield app
@@ -38,12 +44,12 @@ def db_session(app):
     with app.app_context():
         connection = db.engine.connect()
         transaction = connection.begin()
-        
+
         # Start a savepoint
         nested = connection.begin_nested()
-        
+
         yield db.session
-        
+
         # Rollback transaction
         if nested.is_active:
             nested.rollback()
@@ -66,11 +72,11 @@ def test_user(app):
         )
         db.session.add(user)
         db.session.commit()
-        
+
         user_id = user.id
-        
+
         yield user
-        
+
         # Cleanup
         db.session.query(User).filter_by(id=user_id).delete()
         db.session.commit()
@@ -91,11 +97,11 @@ def test_admin(app):
         )
         db.session.add(admin)
         db.session.commit()
-        
+
         admin_id = admin.id
-        
+
         yield admin
-        
+
         # Cleanup
         db.session.query(User).filter_by(id=admin_id).delete()
         db.session.commit()
@@ -109,10 +115,10 @@ def auth_headers(client, test_user):
             'email': 'test@example.com',
             'password': 'Test123!'
         })
-        
+
         data = response.get_json()
         token = data['data']['access_token']
-        
+
         return {'Authorization': f'Bearer {token}'}
 
 
@@ -124,8 +130,150 @@ def admin_headers(client, test_admin):
             'email': 'admin@example.com',
             'password': 'Admin123!'
         })
-        
+
         data = response.get_json()
         token = data['data']['access_token']
-        
+
         return {'Authorization': f'Bearer {token}'}
+
+
+# ============================================================
+# REFERENCE TABLE FIXTURES
+# ============================================================
+@pytest.fixture
+def ref_jenis_kolaborator(app):
+    """Create a test jenis kolaborator reference."""
+    with app.app_context():
+        ref = RefJenisKolaborator(nama="Komunitas")
+        db.session.add(ref)
+        db.session.commit()
+        ref_id = ref.id
+        yield ref
+        db.session.query(RefJenisKolaborator).filter_by(id=ref_id).delete()
+        db.session.commit()
+
+
+@pytest.fixture
+def ref_kategori_aset(app):
+    """Create a test kategori aset reference."""
+    with app.app_context():
+        ref = RefKategoriAset(nama="Bank Sampah")
+        db.session.add(ref)
+        db.session.commit()
+        ref_id = ref.id
+        yield ref
+        db.session.query(RefKategoriAset).filter_by(id=ref_id).delete()
+        db.session.commit()
+
+
+@pytest.fixture
+def ref_jenis_sampah(app):
+    """Create a test jenis sampah reference."""
+    with app.app_context():
+        ref = RefJenisSampah(nama="Plastik")
+        db.session.add(ref)
+        db.session.commit()
+        ref_id = ref.id
+        yield ref
+        db.session.query(RefJenisSampah).filter_by(id=ref_id).delete()
+        db.session.commit()
+
+
+@pytest.fixture
+def ref_kategori_barang(app):
+    """Create a test kategori barang reference."""
+    with app.app_context():
+        ref = RefKategoriBarang(nama="Plastik")
+        db.session.add(ref)
+        db.session.commit()
+        ref_id = ref.id
+        yield ref
+        db.session.query(RefKategoriBarang).filter_by(id=ref_id).delete()
+        db.session.commit()
+
+
+# ============================================================
+# ENTITY FIXTURES
+# ============================================================
+@pytest.fixture
+def test_kolaborator(app, test_user, ref_jenis_kolaborator):
+    """Create a test kolaborator owned by test_user."""
+    with app.app_context():
+        item = Kolaborator(
+            id_user=test_user.id,
+            nama_organisasi="Test Kolaborator",
+            jenis_kolaborator_id=ref_jenis_kolaborator.id,
+            deskripsi="A" * 500,
+            kabupaten_kota="Kota Bandung",
+            penanggung_jawab="PIC Test",
+            kontak="+6281000000001",
+        )
+        db.session.add(item)
+        db.session.commit()
+        item_id = item.id
+        yield item
+        db.session.query(Kolaborator).filter_by(id=item_id).delete()
+        db.session.commit()
+
+
+@pytest.fixture
+def test_aset(app, test_user, ref_kategori_aset):
+    """Create a test aset owned by test_user."""
+    with app.app_context():
+        item = Aset(
+            id_user=test_user.id,
+            nama_aset="Test Bank Sampah",
+            kategori_aset_id=ref_kategori_aset.id,
+            kabupaten_kota="Kota Bandung",
+            penanggung_jawab="PIC Test",
+            kontak="+6281000000001",
+        )
+        db.session.add(item)
+        db.session.commit()
+        item_id = item.id
+        yield item
+        db.session.query(Aset).filter_by(id=item_id).delete()
+        db.session.commit()
+
+
+@pytest.fixture
+def test_laporan(app, test_user, ref_jenis_sampah):
+    """Create a test laporan owned by test_user."""
+    with app.app_context():
+        item = LaporanSampahIlegal(
+            id_warga=test_user.id,
+            jenis_sampah_id=ref_jenis_sampah.id,
+            alamat_lokasi="Jl. Test No. 1",
+            latitude=-6.9200,
+            longitude=107.6100,
+            estimasi_berat_kg=25.0,
+            karakteristik=Karakteristik.BISA_DIDAUR_ULANG,
+            bentuk_timbulan=BentukTimbulan.MENUMPUK,
+        )
+        db.session.add(item)
+        db.session.commit()
+        item_id = item.id
+        yield item
+        db.session.query(LaporanSampahIlegal).filter_by(id=item_id).delete()
+        db.session.commit()
+
+
+@pytest.fixture
+def test_marketplace_item(app, test_user, ref_kategori_barang):
+    """Create a test marketplace item owned by test_user."""
+    with app.app_context():
+        item = MarketplaceDaurUlang(
+            id_penjual=test_user.id,
+            nama_barang="Botol Test",
+            kategori_barang_id=ref_kategori_barang.id,
+            deskripsi_barang="Botol bekas test",
+            harga=10000,
+            berat_estimasi_kg=3.0,
+            kondisi=KondisiBarang.LAYAK_PAKAI,
+        )
+        db.session.add(item)
+        db.session.commit()
+        item_id = item.id
+        yield item
+        db.session.query(MarketplaceDaurUlang).filter_by(id=item_id).delete()
+        db.session.commit()

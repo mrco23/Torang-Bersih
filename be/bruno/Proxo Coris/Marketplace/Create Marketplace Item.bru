@@ -1,0 +1,35 @@
+meta {
+  name: Create Marketplace Item
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/marketplace
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}
+
+body:json {
+  {
+    "nama_barang": "Botol Plastik Bekas",
+    "kategori_barang_id": "{{ref_kategori_barang_id}}",
+    "deskripsi_barang": "Botol plastik bekas air mineral, sudah dicuci",
+    "harga": 10000,
+    "berat_estimasi_kg": 3.0,
+    "kondisi": "layak_pakai",
+    "foto_barang_urls": ["https://placehold.co/600x400?text=Botol+Plastik"],
+    "latitude": -6.9175,
+    "longitude": 107.6191
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("marketplace_id", res.body.data.id);
+  }
+}

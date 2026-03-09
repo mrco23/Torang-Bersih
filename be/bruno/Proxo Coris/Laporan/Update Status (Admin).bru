@@ -1,0 +1,21 @@
+meta {
+  name: Update Status (Admin)
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{base_url}}/laporan/{{laporan_id}}/status
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{admin_access_token}}
+}
+
+body:json {
+  {
+    "status_laporan": "diterima"
+  }
+}

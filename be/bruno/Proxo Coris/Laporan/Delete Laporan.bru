@@ -1,0 +1,15 @@
+meta {
+  name: Delete Laporan
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{base_url}}/laporan/{{laporan_id}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}

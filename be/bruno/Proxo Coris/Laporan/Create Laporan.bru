@@ -1,0 +1,34 @@
+meta {
+  name: Create Laporan
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/laporan
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{user_access_token}}
+}
+
+body:json {
+  {
+    "jenis_sampah_id": "{{ref_jenis_sampah_id}}",
+    "foto_bukti_urls": ["https://placehold.co/600x400?text=Bukti"],
+    "latitude": -6.9200,
+    "longitude": 107.6100,
+    "alamat_lokasi": "Pinggir Sungai dekat Jembatan",
+    "estimasi_berat_kg": 25.0,
+    "karakteristik": "bisa_didaur_ulang",
+    "bentuk_timbulan": "menumpuk"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("laporan_id", res.body.data.id);
+  }
+}
