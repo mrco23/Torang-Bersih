@@ -17,6 +17,7 @@ def get_env(key, default=None, cast=str):
 
 class Config:
     PORT = get_env('PORT', 5000, int)
+    HOST = get_env('HOST', '127.0.0.1')
     # Flask
     SECRET_KEY = get_env('SECRET_KEY', 'dev-secret-key-change-in-production')
     
@@ -32,6 +33,9 @@ class Config:
     JWT_TOKEN_LOCATION = ['headers']
     JWT_HEADER_NAME = 'Authorization'
     JWT_HEADER_TYPE = 'Bearer'
+    
+    # Frontend
+    FRONTEND_URL = get_env('FRONTEND_URL', 'http://localhost:5173')
     
     # CORS
     CORS_ORIGINS = get_env('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3000').split(',')
@@ -50,12 +54,8 @@ class Config:
     CLOUDINARY_API_KEY = get_env('CLOUDINARY_API_KEY')
     CLOUDINARY_API_SECRET = get_env('CLOUDINARY_API_SECRET')
 
-    # Google OAuth
-    GOOGLE_CLIENT_ID = get_env('GOOGLE_CLIENT_ID')
-    GOOGLE_CLIENT_SECRET = get_env('GOOGLE_CLIENT_SECRET')
-    
     # Rate Limiting
-    RATELIMIT_DEFAULT = "200/day;50/hour"
+    RATELIMIT_DEFAULT = "10000/day;1000/hour;100/minute"
     RATELIMIT_STORAGE_URI = "memory://"
     RATELIMIT_STRATEGY = "fixed-window"
     RATELIMIT_HEADERS_ENABLED = True
@@ -69,7 +69,7 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = False
-    RATELIMIT_DEFAULT = "100/day;20/hour"
+    RATELIMIT_DEFAULT = "10000/day;1000/hour;100/minute"
 
 
 class TestingConfig(Config):

@@ -1,5 +1,6 @@
 """Flask application factory"""
-from flask import Flask, jsonify
+import os
+from flask import Flask, jsonify, send_from_directory
 
 from app.config.environment import get_config
 from app.config.extensions import db, migrate, jwt, mail, cors, limiter
@@ -19,7 +20,12 @@ def create_app(config_class=None):
     register_error_handlers(app)
     register_jwt_callbacks(app, jwt)
     register_request_logger(app)
-    
+
+    @app.route('/') #html page
+    def index():
+        docs_dir = os.path.join(app.root_path, '..', 'docs')
+        return send_from_directory(docs_dir, 'API.html')
+
     @app.route('/health')
     def health():
         return jsonify({'success': True, 'message': 'OK'}), 200
