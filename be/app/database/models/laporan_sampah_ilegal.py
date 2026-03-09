@@ -7,16 +7,6 @@ from sqlalchemy import Enum
 from app.config.extensions import db
 
 
-class JenisSampah(PyEnum):
-    ORGANIK = 'organik'
-    PLASTIK = 'plastik'
-    KACA = 'kaca'
-    LOGAM = 'logam'
-    TEKSTIL = 'tekstil'
-    B3 = 'b3'
-    CAMPURAN = 'campuran'
-
-
 class Karakteristik(PyEnum):
     BISA_DIDAUR_ULANG = 'bisa_didaur_ulang'
     RESIDU = 'residu'
@@ -48,7 +38,7 @@ class LaporanSampahIlegal(db.Model):
     alamat_lokasi = db.Column(db.Text)
 
     # Detail sampah
-    jenis_sampah = db.Column(Enum(JenisSampah), nullable=False)
+    jenis_sampah_id = db.Column(db.String(36), db.ForeignKey('ref_jenis_sampah.id'), nullable=False, index=True)
     estimasi_berat_kg = db.Column(db.Float)
     karakteristik = db.Column(Enum(Karakteristik))
     bentuk_timbulan = db.Column(Enum(BentukTimbulan))
@@ -72,7 +62,7 @@ class LaporanSampahIlegal(db.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'alamat_lokasi': self.alamat_lokasi,
-            'jenis_sampah': self.jenis_sampah.value if self.jenis_sampah else None,
+            'jenis_sampah': self.jenis_sampah_ref.to_dict() if self.jenis_sampah_ref else None,
             'estimasi_berat_kg': self.estimasi_berat_kg,
             'karakteristik': self.karakteristik.value if self.karakteristik else None,
             'bentuk_timbulan': self.bentuk_timbulan.value if self.bentuk_timbulan else None,

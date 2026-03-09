@@ -7,14 +7,6 @@ from sqlalchemy import Enum
 from app.config.extensions import db
 
 
-class KategoriBarang(PyEnum):
-    PLASTIK = 'plastik'
-    KACA = 'kaca'
-    LOGAM = 'logam'
-    KERTAS = 'kertas'
-    ELEKTRONIK = 'elektronik'
-
-
 class KondisiBarang(PyEnum):
     LAYAK_PAKAI = 'layak_pakai'
     BUTUH_PERBAIKAN = 'butuh_perbaikan'
@@ -34,7 +26,7 @@ class MarketplaceDaurUlang(db.Model):
     id_penjual = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False, index=True)
 
     nama_barang = db.Column(db.String(150), nullable=False)
-    kategori_barang = db.Column(Enum(KategoriBarang), nullable=False)
+    kategori_barang_id = db.Column(db.String(36), db.ForeignKey('ref_kategori_barang.id'), nullable=False, index=True)
     deskripsi_barang = db.Column(db.Text)
     harga = db.Column(db.Integer, default=0)
     berat_estimasi_kg = db.Column(db.Float)
@@ -58,7 +50,7 @@ class MarketplaceDaurUlang(db.Model):
             'id': self.id,
             'id_penjual': self.id_penjual,
             'nama_barang': self.nama_barang,
-            'kategori_barang': self.kategori_barang.value if self.kategori_barang else None,
+            'kategori_barang': self.kategori_ref.to_dict() if self.kategori_ref else None,
             'deskripsi_barang': self.deskripsi_barang,
             'harga': self.harga,
             'berat_estimasi_kg': self.berat_estimasi_kg,

@@ -1,18 +1,8 @@
 """Kolaborator database model"""
 import uuid
 from datetime import datetime, timezone
-from enum import Enum as PyEnum
-from sqlalchemy import Enum
 
 from app.config.extensions import db
-
-
-class JenisKolaborator(PyEnum):
-    KOMUNITAS = 'komunitas'
-    LSM = 'lsm'
-    SEKOLAH = 'sekolah'
-    INSTANSI = 'instansi'
-    CSR = 'csr'
 
 
 class Kolaborator(db.Model):
@@ -20,9 +10,9 @@ class Kolaborator(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     id_user = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False, index=True)
-
+    
     nama_organisasi = db.Column(db.String(100), nullable=False)
-    jenis_kolaborator = db.Column(Enum(JenisKolaborator), nullable=False)
+    jenis_kolaborator_id = db.Column(db.String(36), db.ForeignKey('ref_jenis_kolaborator.id'), nullable=False, index=True)
     deskripsi = db.Column(db.Text)
     logo_url = db.Column(db.String(500))
     email = db.Column(db.String(100))
@@ -51,7 +41,7 @@ class Kolaborator(db.Model):
             'id': self.id,
             'id_user': self.id_user,
             'nama_organisasi': self.nama_organisasi,
-            'jenis_kolaborator': self.jenis_kolaborator.value if self.jenis_kolaborator else None,
+            'jenis_kolaborator': self.jenis_ref.to_dict() if self.jenis_ref else None,
             'deskripsi': self.deskripsi,
             'logo_url': self.logo_url,
             'email': self.email,

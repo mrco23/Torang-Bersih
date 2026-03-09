@@ -7,13 +7,6 @@ from sqlalchemy import Enum, UniqueConstraint
 from app.config.extensions import db
 
 
-class KategoriArtikel(PyEnum):
-    EDUKASI = 'edukasi'
-    BERITA = 'berita'
-    EVENT = 'event'
-    OPINI = 'opini'
-
-
 class StatusPublikasi(PyEnum):
     DRAFT = 'draft'
     PUBLISHED = 'published'
@@ -33,7 +26,7 @@ class Artikel(db.Model):
 
     judul_artikel = db.Column(db.String(255), nullable=False)
     slug = db.Column(db.String(255), unique=True, nullable=False, index=True)
-    kategori = db.Column(Enum(KategoriArtikel), nullable=False)
+    kategori_id = db.Column(db.String(36), db.ForeignKey('ref_kategori_artikel.id'), nullable=False, index=True)
     konten_teks = db.Column(db.Text)
     foto_cover_url = db.Column(db.String(500))
     status_publikasi = db.Column(Enum(StatusPublikasi), default=StatusPublikasi.DRAFT, nullable=False)
@@ -56,7 +49,7 @@ class Artikel(db.Model):
             'id_penulis': self.id_penulis,
             'judul_artikel': self.judul_artikel,
             'slug': self.slug,
-            'kategori': self.kategori.value if self.kategori else None,
+            'kategori': self.kategori_ref.to_dict() if self.kategori_ref else None,
             'foto_cover_url': self.foto_cover_url,
             'status_publikasi': self.status_publikasi.value if self.status_publikasi else None,
             'jumlah_views': self.jumlah_views,

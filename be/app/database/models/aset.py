@@ -1,18 +1,8 @@
 """Aset database model"""
 import uuid
 from datetime import datetime, timezone
-from enum import Enum as PyEnum
-from sqlalchemy import Enum
 
 from app.config.extensions import db
-
-
-class KategoriAset(PyEnum):
-    BANK_SAMPAH = 'bank_sampah'
-    TPA = 'tpa'
-    COMPOSTING = 'composting'
-    KENDARAAN = 'kendaraan'
-    TPST = 'tpst'
 
 
 class Aset(db.Model):
@@ -22,7 +12,7 @@ class Aset(db.Model):
     id_user = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False, index=True)
 
     nama_aset = db.Column(db.String(200), nullable=False)
-    kategori_aset = db.Column(Enum(KategoriAset), nullable=False)
+    kategori_aset_id = db.Column(db.String(36), db.ForeignKey('ref_kategori_aset.id'), nullable=False, index=True)
     status_aktif = db.Column(db.Boolean, default=True, nullable=False)
 
     # Lokasi
@@ -48,7 +38,7 @@ class Aset(db.Model):
             'id': self.id,
             'id_user': self.id_user,
             'nama_aset': self.nama_aset,
-            'kategori_aset': self.kategori_aset.value if self.kategori_aset else None,
+            'kategori_aset': self.kategori_ref.to_dict() if self.kategori_ref else None,
             'status_aktif': self.status_aktif,
             'kabupaten_kota': self.kabupaten_kota,
             'alamat_lengkap': self.alamat_lengkap,
