@@ -53,7 +53,6 @@ button {
   cursor: pointer;
 }
 
-/* Animasi berputar yang lebih lambat dan elegan */
 @keyframes customSpin {
   from {
     transform: rotate(0deg);
@@ -64,21 +63,18 @@ button {
 }
 
 .custom-spin {
-  /* Angka 20s berarti butuh 20 detik untuk 1 putaran penuh. Ubah sesuai selera (misal 10s atau 30s) */
-  animation: customSpin 20s linear infinite; 
+  animation: customSpin 20s linear infinite;
 }
 
-/* Menghentikan animasi saat di-hover */
 .custom-pause {
   animation-play-state: paused;
 }
-/* Animasi mengambang/bergeser perlahan seperti di video Stripe */
+
 @keyframes smoothDrift {
   0% {
     transform: translate(0px, 0px);
   }
   50% {
-    /* Bergeser ke arah kiri atas perlahan */
     transform: translate(-40px, -30px);
   }
   100% {
@@ -87,11 +83,23 @@ button {
 }
 
 .custom-drift {
-  /* Durasi 15 detik agar sangat lambat dan halus */
   animation: smoothDrift 15s ease-in-out infinite;
 }
 
-/* Untuk menghentikan pergeseran saat kursor diarahkan */
 .custom-pause {
   animation-play-state: paused;
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+.leaflet-popup-tip-container {
+  display: none !important;
 }

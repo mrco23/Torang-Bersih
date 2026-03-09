@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // Tambahkan ini
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -18,6 +19,8 @@ const customMarkerIcon = new L.divIcon({
 });
 
 const DetailKolaborator = () => {
+  const navigate = useNavigate(); // Inisialisasi navigate
+
   // DATA DUMMY REALISTIS
   const kolaborator = {
     id: 1,
@@ -40,10 +43,24 @@ const DetailKolaborator = () => {
     status_verifikasi: true,
   };
 
-  return (
-    <div className="min-h-dvh bg-[#F8FAFC] pt-34 pb-24  selection:bg-(--gray-shine) selection:text-(--primary)">
-      <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-8">
+  // Fungsi Navigasi ke Halaman Peta
+  const handleGoToMap = () => {
+    navigate("/peta", {
+      state: {
+        targetLocation: {
+          lat: kolaborator.latitude,
+          lng: kolaborator.longitude,
+          name: kolaborator.nama_organisasi,
+          type: "Kolaborator",
+          status: kolaborator.jenis_kolaborator,
+        },
+      },
+    });
+  };
 
+  return (
+    <div className="min-h-dvh bg-[#F8FAFC] pt-34 pb-24 selection:bg-(--gray-shine) selection:text-(--primary)">
+      <div className="mx-auto max-w-[1160px] px-4 sm:px-6 lg:px-8">
         <div className="relative mb-10 md:mb-16">
           <div className="relative h-48 w-full overflow-hidden rounded-3xl bg-gray-200 ring-1 ring-gray-900/5 sm:h-64">
             <img
@@ -130,7 +147,6 @@ const DetailKolaborator = () => {
               </div>
             </div>
 
-            {/* DESKRIPSI (Typography Clean) */}
             <div>
               <h2 className="mb-4 text-xl font-extrabold text-gray-900">
                 Tentang Kolaborator
@@ -144,14 +160,13 @@ const DetailKolaborator = () => {
               </div>
             </div>
 
-           
             <div>
               <h2 className="mb-4 text-xl font-extrabold text-gray-900">
                 Titik Operasional
               </h2>
 
-              <div className="overflow-hidden w-268 rounded-3xl bg-white shadow-sm ring-1 ring-gray-900/5">
-                <div className="relative z-0 h-[320px]  bg-gray-100">
+              <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-gray-900/5">
+                <div className="relative z-0 h-[320px] bg-gray-100">
                   <MapContainer
                     center={[kolaborator.latitude, kolaborator.longitude]}
                     zoom={14}
@@ -163,7 +178,7 @@ const DetailKolaborator = () => {
                       position={[kolaborator.latitude, kolaborator.longitude]}
                       icon={customMarkerIcon}
                     >
-                      <Popup className="rounded-xl border-none  shadow-xl">
+                      <Popup className="rounded-xl border-none shadow-xl">
                         <strong className="text-gray-900">
                           {kolaborator.nama_organisasi}
                         </strong>
@@ -204,7 +219,6 @@ const DetailKolaborator = () => {
             </div>
           </div>
 
-          {/* ---- KOLOM KANAN (STICKY ACTION CARD) ---- */}
           <div className="relative z-10 lg:col-span-4">
             <div className="sticky top-28 overflow-hidden rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-gray-200/40 ring-gray-900/5 sm:p-8">
               <h3 className="mb-2 text-lg font-extrabold text-gray-900">
@@ -232,8 +246,30 @@ const DetailKolaborator = () => {
                   Chat via WhatsApp
                 </a>
 
-                <button className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-white py-4 text-sm font-bold text-gray-700 ring-1 ring-gray-200 transition-all ring-inset hover:bg-gray-50 active:scale-[0.98]">
-                  Bagikan Profil
+                {/* TOMBOL LIHAT LOKASI DI PETA */}
+                <button
+                  onClick={handleGoToMap}
+                  className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-white py-4 text-sm font-bold text-gray-700 ring-1 ring-gray-200 transition-all ring-inset hover:bg-gray-50 active:scale-[0.98]"
+                >
+                  <svg
+                    className="size-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  Lihat Lokasi di Peta
                 </button>
               </div>
 

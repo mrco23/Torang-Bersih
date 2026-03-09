@@ -1,6 +1,26 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import untuk navigasi
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Custom Marker Icon menggunakan warna --primary
+const customMarkerIcon = new L.divIcon({
+  className: "bg-transparent",
+  html: `
+    <div class="relative flex items-center justify-center size-10">
+      <div class="absolute size-full bg-[var(--primary)] rounded-full animate-ping opacity-40"></div>
+      <div class="relative size-6 bg-[var(--primary)] border-2 border-white rounded-full shadow-md z-10"></div>
+    </div>
+  `,
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+  popupAnchor: [0, -20],
+});
 
 const BarangBekasDetailPage = () => {
+  const navigate = useNavigate();
+
   const product = {
     id: 1,
     id_penjual: 101,
@@ -20,7 +40,6 @@ const BarangBekasDetailPage = () => {
     longitude: 124.8385,
     status_ketersediaan: "Tersedia",
     penjual_nama: "Bank Sampah Melati",
-    // Avatar disesuaikan dengan warna --primary (1e1f78)
     penjual_avatar:
       "https://ui-avatars.com/api/?name=Bank+Sampah+Melati&background=1e1f78&color=fff",
     penjual_bergabung: "Okt 2025",
@@ -28,6 +47,21 @@ const BarangBekasDetailPage = () => {
   };
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Fungsi untuk pindah ke halaman peta
+  const handleGoToMap = () => {
+    navigate("/peta", {
+      state: {
+        targetLocation: {
+          lat: product.latitude,
+          lng: product.longitude,
+          name: product.nama_barang,
+          type: "Barang Daur Ulang",
+          status: product.status_ketersediaan,
+        },
+      },
+    });
+  };
 
   const formatHarga = (harga) => {
     if (harga === 0)
@@ -40,12 +74,11 @@ const BarangBekasDetailPage = () => {
   };
 
   const getKondisiColor = (kondisi) => {
-    // Memanfaatkan --gray-shine dan --primary untuk kondisi Layak Pakai
     switch (kondisi) {
       case "Layak Pakai":
         return "bg-[var(--gray-shine)] text-[var(--primary)] ring-1 ring-[var(--primary)]/20";
       case "Butuh Perbaikan":
-        return "bg-orange-50 text-orange-700 ring-1 ring-orange-200"; // Tetap semantic orange untuk peringatan
+        return "bg-orange-50 text-orange-700 ring-1 ring-orange-200";
       case "Rongsokan":
         return "bg-gray-50 text-[var(--gray)] ring-1 ring-gray-200";
       default:
@@ -56,8 +89,8 @@ const BarangBekasDetailPage = () => {
   return (
     <div className="min-h-screen bg-white pt-28 pb-24 selection:bg-[var(--gray-shine)] selection:text-[var(--primary)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* MAIN GRID */}
         <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12">
+          {/* KOLOM KIRI: GALERI FOTO */}
           <div className="flex flex-col gap-4 lg:col-span-5">
             <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-[var(--gray-shine)] sm:aspect-square">
               {product.status_ketersediaan === "Terjual" && (
@@ -74,18 +107,13 @@ const BarangBekasDetailPage = () => {
               />
             </div>
 
-            {/* Thumbnails */}
             {product.foto_barang_urls.length > 1 && (
               <div className="scrollbar-hide flex gap-4 overflow-x-auto px-1 py-2">
                 {product.foto_barang_urls.map((url, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`h-20 w-20 shrink-0 overflow-hidden rounded-2xl transition-all duration-300 ${
-                      activeImageIndex === idx
-                        ? "opacity-100 shadow-md ring-2 ring-[var(--primary)] ring-offset-2"
-                        : "opacity-60 ring-1 ring-gray-200 hover:opacity-100 hover:ring-[var(--gray-light)]"
-                    }`}
+                    className={`h-20 w-20 shrink-0 overflow-hidden rounded-2xl transition-all duration-300 ${activeImageIndex === idx ? "opacity-100 shadow-md ring-2 ring-[var(--primary)] ring-offset-2" : "opacity-60 ring-1 ring-gray-200 hover:opacity-100"}`}
                   >
                     <img
                       src={url}
@@ -98,8 +126,8 @@ const BarangBekasDetailPage = () => {
             )}
           </div>
 
+          {/* KOLOM TENGAH: INFO BARANG */}
           <div className="flex flex-col pt-2 lg:col-span-4">
-            {/* Judul & Badge Kategori */}
             <div className="mb-6">
               <span className="mb-3 block text-xs font-bold tracking-widest text-[var(--accent)] uppercase">
                 Kategori {product.kategori_barang}
@@ -109,7 +137,6 @@ const BarangBekasDetailPage = () => {
               </h1>
             </div>
 
-            {/* Harga Utama */}
             <div className="mb-8">
               <p className="mb-1 text-sm font-medium text-[var(--gray)]">
                 Harga Barang
@@ -119,7 +146,6 @@ const BarangBekasDetailPage = () => {
               </div>
             </div>
 
-            {/* Spesifikasi Badges */}
             <div className="mb-8 flex flex-wrap gap-3">
               <span
                 className={`rounded-xl px-4 py-2 text-xs font-bold tracking-wide uppercase ${getKondisiColor(product.kondisi)}`}
@@ -127,40 +153,53 @@ const BarangBekasDetailPage = () => {
                 Kondisi: {product.kondisi}
               </span>
               <span className="flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-[var(--dark-text)] shadow-sm ring-1 ring-gray-200">
-                <svg
-                  className="h-4 w-4 text-[var(--gray-light)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
-                  ></path>
-                </svg>
                 Estimasi {product.berat_estimasi_kg} kg
               </span>
             </div>
 
             <hr className="mb-8 border-gray-100" />
 
-            {/* Deskripsi */}
             <div className="mb-10">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--dark)]">
+              <h3 className="mb-4 text-lg font-bold text-[var(--dark)]">
                 Deskripsi
               </h3>
               <p className="text-[15px] leading-relaxed whitespace-pre-line text-[var(--gray-muted)]">
                 {product.deskripsi_barang}
               </p>
             </div>
+
+            {/* PETA MINI (PREVIEW) */}
+            <div className="mb-10 border-t border-gray-100 pt-4">
+              <h3 className="mb-4 text-lg font-bold text-balance text-[var(--dark)]">
+                Lokasi Barang (Titik COD)
+              </h3>
+              <div className="relative z-0 h-64 w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-inner">
+                <MapContainer
+                  center={[product.latitude, product.longitude]}
+                  zoom={15}
+                  scrollWheelZoom={false}
+                  style={{ height: "100%", width: "100%" }}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <Marker
+                    position={[product.latitude, product.longitude]}
+                    icon={customMarkerIcon}
+                  >
+                    <Popup>
+                      <b>{product.penjual_nama}</b>
+                      <br />
+                      {product.lokasi_cod}
+                    </Popup>
+                  </Marker>
+                </MapContainer>
+              </div>
+            </div>
           </div>
 
+          {/* KOLOM KANAN: CARD PENJUAL & AKSI */}
           <div className="lg:col-span-3">
             <div className="sticky top-32">
-              <div className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-                {/* Penjual */}
+              <div className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-gray-900/5">
                 <h3 className="mb-4 text-xs font-bold tracking-widest text-[var(--gray-placeholder)] uppercase">
                   Informasi Penjual
                 </h3>
@@ -181,8 +220,7 @@ const BarangBekasDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Lokasi COD */}
-                <div className="mb-6 rounded-2xl bg-[var(--gray-shine)] p-4">
+                <div className="mb-6 rounded-2xl border border-[var(--primary)]/5 bg-[var(--gray-shine)] p-4">
                   <div className="flex items-start gap-3">
                     <div className="rounded-full bg-white p-2 text-[var(--primary)] shadow-sm">
                       <svg
@@ -216,7 +254,6 @@ const BarangBekasDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Tombol Aksi */}
                 {product.status_ketersediaan === "Terjual" ? (
                   <button
                     disabled
@@ -226,26 +263,33 @@ const BarangBekasDetailPage = () => {
                   </button>
                 ) : (
                   <div className="space-y-3">
-                    {/* Tombol Primary menggunakan --primary */}
-                    <button className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-[var(--primary-dark)]">
+                    {/* TOMBOL UTAMA: NAVIGASI KE HALAMAN PETA */}
+                    <button
+                      onClick={handleGoToMap}
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--primary)] py-4 font-bold text-white shadow-[var(--primary)]/20 shadow-lg transition-all hover:bg-[var(--primary-dark)] active:scale-95"
+                    >
                       <svg
                         className="h-5 w-5"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="2"
+                        strokeWidth="2.5"
                         viewBox="0 0 24 24"
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      Pesan Barang
+                      Lihat Lokasinya
                     </button>
 
-                    {/* Tombol Secondary menggunakan --accent */}
-                    <button className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] py-3.5 font-bold text-white shadow-md transition-all hover:bg-[var(--accent-dark)]">
+                    <button className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] py-3.5 font-bold text-white shadow-md transition-all hover:bg-[var(--accent-dark)] active:scale-95">
                       <svg
                         className="h-5 w-5"
                         fill="currentColor"
