@@ -64,13 +64,14 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = False
+    ENVIRONMENT = 'Development'
 
 
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = False
     RATELIMIT_DEFAULT = "10000/day;1000/hour;100/minute"
-
+    ENVIRONMENT = 'Production'
 
 class TestingConfig(Config):
     TESTING = True

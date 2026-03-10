@@ -84,7 +84,9 @@ flask db upgrade
 ### 5. Run Server
 
 ```bash
-python server.py
+python server.py # Development
+
+gunicorn server:app --bind 0.0.0.0:5000 # Production
 ```
 
 Server akan berjalan sesuai dengan host dan port yang ditentukan di `.env`
