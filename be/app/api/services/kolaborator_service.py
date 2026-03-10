@@ -3,7 +3,7 @@ from sqlalchemy import or_
 
 from app.config.extensions import db
 from app.database.models import Kolaborator, RefJenisKolaborator
-from app.utils.exceptions import NotFoundError, ForbiddenError
+from app.utils.exceptions import NotFoundError, ForbiddenError, BadRequestError
 
 
 class KolaboratorService:
@@ -90,6 +90,25 @@ class KolaboratorService:
 
         db.session.delete(item)
         db.session.commit()
+
+    @staticmethod
+    def verify(item_id):
+        item = db.session.get(Kolaborator, item_id)
+        if not item:
+            raise NotFoundError("Kolaborator tidak ditemukan")
+
+        if item.status_verifikasi:
+            raise BadRequestError("Kolaborator sudah diverifikasi sebelumnya")
+
+        item.status_verifikasi = True
+        db.session.commit()
+
+        # Send email notification
+        recipient_email = item.email if item.email else item.user.email
+        from app.lib.mailer import send_kolaborator_verified_email
+        send_kolaborator_verified_email(to=recipient_email, kolaborator=item)
+
+        return item
 
     @staticmethod
     def get_my_kolaborator(user_id, page=1, per_page=20, search=None, jenis_kolaborator_id=None,

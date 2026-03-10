@@ -6,7 +6,7 @@ from app.api.services.kolaborator_service import KolaboratorService
 from app.schemas.kolaborator_schema import (
     KolaboratorCreateSchema, KolaboratorUpdateSchema, KolaboratorQuerySchema
 )
-from app.middlewares.auth_middleware import jwt_required_custom, optional_jwt
+from app.middlewares.auth_middleware import jwt_required_custom, optional_jwt, admin_required
 from app.utils.response import success_response, error_response, paginated_response
 
 
@@ -82,6 +82,12 @@ def update(item_id):
 def delete(item_id):
     KolaboratorService.delete(item_id, request.current_user)
     return success_response(message="Kolaborator berhasil dihapus")
+
+
+@admin_required
+def verify(item_id):
+    item = KolaboratorService.verify(item_id)
+    return success_response(data=item.to_dict(), message="Kolaborator berhasil diverifikasi")
 
 
 @jwt_required_custom
