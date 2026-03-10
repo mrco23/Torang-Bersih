@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Vektor from "../../../public/images/DaftarKolabolatorVektor.png";
 import toaster from "../../utils/toaster";
+import { kolaboratorAPI } from "../../services/api/routes/kolaborator.route";
+import { referensiAPI } from "../../services/api/routes/referensi.route";
 
 import StepProfilOrganisasi from "../../components/features/public/kolaborator/RegisterKolabolator/StepProfilOrganisasi";
 import StepLokasiOperasional from "../../components/features/public/kolaborator/RegisterKolabolator/StepLokasiOperasional";
@@ -11,20 +13,39 @@ const RegisterKolaborator = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
 
+  const [jenisOptions, setJenisOptions] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Logo file (to be uploaded separately as formdata blob)
+  const [logoFile, setLogoFile] = useState(null);
+
   const [formData, setFormData] = useState({
     nama_organisasi: "",
-    jenis_kolaborator: "",
+    jenis_kolaborator_id: "",
     deskripsi: "",
-    logo_url: "",
     kabupaten_kota: "",
     alamat_lengkap: "",
-    gmaps_url: "",
     latitude: 1.4748,
     longitude: 124.8421,
-    nama_pic: "",
-    no_whatsapp: "",
+    penanggung_jawab: "",
+    kontak: "",
     email: "",
+    sosmed: "",
   });
+
+  useEffect(() => {
+    const fetchJenis = async () => {
+      try {
+        const res = await referensiAPI.getAll("jenis-kolaborator");
+        setJenisOptions(res.data.data);
+      } catch (err) {
+        toaster.error(
+          `${err.response.data.message || "Gagal memuat opsi kategori kolaborator"}`,
+        );
+      }
+    };
+    fetchJenis();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,11 +56,12 @@ const RegisterKolaborator = () => {
     if (currentStep === 1) {
       if (
         !formData.nama_organisasi ||
-        !formData.jenis_kolaborator ||
-        !formData.deskripsi
+        !formData.jenis_kolaborator_id ||
+        !formData.deskripsi ||
+        formData.deskripsi.length < 50
       ) {
         return toaster.warning(
-          "Mohon lengkapi semua bidang pada Profil Organisasi.",
+          "Mohon lengkapi semua bidang wajib pada Profil Organisasi dan pastikan deskripsi minimal 50 karakter.",
         );
       }
     }
@@ -55,49 +77,31 @@ const RegisterKolaborator = () => {
 
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (e) e.preventDefault();
 
-    if (!formData.nama_pic || !formData.no_whatsapp || !formData.email) {
-      toaster.warning("Mohon lengkapi semua bidang kontak sebelum mendaftar.");
+    if (!formData.penanggung_jawab || !formData.kontak || !formData.email) {
+      toaster.warning(
+        "Mohon lengkapi nama kontak, No WA, dan email kontak sebelum mendaftar.",
+      );
       return;
     }
 
-    // ── LOG SEMUA DATA — kirim ke teman BE ──────────────────────
-    console.group("📋 DATA PENDAFTARAN KOLABORATOR");
-
-    console.group("👤 Step 1 — Profil Organisasi");
-    console.log("nama_organisasi  :", formData.nama_organisasi);
-    console.log("jenis_kolaborator:", formData.jenis_kolaborator);
-    console.log("deskripsi        :", formData.deskripsi);
-    console.log("logo_url         :", formData.logo_url || "(tidak diupload)");
-    console.groupEnd();
-
-    console.group("📍 Step 2 — Lokasi & Operasional");
-    console.log("kabupaten_kota   :", formData.kabupaten_kota);
-    console.log("alamat_lengkap   :", formData.alamat_lengkap);
-    console.log("gmaps_url        :", formData.gmaps_url || "(tidak diisi)");
-    console.log("latitude         :", formData.latitude);
-    console.log("longitude        :", formData.longitude);
-    console.groupEnd();
-
-    console.group("📞 Step 3 — Kontak & Verifikasi");
-    console.log("nama_pic         :", formData.nama_pic);
-    console.log("no_whatsapp      :", formData.no_whatsapp);
-    console.log("email            :", formData.email);
-    console.groupEnd();
-
-    console.log("─────────────────────────────────────");
-    console.log("📦 Full object (untuk BE):", formData);
-    console.log(
-      "📦 JSON.stringify        :",
-      JSON.stringify(formData, null, 2),
-    );
-    console.groupEnd();
-    // ────────────────────────────────────────────────────────────
-
-    toaster.success("Pendaftaran Berhasil! Silakan tunggu verifikasi admin.");
-    navigate("/user/kolaborator");
+    setSubmitting(true);
+    try {
+      await kolaboratorAPI.create(formData, logoFile);
+      toaster.success("Pendaftaran Berhasil! Silakan tunggu verifikasi admin.");
+      navigate("/user/kolaborator");
+    } catch (err) {
+      const msg =
+        err.response?.data?.message || "Terjadi kesalahan saat pendaftaran";
+      toaster.error(msg);
+      if (err.response?.status === 422) {
+        console.error("Validation error:", err.response?.data?.errors);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const steps = [
@@ -128,7 +132,7 @@ const RegisterKolaborator = () => {
         Batal Daftar
       </button>
 
-      <div className="relative z-10 mt-10 flex h-[600px] w-full max-w-[1000px] flex-col overflow-hidden rounded-2xl bg-white shadow-lg md:mt-0 md:flex-row">
+      <div className="relative z-10 mt-10 flex h-[650px] w-full max-w-[1000px] flex-col overflow-hidden rounded-2xl bg-white shadow-lg md:mt-0 md:flex-row">
         {/* SIDEBAR KIRI */}
         <div className="relative flex w-full shrink-0 flex-col overflow-hidden bg-[#1e1f78] p-10 text-white md:w-[35%]">
           <div className="relative z-10 mt-6 flex flex-col gap-10">
@@ -168,6 +172,9 @@ const RegisterKolaborator = () => {
               <StepProfilOrganisasi
                 formData={formData}
                 handleChange={handleChange}
+                jenisOptions={jenisOptions}
+                onLogoFileChange={setLogoFile}
+                logoFile={logoFile}
               />
             )}
             {currentStep === 2 && (
@@ -190,15 +197,20 @@ const RegisterKolaborator = () => {
             <button
               type="button"
               onClick={currentStep === 1 ? () => navigate(-1) : handlePrev}
-              className="text-sm font-bold text-gray-900 hover:text-[#1e1f78]"
+              disabled={submitting}
+              className="text-sm font-bold text-gray-900 hover:text-[#1e1f78] disabled:opacity-50"
             >
               Kembali
             </button>
             <button
               type="button"
+              disabled={submitting}
               onClick={currentStep === 3 ? handleSubmit : handleNext}
-              className="rounded bg-[#1e1f78] px-10 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#16175e]"
+              className="flex items-center gap-2 rounded bg-[#1e1f78] px-10 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#16175e] disabled:opacity-70"
             >
+              {submitting && (
+                <div className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              )}
               {currentStep === 3 ? "Daftar" : "Lanjut"}
             </button>
           </div>

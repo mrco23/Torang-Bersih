@@ -10,8 +10,7 @@ const RULES = {
       "Hanya huruf, angka, spasi, dan karakter - & ' . ( ) yang diizinkan.",
   },
   deskripsi: {
-    minLength: 20,
-    maxLength: 500,
+    minLength: 50,
   },
   logo: {
     maxSizeMB: 2,
@@ -55,23 +54,26 @@ const ErrorMsg = ({ msg }) =>
     </p>
   ) : null;
 
-const CharCount = ({ current, max, min }) => {
-  const remaining = max - current;
+const CharCount = ({ current, min }) => {
   const isBelowMin = current < min;
-  const isWarning = !isBelowMin && remaining <= 20;
   return (
     <p
-      className={`mt-1 text-right text-[11px] ${isWarning ? "text-orange-500" : isBelowMin ? "text-gray-400" : "text-gray-400"}`}
+      className={`mt-1 text-right text-[11px] ${isBelowMin ? "text-gray-400" : "text-green-500"}`}
     >
       {isBelowMin
-        ? `Minimal ${min - current} karakter lagi`
-        : `${remaining} karakter tersisa`}
+        ? `${current}/${min} karakter (minimal ${min})`
+        : `${current} karakter ✓`}
     </p>
   );
 };
 
 // ══════════════════════════════════════════════════════════════════
-const StepProfilOrganisasi = ({ formData, handleChange, setFormData }) => {
+const StepProfilOrganisasi = ({
+  formData,
+  handleChange,
+  jenisOptions = [],
+  onLogoFileChange,
+}) => {
   const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
   const [logoPreview, setLogoPreview] = useState(null);
@@ -114,8 +116,8 @@ const StepProfilOrganisasi = ({ formData, handleChange, setFormData }) => {
     reader.onload = (ev) => {
       setLogoPreview(ev.target.result);
       setLogoFileName(file.name);
-      if (setFormData)
-        setFormData((prev) => ({ ...prev, logo_url: ev.target.result }));
+      // Store the actual File object in parent for upload
+      if (onLogoFileChange) onLogoFileChange(file);
     };
     reader.readAsDataURL(file);
   };
@@ -124,14 +126,14 @@ const StepProfilOrganisasi = ({ formData, handleChange, setFormData }) => {
     setLogoPreview(null);
     setLogoFileName(null);
     setLogoError(null);
-    if (setFormData) setFormData((prev) => ({ ...prev, logo_url: "" }));
+    if (onLogoFileChange) onLogoFileChange(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
     <div className="animate-in fade-in space-y-6 duration-300">
       <h2 className="mb-8 text-[22px] font-bold text-gray-900">
-        Profil Kolabolator
+        Profil Kolaborator
       </h2>
 
       {/* Nama Organisasi */}
@@ -155,53 +157,52 @@ const StepProfilOrganisasi = ({ formData, handleChange, setFormData }) => {
         {touched.nama_organisasi && errors.nama_organisasi ? (
           <ErrorMsg msg={errors.nama_organisasi} />
         ) : (
-          <CharCount
-            current={formData.nama_organisasi.length}
-            max={RULES.nama_organisasi.maxLength}
-            min={RULES.nama_organisasi.minLength}
-          />
+          <p className="mt-1 text-right text-[11px] text-gray-400">
+            {formData.nama_organisasi.length}/{RULES.nama_organisasi.maxLength}
+          </p>
         )}
       </div>
 
-      {/* Jenis Kolaborator */}
+      {/* Jenis Kolaborator — dari API */}
       <div>
         <label className="mb-2 block text-[13px] font-bold text-gray-800">
           Termasuk dalam kategori apakah gerakan Anda?
         </label>
         <select
-          name="jenis_kolaborator"
-          value={formData.jenis_kolaborator}
+          name="jenis_kolaborator_id"
+          value={formData.jenis_kolaborator_id}
           onChange={handleLocalChange}
           onBlur={handleBlur}
-          className={`${inputClass(touched.jenis_kolaborator, errors.jenis_kolaborator)} text-gray-600`}
+          className={`${inputClass(touched.jenis_kolaborator_id, errors.jenis_kolaborator_id)} text-gray-600`}
         >
           <option value="" disabled>
             -- Kategori --
           </option>
-          <option value="Komunitas">Komunitas</option>
-          <option value="LSM">LSM</option>
-          <option value="Sekolah">Sekolah / Universitas</option>
-          <option value="Instansi">Instansi Pemerintah</option>
-          <option value="CSR">CSR Perusahaan</option>
+          {jenisOptions.map((j) => (
+            <option key={j.id} value={j.id}>
+              {j.nama}
+            </option>
+          ))}
         </select>
         <ErrorMsg
-          msg={touched.jenis_kolaborator ? errors.jenis_kolaborator : null}
+          msg={
+            touched.jenis_kolaborator_id ? errors.jenis_kolaborator_id : null
+          }
         />
       </div>
 
       {/* Deskripsi */}
       <div>
         <label className="mb-2 block text-[13px] font-bold text-gray-800">
-          Ceritakan singkat fokus utama gerakan persampahan Anda.
+          Ceritakan fokus utama gerakan persampahan Anda.
         </label>
         <textarea
           name="deskripsi"
           value={formData.deskripsi}
           onChange={handleLocalChange}
           onBlur={handleBlur}
-          rows="3"
-          maxLength={RULES.deskripsi.maxLength}
-          placeholder="Minimal 20 karakter..."
+          rows="5"
+          placeholder="Minimal 50 karakter. Ceritakan visi, misi, dan kegiatan utama organisasi Anda..."
           className={`${inputClass(touched.deskripsi, errors.deskripsi)} resize-none`}
         />
         {touched.deskripsi && errors.deskripsi ? (
@@ -209,7 +210,6 @@ const StepProfilOrganisasi = ({ formData, handleChange, setFormData }) => {
         ) : (
           <CharCount
             current={formData.deskripsi.length}
-            max={RULES.deskripsi.maxLength}
             min={RULES.deskripsi.minLength}
           />
         )}

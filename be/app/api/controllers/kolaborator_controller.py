@@ -48,14 +48,40 @@ def get_one(item_id):
 
 @jwt_required_custom
 def create():
+    # Support both JSON and multipart/form-data (for logo upload)
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        raw_data = request.form.to_dict()
+        # Convert numeric strings to proper types
+        if 'latitude' in raw_data and raw_data['latitude']:
+            raw_data['latitude'] = float(raw_data['latitude'])
+        if 'longitude' in raw_data and raw_data['longitude']:
+            raw_data['longitude'] = float(raw_data['longitude'])
+    else:
+        raw_data = request.get_json() or {}
+
     try:
-        data = KolaboratorCreateSchema().load(request.get_json() or {})
+        data = KolaboratorCreateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
             message="Validasi gagal",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Handle logo file upload if present
+    if 'logo' in request.files:
+        logo_file = request.files['logo']
+        if logo_file.filename:
+            from app.lib.cloudinary import upload_image
+            upload_result = upload_image(
+                logo_file,
+                folder="kolaborator_logos",
+                transformation={"width": 400, "height": 400, "crop": "fill"}
+            )
+            if upload_result:
+                data['logo_url'] = upload_result['url']
+            else:
+                return error_response(message="Gagal mengunggah logo", status_code=500)
 
     item = KolaboratorService.create(request.current_user, data)
     return success_response(data=item.to_dict(), message="Kolaborator berhasil didaftarkan", status_code=201)

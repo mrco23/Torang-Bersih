@@ -2,14 +2,14 @@ import React, { useState } from "react";
 
 // ─── Aturan Validasi ───────────────────────────────────────────────
 const RULES = {
-  nama_pic: {
+  penanggung_jawab: {
     minLength: 3,
     maxLength: 80,
     // Hanya huruf, spasi, titik, koma — tidak boleh angka/simbol lain
     pattern: /^[a-zA-ZÀ-ÖØ-öø-ÿ\s'.,-]+$/,
     patternMsg: "Nama hanya boleh berisi huruf, spasi, dan tanda baca dasar.",
   },
-  no_whatsapp: {
+  kontak: {
     // Boleh diawali +62 atau 08, lanjut 8–13 digit
     pattern: /^(\+62|62|0)8[1-9][0-9]{6,11}$/,
     patternMsg: "Format nomor tidak valid. Cth: 08123456789 atau +628123456789",
@@ -20,14 +20,22 @@ const RULES = {
     pattern: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
     patternMsg: "Format email tidak valid. Cth: nama@domain.com",
   },
+  sosmed: {
+    maxLength: 500,
+  },
 };
 
 const validate = (name, value) => {
-  if (!value || !value.trim()) return "Wajib diisi.";
-  const r = RULES[name];
-  if (!r) return null;
+  if (!RULES[name]) return null;
+  // Sosmed and email could be optional, but for email we want valid if filled.
+  // Actually, kontak and penanggung_jawab are also optional in backend, but we make them required in form step to ensure good data.
+  if (name !== "sosmed" && (!value || !value.trim())) return "Wajib diisi.";
 
-  if (name === "no_whatsapp") {
+  if (name === "sosmed" && (!value || !value.trim())) return null;
+
+  const r = RULES[name];
+
+  if (name === "kontak") {
     // Hanya izinkan: angka, +, spasi, strip (untuk keperluan copy-paste)
     const cleaned = value.replace(/[\s\-()]/g, "");
     if (!/^[\d+]+$/.test(cleaned))
@@ -84,7 +92,6 @@ const SuccessIcon = () => (
 const StepKontakVerifikasi = ({ formData, handleChange }) => {
   const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
-  const [showWa, setShowWa] = useState(false);
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
@@ -116,12 +123,12 @@ const StepKontakVerifikasi = ({ formData, handleChange }) => {
     const { name, value } = e.target;
 
     // Nama: blokir angka
-    if (name === "nama_pic") {
-      if (/[0-9]/.test(e.nativeEvent.data)) return; // tolak ketikan angka
+    if (name === "penanggung_jawab") {
+      if (/[0-9]/.test(e.nativeEvent?.data || "")) return; // tolak ketikan angka
     }
 
     // WA: tolak karakter non-angka & non-+ saat mengetik
-    if (name === "no_whatsapp") {
+    if (name === "kontak") {
       const cleaned = value.replace(/[^\d+\s\-()]/g, "");
       handleChange({ target: { name, value: cleaned } });
       if (touched[name])
@@ -134,7 +141,10 @@ const StepKontakVerifikasi = ({ formData, handleChange }) => {
       setErrors((prev) => ({ ...prev, [name]: validate(name, value) }));
   };
 
-  const isValid = (name) => touched[name] && !errors[name] && formData[name];
+  const isValid = (name) => {
+    if (name === "sosmed" && touched[name] && !errors[name]) return true;
+    return touched[name] && !errors[name] && formData[name];
+  };
 
   return (
     <div className="animate-in fade-in space-y-6 duration-300">
@@ -150,25 +160,27 @@ const StepKontakVerifikasi = ({ formData, handleChange }) => {
         <div className="relative">
           <input
             type="text"
-            name="nama_pic"
-            value={formData.nama_pic}
+            name="penanggung_jawab"
+            value={formData.penanggung_jawab}
             onChange={handleLocalChange}
             onBlur={handleBlur}
             placeholder="Cth: Yenny Kalangi"
-            maxLength={RULES.nama_pic.maxLength}
-            className={`${inputClass(touched.nama_pic, errors.nama_pic)} pr-8`}
+            maxLength={RULES.penanggung_jawab.maxLength}
+            className={`${inputClass(touched.penanggung_jawab, errors.penanggung_jawab)} pr-8`}
           />
-          {isValid("nama_pic") && <SuccessIcon />}
+          {isValid("penanggung_jawab") && <SuccessIcon />}
         </div>
-        <ErrorMsg msg={touched.nama_pic ? errors.nama_pic : null} />
-        {!errors.nama_pic && (
+        <ErrorMsg
+          msg={touched.penanggung_jawab ? errors.penanggung_jawab : null}
+        />
+        {!errors.penanggung_jawab && (
           <p className="mt-1 text-[11px] text-gray-400">
             Hanya boleh berisi huruf — tidak boleh ada angka.
           </p>
         )}
       </div>
 
-      {/* No. WhatsApp */}
+      {/* No. WhatsApp / Kontak */}
       <div>
         <label className="mb-2 block text-[13px] font-bold text-gray-800">
           Nomor WhatsApp?
@@ -176,20 +188,20 @@ const StepKontakVerifikasi = ({ formData, handleChange }) => {
         <div className="relative">
           <input
             type="tel"
-            name="no_whatsapp"
-            value={formData.no_whatsapp}
+            name="kontak"
+            value={formData.kontak}
             onChange={handleLocalChange}
             onBlur={handleBlur}
             onKeyDown={handleWaKeyDown}
             placeholder="Cth: 08123456789"
             maxLength={16}
             inputMode="numeric"
-            className={`${inputClass(touched.no_whatsapp, errors.no_whatsapp)} pr-8`}
+            className={`${inputClass(touched.kontak, errors.kontak)} pr-8`}
           />
-          {isValid("no_whatsapp") && <SuccessIcon />}
+          {isValid("kontak") && <SuccessIcon />}
         </div>
-        <ErrorMsg msg={touched.no_whatsapp ? errors.no_whatsapp : null} />
-        {!errors.no_whatsapp && (
+        <ErrorMsg msg={touched.kontak ? errors.kontak : null} />
+        {!errors.kontak && (
           <p className="mt-1 text-[11px] text-gray-400">
             Format: 08xxxxxxxxxx atau +628xxxxxxxxxx · Hanya angka yang
             diizinkan.
@@ -220,6 +232,27 @@ const StepKontakVerifikasi = ({ formData, handleChange }) => {
             Pastikan email aktif — digunakan untuk notifikasi verifikasi.
           </p>
         )}
+      </div>
+
+      {/* Sosmed */}
+      <div>
+        <label className="mb-2 block text-[13px] font-bold text-gray-800">
+          Sosial Media (Opsional)
+        </label>
+        <div className="relative">
+          <input
+            type="url"
+            name="sosmed"
+            value={formData.sosmed}
+            onChange={handleLocalChange}
+            onBlur={handleBlur}
+            placeholder="Cth: https://instagram.com/trashheromanado"
+            maxLength={RULES.sosmed.maxLength}
+            className={`${inputClass(touched.sosmed, errors.sosmed)} pr-8`}
+          />
+          {isValid("sosmed") && formData.sosmed && <SuccessIcon />}
+        </div>
+        <ErrorMsg msg={touched.sosmed ? errors.sosmed : null} />
       </div>
 
       {/* Info box verifikasi */}
