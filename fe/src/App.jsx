@@ -32,6 +32,7 @@ import DetailAset from "./pages/public/DetailAset";
 import BarangBekasPage from "./pages/public/BarangBekasPage";
 import BarangBekasDetailPage from "./components/features/public/barangbekas/BarangBekasDetailPages";
 import LaporanPage from "./pages/public/LaporanPage";
+import BuatLaporanPageUser from "./pages/public/BuatLaporanPage";
 import DetailLaporan from "./pages/public/DetailLaporan";
 import ArtikelPage from "./pages/public/ArtikelPage";
 import ArticleDetailPage from "./components/features/public/artikel/DetailArticle";
@@ -54,6 +55,7 @@ import AdminLaporanPage from "./pages/admin/AdminLaporanPage";
 import AdminArtikelPage from "./pages/admin/AdminArtikelPage";
 import AdminUsersManagementPage from "./pages/admin/AdminUserManagementPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
+import BuatLaporanPage from "./pages/public/BuatLaporanPage";
 
 function App() {
   return (
@@ -69,8 +71,10 @@ function App() {
         <Route element={<ProtectedRoute />}>
           {/* Untuk halaman publik yang perlu login user */}
           <Route path="/kolaborator/daftar" element={<RegisterKolaborator />} />
+         < Route path="/laporan/buat" element={<BuatLaporanPageUser />} /> 
          < Route path="/aset/daftar" element={<DaftarAsetPage />} />
         </Route>
+        
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />

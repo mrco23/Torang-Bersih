@@ -1,5 +1,6 @@
 import React from "react";
 import FloatingIcons from "../kolaborator/FloatingIcons";
+import { Link } from "react-router-dom";
 const HeroLaporan = () => {
   return (
     <div className="z-0 flex h-115 w-full items-center bg-(--gray-shine) py-8 pt-24">
@@ -12,9 +13,9 @@ const HeroLaporan = () => {
           lokasi sampah tak terkelola, lacak progres penanganannya secara
           transparan, dan mari wujudkan lingkungan yang lebih bersih.
         </p>
-        <button className="flex items-center rounded bg-(--primary) px-4 py-2 font-bold text-white hover:bg-(--primary-dark)">
-          Tambah Kolaborator
-        </button>
+        <Link to="/laporan/buat" className="flex items-center rounded w-55 bg-(--primary) px-4 py-2 font-bold text-white hover:bg-(--primary-dark)">
+          Buat Laporan Sekarang
+        </Link>
       </div>
 
       <FloatingIcons />
