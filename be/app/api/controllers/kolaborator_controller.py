@@ -89,14 +89,39 @@ def create():
 
 @jwt_required_custom
 def update(item_id):
+    # Support both JSON and multipart/form-data (for logo re-upload)
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        raw_data = request.form.to_dict()
+        if 'latitude' in raw_data and raw_data['latitude']:
+            raw_data['latitude'] = float(raw_data['latitude'])
+        if 'longitude' in raw_data and raw_data['longitude']:
+            raw_data['longitude'] = float(raw_data['longitude'])
+    else:
+        raw_data = request.get_json() or {}
+
     try:
-        data = KolaboratorUpdateSchema().load(request.get_json() or {})
+        data = KolaboratorUpdateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
             message="Validasi gagal",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Handle logo file upload if present
+    if 'logo' in request.files:
+        logo_file = request.files['logo']
+        if logo_file.filename:
+            from app.lib.cloudinary import upload_image
+            upload_result = upload_image(
+                logo_file,
+                folder="kolaborator_logos",
+                transformation={"width": 400, "height": 400, "crop": "fill"}
+            )
+            if upload_result:
+                data['logo_url'] = upload_result['url']
+            else:
+                return error_response(message="Gagal mengunggah logo", status_code=500)
 
     update_data = {k: v for k, v in data.items() if v is not None}
     if not update_data:

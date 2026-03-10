@@ -202,10 +202,10 @@ function DaftarKolaborator() {
 function Kolaborator({ id, nama, kategori, lokasi, penanggungJawab }) {
   return (
     <div className="flex min-h-[84px] overflow-hidden rounded-md border border-gray-200 bg-white py-2 shadow-sm transition hover:shadow-md">
-      <div className="w-[42px] flex-shrink-0 bg-[#22247A]"></div>
+      <div className="w-[42px] shrink-0 bg-[#22247A]"></div>
       <div className="grid flex-1 grid-cols-12 items-center gap-4 pr-6 pl-5">
         <div className="col-span-4 flex items-center gap-4 sm:gap-5">
-          <div className="flex h-[40px] w-[40px] flex-shrink-0 items-center justify-center rounded-full bg-[#1A3084] text-white sm:h-[52px] sm:w-[52px]">
+          <div className="flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full bg-[#1A3084] text-white sm:h-[52px] sm:w-[52px]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
@@ -229,7 +229,7 @@ function Kolaborator({ id, nama, kategori, lokasi, penanggungJawab }) {
           <span className="line-clamp-2 pr-2">{penanggungJawab}</span>
           <Link
             to={`/kolaborator/${id}`}
-            className="flex-shrink-0 transition-transform hover:scale-110"
+            className="shrink-0 transition-transform hover:scale-110"
           >
             <svg
               className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px]"

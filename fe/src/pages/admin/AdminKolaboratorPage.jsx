@@ -596,7 +596,7 @@ function AdminKolaboratorPage() {
                       )}
                       {selectedKolaborator.latitude &&
                         selectedKolaborator.longitude && (
-                          <div className="pointer-events-none absolute right-2 bottom-2 z-[1000] rounded bg-white/90 px-2 py-1 font-mono text-[10px] font-bold text-gray-600 shadow-sm backdrop-blur-sm">
+                          <div className="pointer-events-none absolute right-2 bottom-2 z-1000 rounded bg-white/90 px-2 py-1 font-mono text-[10px] font-bold text-gray-600 shadow-sm backdrop-blur-sm">
                             {selectedKolaborator.latitude.toFixed(6)},{" "}
                             {selectedKolaborator.longitude.toFixed(6)}
                           </div>
@@ -720,27 +720,27 @@ function AdminKolaboratorPage() {
               </button>
 
               <div className="flex w-full gap-3 sm:w-auto">
-                {selectedKolaborator.status_verifikasi !== "ditolak" && (
-                  <button
-                    onClick={() =>
-                      handleVerify(selectedKolaborator.id, "ditolak")
-                    }
-                    disabled={actionLoading}
-                    className="flex-1 rounded-xl border border-red-200 bg-red-50 px-6 py-2.5 text-sm font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-50 sm:flex-none"
-                  >
-                    Tolak
-                  </button>
-                )}
-                {selectedKolaborator.status_verifikasi !== "terverifikasi" && (
-                  <button
-                    onClick={() =>
-                      handleVerify(selectedKolaborator.id, "terverifikasi")
-                    }
-                    disabled={actionLoading}
-                    className="flex-1 rounded-xl bg-(--primary) px-6 py-2.5 text-sm font-bold text-white transition hover:bg-(--primary-dark) disabled:opacity-50 sm:flex-none"
-                  >
-                    Verifikasi Data
-                  </button>
+                {selectedKolaborator.status_verifikasi === "menunggu" && (
+                  <>
+                    <button
+                      onClick={() =>
+                        handleVerify(selectedKolaborator.id, "ditolak")
+                      }
+                      disabled={actionLoading}
+                      className="flex-1 rounded-xl border border-red-200 bg-red-50 px-6 py-2.5 text-sm font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-50 sm:flex-none"
+                    >
+                      Tolak
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleVerify(selectedKolaborator.id, "terverifikasi")
+                      }
+                      disabled={actionLoading}
+                      className="flex-1 rounded-xl bg-(--primary) px-6 py-2.5 text-sm font-bold text-white transition hover:bg-(--primary-dark) disabled:opacity-50 sm:flex-none"
+                    >
+                      Verifikasi Data
+                    </button>
+                  </>
                 )}
               </div>
             </div>

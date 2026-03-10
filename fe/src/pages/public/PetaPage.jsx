@@ -17,13 +17,14 @@ const PetaPage = () => {
   // State untuk melacak lokasi mana yang aktif di peta
   const [selectedLocation, setSelectedLocation] = useState(null);
 
-  // LOGIKA PENANGKAP STATE: 
+  // LOGIKA PENANGKAP STATE:
   // Menangkap data yang dikirim via navigate('/peta', { state: { targetLocation: ... } })
   useEffect(() => {
     if (location.state?.targetLocation) {
       // Jika ada kiriman lokasi, langsung set sebagai lokasi terpilih
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedLocation(location.state.targetLocation);
-      
+
       // Opsional: Pastikan kategori lokasi tersebut aktif di filter agar marker muncul
       const targetType = location.state.targetLocation.type;
       if (targetType && !filters.includes(targetType)) {
@@ -87,7 +88,7 @@ const PetaPage = () => {
   };
 
   return (
-    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white pt-20 selection:bg-(--gray-shine) selection:text-(--primary)">
+    <div className="flex h-dvh w-full flex-col overflow-hidden bg-white pt-20 selection:bg-(--gray-shine) selection:text-(--primary)">
       <div className="relative flex flex-1 overflow-hidden">
         {/* Komponen Kiri: Sidebar Filter & List */}
         <SidebarPeta
@@ -104,7 +105,7 @@ const PetaPage = () => {
         />
 
         {/* Floating Button Filter Mobile (Hanya muncul di HP) */}
-        <button className="absolute bottom-6 left-1/2 z-[1000] flex -translate-x-1/2 items-center gap-2 rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-gray-900/30 active:scale-95 md:hidden">
+        <button className="absolute bottom-6 left-1/2 z-1000 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-gray-900/30 active:scale-95 md:hidden">
           <svg
             className="size-4"
             fill="none"
