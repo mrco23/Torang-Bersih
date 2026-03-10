@@ -5,12 +5,12 @@ meta {
 }
 
 get {
-  url: {{base_url}}/api/artikel/my-artikel?page=1&per_page=20&search=&sort_by=created_at&sort_order=desc
+  url: {{base_url}}/artikel/my-artikel?page=1&per_page=20&search=&sort_by=created_at&sort_order=desc
   body: none
   auth: bearer
 }
 
-query {
+params:query {
   page: 1
   per_page: 20
   search: 

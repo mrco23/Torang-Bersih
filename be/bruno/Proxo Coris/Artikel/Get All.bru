@@ -5,12 +5,12 @@ meta {
 }
 
 get {
-  url: {{base_url}}/api/artikel?search=&sort_by=created_at&sort_order=desc
+  url: {{base_url}}/artikel?search=&sort_by=created_at&sort_order=desc
   body: none
   auth: none
 }
 
-query {
+params:query {
   search: 
   sort_by: created_at
   sort_order: desc
