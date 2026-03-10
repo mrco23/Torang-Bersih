@@ -1,0 +1,19 @@
+meta {
+  name: Get One Artikel
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/artikel/:item_id
+  body: none
+  auth: none
+}
+
+params:path {
+  item_id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+}
+
+headers {
+  Accept: application/json
+}

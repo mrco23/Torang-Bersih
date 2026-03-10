@@ -1,0 +1,30 @@
+meta {
+  name: Update Artikel
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/artikel/:item_id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  item_id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "judul_artikel": "Pembersihan Pantai di Manado (Updated)"
+  }
+}
