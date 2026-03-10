@@ -25,6 +25,7 @@ import LandingPage from "./pages/public/LandingPage";
 import PetaPage from "./pages/public/PetaPage";
 import KolaboratorPage from "./pages/public/KolaboratorPage";
 import DetailKolaborator from "./pages/public/DetailKolabolator";
+import RegisterKolaborator from "./pages/public/RegisterKolabolator";
 import AsetPage from "./pages/public/AsetPage";
 import DetailAset from "./pages/public/DetailAset";
 import BarangBekasPage from "./pages/public/BarangBekasPage";
@@ -63,6 +64,11 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
       </Route>
+        
+        <Route element={<ProtectedRoute />}>
+          {/* Untuk halaman publik yang perlu login user */}
+          <Route path="/kolaborator/daftar" element={<RegisterKolaborator />} />
+        </Route>
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
@@ -73,6 +79,7 @@ function App() {
         <Route path="peta" element={<PetaPage />} />
         <Route path="kolaborator" element={<KolaboratorPage />} />
         <Route path="kolaborator/:id" element={<DetailKolaborator />} />
+      
         <Route path="aset" element={<AsetPage />} />
         <Route path="aset/:id" element={<DetailAset />} />
         <Route path="barang-bekas" element={<BarangBekasPage />} />

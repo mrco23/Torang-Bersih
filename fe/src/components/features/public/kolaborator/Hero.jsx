@@ -1,6 +1,7 @@
 import React from "react";
 import Svg from "./Svg";
 import FloatingIcons from "./FloatingIcons";
+import { Link } from "react-router-dom";
 function Hero() {
   return (
     <div className="z-0 flex h-115 w-full items-center bg-(--gray-shine) py-8 pt-24">
@@ -12,9 +13,9 @@ function Hero() {
           Jaringan kolektif pemangku kebijakan dan komunitas yang bergerak
           serentak untuk menuntaskan isu persampahan secara berkelanjutan
         </p>
-        <button className="flex items-center rounded bg-(--primary) px-4 py-2 font-bold text-white hover:bg-(--primary-dark)">
+        <Link to="/kolaborator/daftar" className="flex items-center rounded bg-(--primary) px-4 py-2 font-bold text-white hover:bg-(--primary-dark) w-50">
           Tambah Kolaborator
-        </button>
+        </Link>
       </div>
 
       <FloatingIcons />

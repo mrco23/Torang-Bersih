@@ -64,7 +64,7 @@ def _init_extensions(app):
         r"/api/*": {
             "origins": app.config.get('CORS_ORIGINS', ['*']),
             "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
+            "allow_headers": ["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
             "supports_credentials": True
         }
     })
