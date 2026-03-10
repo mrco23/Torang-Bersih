@@ -27,6 +27,7 @@ import KolaboratorPage from "./pages/public/KolaboratorPage";
 import DetailKolaborator from "./pages/public/DetailKolabolator";
 import RegisterKolaborator from "./pages/public/RegisterKolabolator";
 import AsetPage from "./pages/public/AsetPage";
+import DaftarAsetPage from "./pages/public/DaftarAsetPage";
 import DetailAset from "./pages/public/DetailAset";
 import BarangBekasPage from "./pages/public/BarangBekasPage";
 import BarangBekasDetailPage from "./components/features/public/barangbekas/BarangBekasDetailPages";
@@ -68,6 +69,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           {/* Untuk halaman publik yang perlu login user */}
           <Route path="/kolaborator/daftar" element={<RegisterKolaborator />} />
+         < Route path="/aset/daftar" element={<DaftarAsetPage />} />
         </Route>
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />

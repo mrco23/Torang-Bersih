@@ -1,6 +1,6 @@
 import React from 'react';
 import FloatingIcons from '../kolaborator/FloatingIcons';
-
+import { Link } from 'react-router-dom';
 const HeroAset = () => {
   return (
     <div className="z-0 flex h-115 w-full items-center bg-(--gray-shine) py-8 pt-24">
@@ -11,9 +11,9 @@ const HeroAset = () => {
         <p>
           Jelajahi peta interaktif yang memuat lokasi Bank Sampah, TPST, TPA, dan sentra kompos di seluruh Sulawesi Utara. Salurkan sampahmu ke tempat yang tepat.
         </p>
-        <button className="flex items-center rounded bg-(--primary) px-4 py-2 font-bold text-white hover:bg-(--primary-dark)">
+        <Link to="/aset/daftar" className="flex items-center w-45 rounded bg-(--primary) px-4 py-2 font-bold text-white hover:bg-(--primary-dark)">
           Daftarkan Fasilitas
-        </button>
+        </Link>
       </div>
 
       <FloatingIcons />
