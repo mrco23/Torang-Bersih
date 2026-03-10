@@ -1,8 +1,8 @@
-"""add all new models with reference tables again
+"""initialize again all tables with reference
 
-Revision ID: 03feb0175714
-Revises: fa341cbd8ad6
-Create Date: 2026-03-09 10:49:26.854361
+Revision ID: f83a055e92a8
+Revises: 
+Create Date: 2026-03-10 12:48:51.011944
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '03feb0175714'
-down_revision = 'fa341cbd8ad6'
+revision = 'f83a055e92a8'
+down_revision = None
 branch_labels = None
 depends_on = None
 
