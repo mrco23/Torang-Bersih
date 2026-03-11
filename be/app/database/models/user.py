@@ -37,16 +37,6 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     last_login_at = db.Column(db.DateTime(timezone=True))
     
-    # Relationships
-    kolaborator = db.relationship('Kolaborator', backref='user', lazy='dynamic')
-    aset = db.relationship('Aset', backref='user', lazy='dynamic')
-    laporan_sampah = db.relationship('LaporanSampahIlegal', backref='pelapor', lazy='dynamic', foreign_keys='LaporanSampahIlegal.id_warga')
-    tindak_lanjut = db.relationship('TindakLanjutLaporan', backref='penindak', lazy='dynamic', foreign_keys='TindakLanjutLaporan.id_user_penindak')
-    marketplace_items = db.relationship('MarketplaceDaurUlang', backref='penjual', lazy='dynamic')
-    artikel = db.relationship('Artikel', backref='penulis', lazy='dynamic')
-    artikel_likes = db.relationship('ArtikelLike', backref='user', lazy='dynamic')
-    artikel_komentar = db.relationship('ArtikelKomentar', backref='user', lazy='dynamic')
-    
     def __repr__(self):
         return f'<User {self.username}>'
     

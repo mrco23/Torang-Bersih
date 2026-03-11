@@ -1,0 +1,27 @@
+meta {
+  name: Get My Artikel
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_url}}/artikel/my-artikel?page=1&per_page=20&search=&sort_by=created_at&sort_order=desc
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  per_page: 20
+  search: 
+  sort_by: created_at
+  sort_order: desc
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{token}}
+}

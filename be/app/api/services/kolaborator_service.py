@@ -2,15 +2,15 @@
 from sqlalchemy import or_
 
 from app.config.extensions import db
-from app.database.models import Kolaborator, RefJenisKolaborator
-from app.utils.exceptions import NotFoundError, ForbiddenError
+from app.database.models import Kolaborator, RefJenisKolaborator, StatusVerifikasiKolaborator
+from app.utils.exceptions import NotFoundError, ForbiddenError, BadRequestError
 
 
 class KolaboratorService:
 
     @staticmethod
     def get_all(page=1, per_page=20, search=None, jenis_kolaborator_id=None,
-                kabupaten_kota=None, sort_by='created_at', sort_order='desc'):
+                kabupaten_kota=None, status_verifikasi=None, sort_by='created_at', sort_order='desc'):
         query = Kolaborator.query
 
         if search:
@@ -26,6 +26,9 @@ class KolaboratorService:
 
         if kabupaten_kota:
             query = query.filter(Kolaborator.kabupaten_kota.ilike(f'%{kabupaten_kota}%'))
+
+        if status_verifikasi:
+            query = query.filter(Kolaborator.status_verifikasi == StatusVerifikasiKolaborator(status_verifikasi))
 
         # Sorting
         sort_column = getattr(Kolaborator, sort_by, Kolaborator.created_at)
@@ -90,6 +93,34 @@ class KolaboratorService:
 
         db.session.delete(item)
         db.session.commit()
+
+    @staticmethod
+    def verify(item_id, admin_user, status_str, catatan=None):
+        from datetime import datetime, timezone as tz
+
+        item = db.session.get(Kolaborator, item_id)
+        if not item:
+            raise NotFoundError("Kolaborator tidak ditemukan")
+
+        if item.status_verifikasi != StatusVerifikasiKolaborator.MENUNGGU:
+            raise BadRequestError("Kolaborator sudah diverifikasi/ditolak sebelumnya")
+
+        item.status_verifikasi = StatusVerifikasiKolaborator(status_str)
+        item.id_admin_verifikator = admin_user.id
+        item.catatan_verifikasi = catatan
+        item.waktu_verifikasi = datetime.now(tz.utc)
+        db.session.commit()
+
+        # Send email notification
+        recipient_email = item.email if item.email else item.user.email
+        from app.lib.mailer import send_kolaborator_verified_email, send_kolaborator_rejected_email
+
+        if item.status_verifikasi == StatusVerifikasiKolaborator.TERVERIFIKASI:
+            send_kolaborator_verified_email(to=recipient_email, kolaborator=item)
+        else:
+            send_kolaborator_rejected_email(to=recipient_email, kolaborator=item, catatan=catatan)
+
+        return item
 
     @staticmethod
     def get_my_kolaborator(user_id, page=1, per_page=20, search=None, jenis_kolaborator_id=None,

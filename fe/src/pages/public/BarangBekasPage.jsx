@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ProductCard from "../../components/features/public/barangbekas/ProdukCard";
-import Hero from "../../components/features/public/barangbekas/Hero";
+import FiturHero from "../../components/shared/FiturHero";
 
 const BarangBekasPage = () => {
   const [activeCategory, setActiveCategory] = useState("Semua");
@@ -194,16 +194,21 @@ const BarangBekasPage = () => {
     <>
       {" "}
       <div className="relative z-0">
-        <Hero />
+        <FiturHero
+          title="Temukan Barang Bekas Berkualitas untuk Daur Ulangmu"
+          description="Jelajahi katalog barang bekas yang siap didaur ulang, temukan bahan berkualitas untuk proyek kreatifmu, dan dukung gerakan daur ulang yang berkelanjutan."
+          buttonText="Masukan Barang Bekas"
+          buttonLink="/barang-bekas/daftar"
+        />
       </div>
-      <div className="min-h-screenselection:bg-[var(--gray-shine)] relative z-0 bg-white selection:text-[var(--primary)]">
+      <div className="relative z-0 min-h-dvh bg-white selection:bg-(--gray-shine) selection:text-(--primary)">
         <div className="bg- z-20 mx-auto max-w-7xl px-4 py-8 pt-24 sm:px-6 lg:px-8">
           <div className="mb-8 flex flex-col gap-4 border-b border-gray-100 pb-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-[var(--dark)] md:text-3xl">
+              <h2 className="text-2xl font-bold tracking-tight text-(--dark) md:text-3xl">
                 Katalog Barang
               </h2>
-              <p className="mt-1 text-sm text-[var(--gray)]">
+              <p className="mt-1 text-sm text-(--gray)">
                 Temukan barang bekas dan rongsokan di sekitarmu.
               </p>
             </div>
@@ -213,7 +218,7 @@ const BarangBekasPage = () => {
               <div className="group relative hidden w-full max-w-md sm:block">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <svg
-                    className="h-5 w-5 text-gray-400 transition-colors group-focus-within:text-[var(--primary)]"
+                    className="h-5 w-5 text-gray-400 transition-colors group-focus-within:text-(--primary)"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -229,12 +234,12 @@ const BarangBekasPage = () => {
                 <input
                   type="text"
                   placeholder="Cari barang..."
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pr-4 pl-10 text-sm text-[var(--dark-text)] placeholder-[var(--gray-placeholder)] transition-all outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                  className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pr-4 pl-10 text-sm text-(--dark-text) placeholder-(--gray-placeholder) transition-all outline-none focus:border-(--primary) focus:ring-1 focus:ring-(--primary)"
                 />
               </div>
 
               {/* Tombol Jual */}
-              <button className="group flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[var(--primary-dark)]">
+              <button className="group flex shrink-0 items-center justify-center gap-2 rounded-lg bg-(--primary) px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-(--primary-dark)">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -255,7 +260,7 @@ const BarangBekasPage = () => {
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
             <aside className="sticky top-24 hidden h-fit rounded-xl border border-gray-100 bg-white p-5 shadow-sm lg:col-span-3 lg:block">
-              <h3 className="mb-4 text-sm font-bold tracking-wider text-[var(--dark)] uppercase">
+              <h3 className="mb-4 text-sm font-bold tracking-wider text-(--dark) uppercase">
                 Kategori Barang
               </h3>
               <ul className="flex flex-col gap-1">
@@ -265,8 +270,8 @@ const BarangBekasPage = () => {
                       onClick={() => setActiveCategory(cat)}
                       className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                         activeCategory === cat
-                          ? "bg-[var(--gray-shine)] font-bold text-[var(--primary)]"
-                          : "font-medium text-[var(--gray)] hover:bg-gray-50 hover:text-[var(--dark)]"
+                          ? "bg-(--gray-shine) font-bold text-(--primary)"
+                          : "font-medium text-(--gray) hover:bg-gray-50 hover:text-(--dark)"
                       }`}
                     >
                       {cat}
@@ -277,7 +282,7 @@ const BarangBekasPage = () => {
 
               <hr className="my-5 border-gray-100" />
 
-              <h3 className="mb-4 text-sm font-bold tracking-wider text-[var(--dark)] uppercase">
+              <h3 className="mb-4 text-sm font-bold tracking-wider text-(--dark) uppercase">
                 Kondisi
               </h3>
               <div className="flex flex-col gap-3">
@@ -289,9 +294,9 @@ const BarangBekasPage = () => {
                     >
                       <input
                         type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
+                        className="h-4 w-4 rounded border-gray-300 text-(--primary) focus:ring-(--primary)"
                       />
-                      <span className="text-sm text-[var(--gray)] transition-colors group-hover:text-[var(--dark)]">
+                      <span className="text-sm text-(--gray) transition-colors group-hover:text-(--dark)">
                         {kondisi}
                       </span>
                     </label>
@@ -301,7 +306,7 @@ const BarangBekasPage = () => {
 
               <hr className="my-5 border-gray-100" />
 
-              <button className="w-full rounded-lg border border-[var(--primary)] py-2 text-sm font-bold text-[var(--primary)] transition-colors hover:bg-[var(--gray-shine)]">
+              <button className="w-full rounded-lg border border-(--primary) py-2 text-sm font-bold text-(--primary) transition-colors hover:bg-(--gray-shine)">
                 Terapkan Filter
               </button>
             </aside>
@@ -314,8 +319,8 @@ const BarangBekasPage = () => {
                     onClick={() => setActiveCategory(cat)}
                     className={`rounded-full px-4 py-2 text-xs font-bold whitespace-nowrap transition-colors ${
                       activeCategory === cat
-                        ? "bg-[var(--primary)] text-white"
-                        : "border border-gray-200 bg-white text-[var(--gray)] hover:bg-gray-50"
+                        ? "bg-(--primary) text-white"
+                        : "border border-gray-200 bg-white text-(--gray) hover:bg-gray-50"
                     }`}
                   >
                     {cat}
@@ -323,7 +328,7 @@ const BarangBekasPage = () => {
                 ))}
               </div>
 
-              <div className="mb-4 flex items-center justify-between text-sm text-[var(--gray)]">
+              <div className="mb-4 flex items-center justify-between text-sm text-(--gray)">
                 <p>
                   Menampilkan <strong>{filteredProducts.length}</strong> barang
                   untuk "{activeCategory}"
@@ -331,7 +336,7 @@ const BarangBekasPage = () => {
 
                 <div className="hidden items-center gap-2 sm:flex">
                   <span>Urutkan:</span>
-                  <select className="rounded border border-gray-200 bg-white py-1 pr-6 pl-2 text-sm font-medium text-[var(--dark)] outline-none focus:border-[var(--primary)]">
+                  <select className="rounded border border-gray-200 bg-white py-1 pr-6 pl-2 text-sm font-medium text-(--dark) outline-none focus:border-(--primary)">
                     <option>Terbaru</option>
                     <option>Harga Terendah</option>
                     <option>Harga Tertinggi</option>
@@ -347,9 +352,9 @@ const BarangBekasPage = () => {
                 </div>
               ) : (
                 <div className="mt-4 flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white px-4 py-16 text-center shadow-sm">
-                  <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--gray-shine)]">
+                  <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-(--gray-shine)">
                     <svg
-                      className="h-6 w-6 text-[var(--gray-placeholder)]"
+                      className="h-6 w-6 text-(--gray-placeholder)"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -362,10 +367,10 @@ const BarangBekasPage = () => {
                       />
                     </svg>
                   </div>
-                  <h3 className="mb-1 font-bold text-[var(--dark)]">
+                  <h3 className="mb-1 font-bold text-(--dark)">
                     Barang tidak ditemukan
                   </h3>
-                  <p className="text-xs text-[var(--gray)]">
+                  <p className="text-xs text-(--gray)">
                     Coba hapus beberapa filter pencarian.
                   </p>
                 </div>

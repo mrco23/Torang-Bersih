@@ -4,9 +4,10 @@ from marshmallow import ValidationError
 
 from app.api.services.kolaborator_service import KolaboratorService
 from app.schemas.kolaborator_schema import (
-    KolaboratorCreateSchema, KolaboratorUpdateSchema, KolaboratorQuerySchema
+    KolaboratorCreateSchema, KolaboratorUpdateSchema, KolaboratorQuerySchema,
+    KolaboratorVerifySchema
 )
-from app.middlewares.auth_middleware import jwt_required_custom, optional_jwt
+from app.middlewares.auth_middleware import jwt_required_custom, optional_jwt, admin_required
 from app.utils.response import success_response, error_response, paginated_response
 
 
@@ -26,6 +27,7 @@ def get_all():
         search=params.get('search'),
         jenis_kolaborator_id=params.get('jenis_kolaborator_id'),
         kabupaten_kota=params.get('kabupaten_kota'),
+        status_verifikasi=params.get('status_verifikasi'),
         sort_by=params.get('sort_by', 'created_at'),
         sort_order=params.get('sort_order', 'desc'),
     )
@@ -46,14 +48,40 @@ def get_one(item_id):
 
 @jwt_required_custom
 def create():
+    # Support both JSON and multipart/form-data (for logo upload)
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        raw_data = request.form.to_dict()
+        # Convert numeric strings to proper types
+        if 'latitude' in raw_data and raw_data['latitude']:
+            raw_data['latitude'] = float(raw_data['latitude'])
+        if 'longitude' in raw_data and raw_data['longitude']:
+            raw_data['longitude'] = float(raw_data['longitude'])
+    else:
+        raw_data = request.get_json() or {}
+
     try:
-        data = KolaboratorCreateSchema().load(request.get_json() or {})
+        data = KolaboratorCreateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
             message="Validasi gagal",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Handle logo file upload if present
+    if 'logo' in request.files:
+        logo_file = request.files['logo']
+        if logo_file.filename:
+            from app.lib.cloudinary import upload_image
+            upload_result = upload_image(
+                logo_file,
+                folder="kolaborator_logos",
+                transformation={"width": 400, "height": 400, "crop": "fill"}
+            )
+            if upload_result:
+                data['logo_url'] = upload_result['url']
+            else:
+                return error_response(message="Gagal mengunggah logo", status_code=500)
 
     item = KolaboratorService.create(request.current_user, data)
     return success_response(data=item.to_dict(), message="Kolaborator berhasil didaftarkan", status_code=201)
@@ -61,14 +89,39 @@ def create():
 
 @jwt_required_custom
 def update(item_id):
+    # Support both JSON and multipart/form-data (for logo re-upload)
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        raw_data = request.form.to_dict()
+        if 'latitude' in raw_data and raw_data['latitude']:
+            raw_data['latitude'] = float(raw_data['latitude'])
+        if 'longitude' in raw_data and raw_data['longitude']:
+            raw_data['longitude'] = float(raw_data['longitude'])
+    else:
+        raw_data = request.get_json() or {}
+
     try:
-        data = KolaboratorUpdateSchema().load(request.get_json() or {})
+        data = KolaboratorUpdateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
             message="Validasi gagal",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Handle logo file upload if present
+    if 'logo' in request.files:
+        logo_file = request.files['logo']
+        if logo_file.filename:
+            from app.lib.cloudinary import upload_image
+            upload_result = upload_image(
+                logo_file,
+                folder="kolaborator_logos",
+                transformation={"width": 400, "height": 400, "crop": "fill"}
+            )
+            if upload_result:
+                data['logo_url'] = upload_result['url']
+            else:
+                return error_response(message="Gagal mengunggah logo", status_code=500)
 
     update_data = {k: v for k, v in data.items() if v is not None}
     if not update_data:
@@ -82,6 +135,26 @@ def update(item_id):
 def delete(item_id):
     KolaboratorService.delete(item_id, request.current_user)
     return success_response(message="Kolaborator berhasil dihapus")
+
+
+@admin_required
+def verify(item_id):
+    try:
+        data = KolaboratorVerifySchema().load(request.get_json() or {})
+    except ValidationError as err:
+        return error_response(
+            message="Validasi gagal",
+            errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
+            status_code=422
+        )
+
+    item = KolaboratorService.verify(
+        item_id,
+        admin_user=request.current_user,
+        status_str=data['status_verifikasi'],
+        catatan=data.get('catatan_verifikasi'),
+    )
+    return success_response(data=item.to_dict(), message="Status verifikasi kolaborator berhasil diperbarui")
 
 
 @jwt_required_custom

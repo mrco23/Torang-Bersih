@@ -2,8 +2,8 @@
 from sqlalchemy import or_
 
 from app.config.extensions import db
-from app.database.models import Aset, RefKategoriAset
-from app.utils.exceptions import NotFoundError, ForbiddenError
+from app.database.models import Aset, RefKategoriAset, StatusVerifikasiAset
+from app.utils.exceptions import NotFoundError, ForbiddenError, BadRequestError
 
 
 class AsetService:
@@ -92,6 +92,33 @@ class AsetService:
         db.session.delete(item)
         db.session.commit()
 
+    @staticmethod
+    def verify(item_id, admin_user, status_str, catatan=None):
+        from datetime import datetime, timezone as tz
+
+        item = db.session.get(Aset, item_id)
+        if not item:
+            raise NotFoundError("Aset tidak ditemukan")
+
+        if item.status_verifikasi != StatusVerifikasiAset.MENUNGGU:
+            raise BadRequestError("Aset sudah diverifikasi/ditolak sebelumnya")
+
+        item.status_verifikasi = StatusVerifikasiAset(status_str)
+        item.id_admin_verifikator = admin_user.id
+        item.catatan_verifikasi = catatan
+        item.waktu_verifikasi = datetime.now(tz.utc)
+        db.session.commit()
+
+        # Send email notification
+        recipient_email = item.user.email
+        from app.lib.mailer import send_aset_verified_email, send_aset_rejected_email
+
+        if item.status_verifikasi == StatusVerifikasiAset.TERVERIFIKASI:
+            send_aset_verified_email(to=recipient_email, aset=item)
+        else:
+            send_aset_rejected_email(to=recipient_email, aset=item, catatan=catatan)
+
+        return item
 
     @staticmethod
     def get_my_aset(user_id, page=1, per_page=20, search=None, kategori_aset_id=None,

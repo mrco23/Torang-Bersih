@@ -1,12 +1,17 @@
 import React from "react";
-import Hero from "../../components/features/public/kolaborator/Hero";
+import FiturHero from "../../components/shared/FiturHero";
 import DaftarKolaborator from "../../components/features/public/kolaborator/DaftarKolaborator";
 
 function KolaboratorPage() {
   return (
     <div className="relative w-full overflow-hidden bg-[#FAFAFA]">
       <div className="relative z-0">
-        <Hero />
+        <FiturHero
+          title="Temukan Kolaborator untuk Aksi Lingkunganmu"
+          description="Jaringan kolektif pemangku kebijakan dan komunitas yang bergerak serentak untuk menuntaskan isu persampahan secara berkelanjutan"
+          buttonText="Tambah Kolaborator"
+          buttonLink="/kolaborator/daftar"
+        />
       </div>
 
       <div className="relative z-20">

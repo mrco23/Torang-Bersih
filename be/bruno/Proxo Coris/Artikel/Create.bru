@@ -1,0 +1,30 @@
+meta {
+  name: Create Artikel
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/artikel
+  body: json
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "judul_artikel": "Pembersihan Pantai di Manado",
+    "kategori_id": "8ee70098-95ff-4d51-a9f4-18471e956973",
+    "konten_teks": "Hari ini kita melakukan pembersihan pantai di sepanjang Manado...",
+    "foto_cover_url": "https://example.com/cover.jpg",
+    "status_publikasi": "draft"
+  }
+}

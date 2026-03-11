@@ -1,18 +1,23 @@
 import React from "react";
-import HeroLaporan from "../../components/features/public/Laporan/HeroLaporan";
+import FiturHero from "../../components/shared/FiturHero";
 import DaftarLaporan from "../../components/features/public/Laporan/DaftarLaporan";
 const LaporanPage = () => {
   return (
-      <div className="relative w-full overflow-hidden bg-[#FAFAFA]">
+    <div className="relative w-full overflow-hidden bg-(--gray-shine)">
       <div className="relative z-0">
-        <HeroLaporan />
+        <FiturHero
+          title="Laporkan Permasalahan Sampah di Sekitarmu"
+          description="Jangan biarkan sampah menumpuk dan merusak lingkungan. Laporkan titik lokasi sampah tak terkelola, lacak progres penanganannya secara transparan, dan mari wujudkan lingkungan yang lebih bersih."
+          buttonText="Buat Laporan Sekarang"
+          buttonLink="/laporan/buat"
+        />
       </div>
 
       <div className="relative z-20 bg-white">
-        <DaftarLaporan   />
+        <DaftarLaporan />
       </div>
     </div>
-  )
+  );
 };
 
 export default LaporanPage;

@@ -30,26 +30,6 @@ def create_app(config_class=None):
     def health():
         return jsonify({'success': True, 'message': 'OK'}), 200
     
-    # Startup log
-    cors_origins = app.config.get('CORS_ORIGINS', ['*'])
-    if isinstance(cors_origins, list):
-        cors_str = ', '.join(cors_origins)
-    else:
-        cors_str = str(cors_origins)
-        
-    port = app.config.get('PORT', 5000)
-    host = app.config.get('HOST', '127.0.0.1')
-    server_url = f"http://{host}:{port}"
-        
-    print(
-        f"\n{'='*55}\n\n"
-        f"🚀 Server API Started Successfully\n\n"
-        f"{'-'*55}\n\n"
-        f"⚙️  Environment  : {config_class.__name__}\n"
-        f"🔗 Server URL   : {server_url}\n"
-        f"🔌 CORS Origins : {cors_str}\n\n"
-        f"{'='*55}\n"
-    )
     return app
 
 

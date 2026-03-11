@@ -56,7 +56,7 @@ def create():
     return success_response(data=item.to_dict(), message="Laporan berhasil dibuat", status_code=201)
 
 
-@admin_required
+@jwt_required_custom
 def update_status(item_id):
     try:
         data = LaporanUpdateStatusSchema().load(request.get_json() or {})
@@ -67,7 +67,12 @@ def update_status(item_id):
             status_code=422
         )
 
-    item = LaporanService.update_status(item_id, data['status_laporan'])
+    item = LaporanService.update_status(
+        item_id, 
+        data['status_laporan'], 
+        request.current_user,
+        data.get('catatan_verifikasi')
+    )
     return success_response(data=item.to_dict(), message="Status laporan berhasil diperbarui")
 
 

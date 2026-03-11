@@ -20,6 +20,7 @@ class BentukTimbulan(PyEnum):
 class StatusLaporan(PyEnum):
     MENUNGGU = 'menunggu'
     DITERIMA = 'diterima'
+    DITOLAK = 'ditolak'
     DITINDAK = 'ditindak'
     SELESAI = 'selesai'
 
@@ -35,6 +36,7 @@ class LaporanSampahIlegal(db.Model):
     # Lokasi
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
+    kabupaten_kota = db.Column(db.String(100))
     alamat_lokasi = db.Column(db.Text)
 
     # Detail sampah
@@ -42,14 +44,21 @@ class LaporanSampahIlegal(db.Model):
     estimasi_berat_kg = db.Column(db.Float)
     karakteristik = db.Column(Enum(Karakteristik))
     bentuk_timbulan = db.Column(Enum(BentukTimbulan))
+    deskripsi_laporan = db.Column(db.Text, nullable=True)
 
     status_laporan = db.Column(Enum(StatusLaporan), default=StatusLaporan.MENUNGGU, nullable=False)
 
-    tanggal_lapor = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    id_admin_verifikator = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=True)
+    catatan_verifikasi = db.Column(db.Text, nullable=True)
+    waktu_verifikasi = db.Column(db.DateTime(timezone=True), nullable=True)
+
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relationships
     tindak_lanjut = db.relationship('TindakLanjutLaporan', backref='laporan', lazy='dynamic', cascade='all, delete-orphan')
+    admin_verifikator = db.relationship('User', foreign_keys=[id_admin_verifikator], lazy='select')
+    pelapor = db.relationship('User', foreign_keys=[id_warga], lazy='select')
 
     def __repr__(self):
         return f'<LaporanSampahIlegal {self.id}>'
@@ -58,15 +67,31 @@ class LaporanSampahIlegal(db.Model):
         return {
             'id': self.id,
             'id_warga': self.id_warga,
+            'pelapor': {
+                'id': self.pelapor.id,
+                'username': self.pelapor.username,
+                'full_name': self.pelapor.full_name,
+                'avatar_url': self.pelapor.avatar_url,
+            } if self.pelapor else None,
             'foto_bukti_urls': self.foto_bukti_urls,
             'latitude': self.latitude,
             'longitude': self.longitude,
+            'kabupaten_kota': self.kabupaten_kota,
             'alamat_lokasi': self.alamat_lokasi,
             'jenis_sampah': self.jenis_sampah_ref.to_dict() if self.jenis_sampah_ref else None,
             'estimasi_berat_kg': self.estimasi_berat_kg,
             'karakteristik': self.karakteristik.value if self.karakteristik else None,
             'bentuk_timbulan': self.bentuk_timbulan.value if self.bentuk_timbulan else None,
+            'deskripsi_laporan': self.deskripsi_laporan,
             'status_laporan': self.status_laporan.value if self.status_laporan else None,
-            'tanggal_lapor': self.tanggal_lapor.isoformat() if self.tanggal_lapor else None,
+            'id_admin_verifikator': self.id_admin_verifikator,
+            'admin_verifikator': {
+                'id': self.admin_verifikator.id,
+                'username': self.admin_verifikator.username,
+                'full_name': self.admin_verifikator.full_name,
+            } if self.admin_verifikator else None,
+            'waktu_verifikasi': self.waktu_verifikasi.isoformat() if self.waktu_verifikasi else None,
+            'catatan_verifikasi': self.catatan_verifikasi,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

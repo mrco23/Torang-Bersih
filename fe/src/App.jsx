@@ -24,13 +24,15 @@ import NotFoundPage from "./pages/NotFoundPage";
 import LandingPage from "./pages/public/LandingPage";
 import PetaPage from "./pages/public/PetaPage";
 import KolaboratorPage from "./pages/public/KolaboratorPage";
-import DetailKolaborator from "./pages/public/DetailKolabolator";
-import RegisterKolaborator from "./pages/public/RegisterKolabolator";
+import DetailKolaboratorPage from "./pages/public/DetailKolaboratorPage";
+import RegisterKolaboratorPage from "./pages/public/RegisterKolaboratorPage";
 import AsetPage from "./pages/public/AsetPage";
-import DetailAset from "./pages/public/DetailAset";
+import RegisterAsetPage from "./pages/public/RegisterAsetPage";
+import DetailAsetPage from "./pages/public/DetailAsetPage";
 import BarangBekasPage from "./pages/public/BarangBekasPage";
 import BarangBekasDetailPage from "./components/features/public/barangbekas/BarangBekasDetailPages";
 import LaporanPage from "./pages/public/LaporanPage";
+import BuatLaporanPageUser from "./pages/public/BuatLaporanPage";
 import DetailLaporan from "./pages/public/DetailLaporan";
 import ArtikelPage from "./pages/public/ArtikelPage";
 import ArticleDetailPage from "./components/features/public/artikel/DetailArticle";
@@ -53,6 +55,7 @@ import AdminLaporanPage from "./pages/admin/AdminLaporanPage";
 import AdminArtikelPage from "./pages/admin/AdminArtikelPage";
 import AdminUsersManagementPage from "./pages/admin/AdminUserManagementPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
+import BuatLaporanPage from "./pages/public/BuatLaporanPage";
 
 function App() {
   return (
@@ -64,11 +67,17 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
       </Route>
-        
-        <Route element={<ProtectedRoute />}>
-          {/* Untuk halaman publik yang perlu login user */}
-          <Route path="/kolaborator/daftar" element={<RegisterKolaborator />} />
-        </Route>
+
+      <Route element={<ProtectedRoute />}>
+        {/* Untuk halaman publik yang perlu login user */}
+        <Route
+          path="/kolaborator/daftar"
+          element={<RegisterKolaboratorPage />}
+        />
+        <Route path="/laporan/buat" element={<BuatLaporanPageUser />} />
+        <Route path="/aset/daftar" element={<RegisterAsetPage />} />
+      </Route>
+
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
@@ -78,10 +87,10 @@ function App() {
         <Route index element={<LandingPage />} />
         <Route path="peta" element={<PetaPage />} />
         <Route path="kolaborator" element={<KolaboratorPage />} />
-        <Route path="kolaborator/:id" element={<DetailKolaborator />} />
-      
+        <Route path="kolaborator/:id" element={<DetailKolaboratorPage />} />
+
         <Route path="aset" element={<AsetPage />} />
-        <Route path="aset/:id" element={<DetailAset />} />
+        <Route path="aset/:id" element={<DetailAsetPage />} />
         <Route path="barang-bekas" element={<BarangBekasPage />} />
         <Route path="/barang-bekas/:id" element={<BarangBekasDetailPage />} />
         <Route path="laporan" element={<LaporanPage />} />

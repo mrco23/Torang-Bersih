@@ -12,6 +12,8 @@ class MarketplaceCreateSchema(Schema):
     foto_barang_urls = fields.List(fields.String())
     latitude = fields.Float()
     longitude = fields.Float()
+    kabupaten_kota = fields.String(validate=validate.Length(max=100))
+    alamat_lengkap = fields.String()
 
 
 class MarketplaceUpdateSchema(Schema):
@@ -24,6 +26,8 @@ class MarketplaceUpdateSchema(Schema):
     foto_barang_urls = fields.List(fields.String())
     latitude = fields.Float()
     longitude = fields.Float()
+    kabupaten_kota = fields.String(validate=validate.Length(max=100))
+    alamat_lengkap = fields.String()
     status_ketersediaan = fields.String(validate=validate.OneOf(['tersedia', 'dipesan', 'terjual']))
 
 

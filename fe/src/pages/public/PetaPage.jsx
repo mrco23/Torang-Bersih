@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom"; // Hook untuk menangkap state navigasi
+import { useLocation } from "react-router-dom";
 import SidebarPeta from "../../components/features/public/peta/SidebarPeta";
 import MapView from "../../components/features/public/peta/MapView";
+import { petaAPI } from "../../services/api/routes/peta.route";
+import toaster from "../../utils/toaster";
 
 const PetaPage = () => {
-  const location = useLocation(); // Inisialisasi useLocation
+  const location = useLocation();
 
-  // Semua kategori otomatis dicentang di awal
   const [filters, setFilters] = useState([
     "Kolaborator",
     "Aset",
@@ -14,17 +15,39 @@ const PetaPage = () => {
     "Barang Daur Ulang",
   ]);
 
-  // State untuk melacak lokasi mana yang aktif di peta
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userLocation, setUserLocation] = useState(null);
+  const [isLocating, setIsLocating] = useState(false);
 
-  // LOGIKA PENANGKAP STATE: 
-  // Menangkap data yang dikirim via navigate('/peta', { state: { targetLocation: ... } })
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [allLocations, setAllLocations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // State untuk toggle filter/sidebar di mobile
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Fetch data dari API
+  useEffect(() => {
+    const fetchMarkers = async () => {
+      setLoading(true);
+      try {
+        const res = await petaAPI.getMarkers();
+        setAllLocations(res.data.data || []);
+      } catch (error) {
+        toaster.error(
+          error.response?.data?.message || "Gagal memuat data peta",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMarkers();
+  }, []);
+
+  // Menangkap kiriman state (targetLocation) dari halaman lain
   useEffect(() => {
     if (location.state?.targetLocation) {
-      // Jika ada kiriman lokasi, langsung set sebagai lokasi terpilih
       setSelectedLocation(location.state.targetLocation);
-      
-      // Opsional: Pastikan kategori lokasi tersebut aktif di filter agar marker muncul
       const targetType = location.state.targetLocation.type;
       if (targetType && !filters.includes(targetType)) {
         setFilters((prev) => [...prev, targetType]);
@@ -32,79 +55,92 @@ const PetaPage = () => {
     }
   }, [location.state, filters]);
 
-  // Dummy Data
-  const allLocations = [
-    {
-      id: 1,
-      name: "Bank Sampah Wanea",
-      lat: 1.4589,
-      lng: 124.8385,
-      type: "Kolaborator",
-      status: "Buka",
-    },
-    {
-      id: 2,
-      name: "TPST Tuminting Terpadu",
-      lat: 1.502,
-      lng: 124.845,
-      type: "Aset",
-      status: "Beroperasi",
-    },
-    {
-      id: 3,
-      name: "Tumpukan Liar Muara Bahu",
-      lat: 1.455,
-      lng: 124.832,
-      type: "Laporan Sampah",
-      status: "Menunggu",
-    },
-    {
-      id: 4,
-      name: "Kardus Bekas 50kg (Gratis)",
-      lat: 1.487,
-      lng: 124.831,
-      type: "Barang Daur Ulang",
-      status: "Tersedia",
-    },
-    {
-      id: 5,
-      name: "Trash Hero Manado",
-      lat: 1.47,
-      lng: 124.84,
-      type: "Kolaborator",
-      status: "Komunitas",
-    },
-  ];
+  // Handle Get GPS Location
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toaster.error("Browser Anda tidak mendukung geolokasi.");
+      return;
+    }
 
-  // Data yang dilempar ke komponen anak adalah data yang sudah difilter
-  const filteredLocations = allLocations.filter((loc) =>
-    filters.includes(loc.type),
-  );
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const newLoc = { lat: latitude, lng: longitude, isUser: true };
+        setUserLocation(newLoc);
+        setSelectedLocation(newLoc); // Fly to user location
+        setIsLocating(false);
+      },
+      (error) => {
+        setIsLocating(false);
+        let errorMsg = "Gagal mendapatkan lokasi.";
+        if (error.code === 1) errorMsg = "Izin akses lokasi ditolak.";
+        else if (error.code === 2) errorMsg = "Posisi lokasi tidak tersedia.";
+        else if (error.code === 3) errorMsg = "Waktu pencarian lokasi habis.";
+        toaster.error(errorMsg);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
+  };
 
-  // Fungsi saat card di sidebar diklik
+  // Data yang dilempar ke komponen anak adalah data yang sudah difilter kategori & pencarian
+  const filteredLocations = allLocations.filter((loc) => {
+    const matchCategory = filters.includes(loc.type);
+    const matchSearch =
+      loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (loc.detail?.kabupaten_kota || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+    return matchCategory && matchSearch;
+  });
+
   const handleCardClick = (locationData) => {
     setSelectedLocation(locationData);
   };
 
   return (
-    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white pt-20 selection:bg-(--gray-shine) selection:text-(--primary)">
+    <div className="flex h-dvh w-full flex-col overflow-hidden bg-white pt-20 selection:bg-(--gray-shine) selection:text-(--primary)">
       <div className="relative flex flex-1 overflow-hidden">
+        {/* Loading Overlay (Optional) */}
+        {loading && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
+            <div className="size-10 animate-spin rounded-full border-4 border-(--primary) border-t-transparent"></div>
+            <p className="mt-4 text-sm font-bold text-(--primary)">
+              Memuat Peta...
+            </p>
+          </div>
+        )}
+
         {/* Komponen Kiri: Sidebar Filter & List */}
         <SidebarPeta
           filters={filters}
           setFilters={setFilters}
           locations={filteredLocations}
-          onCardClick={handleCardClick}
+          onCardClick={(loc) => {
+            handleCardClick(loc);
+            setIsMobileSidebarOpen(false); // Tutup sidebar mobile saat card di-klik
+          }}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          userLocation={userLocation}
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
         />
 
         {/* Komponen Kanan: Peta Interaktif */}
         <MapView
           locations={filteredLocations}
           selectedLocation={selectedLocation}
+          userLocation={userLocation}
+          onGetLocation={handleGetLocation}
+          isLocating={isLocating}
         />
 
         {/* Floating Button Filter Mobile (Hanya muncul di HP) */}
-        <button className="absolute bottom-6 left-1/2 z-[1000] flex -translate-x-1/2 items-center gap-2 rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-gray-900/30 active:scale-95 md:hidden">
+        <button
+          onClick={() => setIsMobileSidebarOpen(true)}
+          className="absolute bottom-6 left-1/2 z-400 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-gray-900/30 active:scale-95 md:hidden"
+        >
           <svg
             className="size-4"
             fill="none"

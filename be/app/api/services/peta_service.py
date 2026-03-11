@@ -30,6 +30,7 @@ class PetaService:
                     'lng': item.longitude,
                     'type': 'Kolaborator',
                     'status': 'Terverifikasi' if item.status_verifikasi else 'Belum Verifikasi',
+                    'image_url': item.logo_url,
                     'detail': {
                         'kabupaten_kota': item.kabupaten_kota,
                         'jenis': item.jenis_ref.nama if item.jenis_ref else None,
@@ -49,6 +50,7 @@ class PetaService:
                     'lng': item.longitude,
                     'type': 'Aset',
                     'status': 'Aktif' if item.status_aktif else 'Nonaktif',
+                    'image_url': item.pictures_urls[0] if item.pictures_urls and len(item.pictures_urls) > 0 else None,
                     'detail': {
                         'kabupaten_kota': item.kabupaten_kota,
                         'kategori': item.kategori_ref.nama if item.kategori_ref else None,
@@ -68,6 +70,7 @@ class PetaService:
                     'lng': item.longitude,
                     'type': 'Laporan Sampah',
                     'status': item.status_laporan.value.capitalize() if item.status_laporan else 'Menunggu',
+                    'image_url': item.foto_bukti_urls[0] if item.foto_bukti_urls and len(item.foto_bukti_urls) > 0 else None,
                     'detail': {
                         'jenis_sampah': item.jenis_sampah_ref.nama if item.jenis_sampah_ref else None,
                         'estimasi_berat_kg': item.estimasi_berat_kg,
@@ -87,6 +90,7 @@ class PetaService:
                     'lng': item.longitude,
                     'type': 'Barang Daur Ulang',
                     'status': item.status_ketersediaan.value.capitalize() if item.status_ketersediaan else 'Tersedia',
+                    'image_url': item.foto_barang_urls[0] if item.foto_barang_urls and len(item.foto_barang_urls) > 0 else None,
                     'detail': {
                         'harga': item.harga,
                         'kondisi': item.kondisi.value if item.kondisi else None,
