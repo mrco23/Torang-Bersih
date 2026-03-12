@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LaporanVektor from "../../../public/images/DaftarKolabolatorVektor.png";
 import toaster from "../../utils/toaster";
+import { laporanAPI } from "../../services/api/routes/laporan.route";
 
 import StepFotoBukti from "../../components/features/public/Laporan/BuatLaporan/StepFotoBukti";
 import StepLokasiLaporan from "../../components/features/public/Laporan/BuatLaporan/StepLokasiLaporan";
 import StepDetailLaporan from "../../components/features/public/Laporan/BuatLaporan/StepDetailLaporan";
+import { referensiAPI } from "../../services/api/routes/referensi.route";
 
 const steps = [
   { num: 1, title: "Foto Bukti" },
@@ -18,20 +20,34 @@ const BuatLaporanPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
+  const [jenisSampahOptions, setJenisSampahOptions] = useState([]);
+
   const [formData, setFormData] = useState({
     foto_bukti_urls: [],
     latitude: null,
     longitude: null,
+    kabupaten_kota: "",
     alamat_lokasi: "",
-    gmaps_url: "",
-    jenis_sampah: "",
+    jenis_sampah_id: "",
     estimasi_berat_kg: null,
     karakteristik: "",
     bentuk_timbulan: "",
-    deskripsi: "",
-    status_laporan: "Menunggu",
-    tanggal_lapor: new Date().toISOString(),
+    deskripsi_laporan: "",
   });
+
+  useEffect(() => {
+    const fetchJenisSampah = async () => {
+      try {
+        const response = await referensiAPI.getAll("jenis-sampah");
+        setJenisSampahOptions(response.data.data);
+      } catch (error) {
+        toaster.error(
+          `${error.response.data.message || "Gagal memuat opsi jenis sampah"}`,
+        );
+      }
+    };
+    fetchJenisSampah();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,51 +73,29 @@ const BuatLaporanPage = () => {
   const handlePrev = () => setCurrentStep((p) => Math.max(p - 1, 1));
 
   const handleSubmit = async () => {
-    if (!formData.jenis_sampah)
+    if (!formData.jenis_sampah_id)
       return toaster.warning("Pilih jenis sampah terlebih dahulu.");
 
     setSubmitting(true);
+    try {
+      const payload = { ...formData };
+      delete payload.foto_bukti_urls;
 
-    // ── Console log untuk BE ─────────────────────────────────
-    console.group("🗑️ DATA LAPORAN SAMPAH ILEGAL");
-    console.group("📸 Step 1 — Foto Bukti");
-    console.log(
-      "foto_bukti_urls  :",
-      formData.foto_bukti_urls.map((f) => f.name),
-    );
-    console.groupEnd();
-    console.group("📍 Step 2 — Lokasi");
-    console.log("latitude         :", formData.latitude);
-    console.log("longitude        :", formData.longitude);
-    console.log("alamat_lokasi    :", formData.alamat_lokasi);
-    console.log("gmaps_url        :", formData.gmaps_url || "(tidak diisi)");
-    console.groupEnd();
-    console.group("📋 Step 3 — Detail");
-    console.log("jenis_sampah     :", formData.jenis_sampah);
-    console.log("estimasi_berat_kg:", formData.estimasi_berat_kg);
-    console.log("karakteristik    :", formData.karakteristik);
-    console.log("bentuk_timbulan  :", formData.bentuk_timbulan);
-    console.log("deskripsi        :", formData.deskripsi);
-    console.log("status_laporan   :", formData.status_laporan);
-    console.log("tanggal_lapor    :", formData.tanggal_lapor);
-    console.groupEnd();
-    console.log(
-      "📦 Full JSON:",
-      JSON.stringify(
-        {
-          ...formData,
-          foto_bukti_urls: formData.foto_bukti_urls.map((f) => f.name),
-        },
-        null,
-        2,
-      ),
-    );
-    console.groupEnd();
+      await laporanAPI.create(payload, {
+        foto_bukti_urls: formData.foto_bukti_urls,
+      });
 
-    await new Promise((r) => setTimeout(r, 1000));
-    setSubmitting(false);
-    toaster.success("Laporan berhasil dikirim! Terima kasih telah melapor.");
-    navigate("/:user/laporan");
+      toaster.success("Laporan berhasil dikirim! Terima kasih telah melapor.");
+      navigate("/:user/laporan");
+    } catch (error) {
+      console.error("Failed to make laporan:", error.response.data.errors);
+      toaster.error(
+        error.response.data.message ||
+          "Gagal mengirim laporan. Silakan coba lagi.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -217,6 +211,7 @@ const BuatLaporanPage = () => {
                 formData={formData}
                 setFormData={setFormData}
                 handleChange={handleChange}
+                jenisSampahOptions={jenisSampahOptions}
               />
             )}
           </div>

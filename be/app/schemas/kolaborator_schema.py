@@ -38,6 +38,7 @@ class KolaboratorQuerySchema(Schema):
     search = fields.String(validate=validate.Length(max=100))
     jenis_kolaborator_id = fields.String()
     kabupaten_kota = fields.String()
+    status_aktif = fields.Boolean()
     status_verifikasi = fields.String(validate=validate.OneOf(['menunggu', 'terverifikasi', 'ditolak']))
     sort_by = fields.String(load_default='created_at', validate=validate.OneOf(['created_at', 'nama_organisasi']))
     sort_order = fields.String(load_default='desc', validate=validate.OneOf(['asc', 'desc']))

@@ -147,8 +147,13 @@ const DetailKolaboratorPage = () => {
         {/* HERO / HEADER */}
         <div className="relative mb-10 md:mb-16">
           {/* Cover image / gradient fallback */}
-          <div className="relative h-48 w-full overflow-hidden rounded-3xl bg-linear-to-br from-indigo-500 via-purple-500 to-pink-400 ring-1 ring-gray-900/5 sm:h-64">
-            <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent"></div>
+          <div className="relative h-40 w-full overflow-hidden rounded-3xl bg-linear-to-br from-indigo-500 via-gray-900 to-blue-500 ring-1 ring-gray-900/5 sm:h-54">
+            <div className="absolute inset-0 z-10 bg-linear-to-t from-black/40 via-transparent to-transparent"></div>
+            <img
+              src={kolaborator.logo_url}
+              alt="Cover"
+              className="size-full object-cover opacity-0"
+            />
           </div>
 
           <div className="relative mx-auto -mt-16 flex max-w-[1080px] flex-col items-start gap-5 px-4 sm:-mt-20 sm:flex-row sm:items-end sm:px-8">

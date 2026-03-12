@@ -48,6 +48,6 @@ export const asetAPI = {
     return api.put(`/aset/${id}`, data);
   },
   delete: (id) => api.delete(`/aset/${id}`),
-  verify: (id, data) => api.post(`/aset/${id}/verify`, data),
+  verify: (id, data) => api.patch(`/aset/${id}/verify`, data),
   getMyAset: (params) => api.get("/aset/my-aset", { params }),
 };

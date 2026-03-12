@@ -10,7 +10,7 @@ class AsetService:
 
     @staticmethod
     def get_all(page=1, per_page=20, search=None, kategori_aset_id=None,
-                kabupaten_kota=None, status_aktif=None, sort_by='created_at', sort_order='desc'):
+                kabupaten_kota=None, status_aktif=None, status_verifikasi=None, sort_by='created_at', sort_order='desc'):
         query = Aset.query
 
         if search:
@@ -29,6 +29,9 @@ class AsetService:
 
         if status_aktif is not None:
             query = query.filter_by(status_aktif=status_aktif)
+
+        if status_verifikasi is not None:
+            query = query.filter(Aset.status_verifikasi==StatusVerifikasiAset(status_verifikasi))
 
         # Sorting
         sort_column = getattr(Aset, sort_by, Aset.created_at)
@@ -122,7 +125,7 @@ class AsetService:
 
     @staticmethod
     def get_my_aset(user_id, page=1, per_page=20, search=None, kategori_aset_id=None,
-                kabupaten_kota=None, status_aktif=None, sort_by='created_at', sort_order='desc'):
+                kabupaten_kota=None, status_aktif=None, status_verifikasi=None, sort_by='created_at', sort_order='desc'):
         query = Aset.query.filter_by(id_user=user_id)
 
         if search:
@@ -141,6 +144,9 @@ class AsetService:
 
         if status_aktif is not None:
             query = query.filter_by(status_aktif=status_aktif)
+
+        if status_verifikasi is not None:
+            query = query.filter(Aset.status_verifikasi==StatusVerifikasiAset(status_verifikasi))
 
         # Sorting
         sort_column = getattr(Aset, sort_by, Aset.created_at)

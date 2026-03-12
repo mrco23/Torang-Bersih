@@ -17,6 +17,7 @@ function DaftarAset() {
     search: "",
     kategori_aset_id: "",
     status_aktif: "true",
+    status_verifikasi: "terverifikasi",
     sort_by: "created_at",
     sort_order: "desc",
   });
@@ -71,9 +72,8 @@ function DaftarAset() {
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h2 className="text-3xl font-bold">Jejaring Aset</h2>
-            <p className="mt-2 text-gray-500">
-              Temukan fasilitas pengolahan sampah di sekitar Anda.
-              {meta ? ` (${meta.total} fasilitas terdaftar)` : ""}
+            <p className="mt-1 text-sm text-gray-500">
+              {meta ? `${meta.total} fasilitas terdaftar` : ""}
             </p>
           </div>
 

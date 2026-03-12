@@ -169,7 +169,7 @@ function AdminKolaboratorPage() {
             className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="">Semua Status</option>
-            <option value="menunggu verifikasi">Menunggu Verifikasi</option>
+            <option value="menunggu">Menunggu Verifikasi</option>
             <option value="terverifikasi">Terverifikasi</option>
             <option value="ditolak">Ditolak</option>
           </select>

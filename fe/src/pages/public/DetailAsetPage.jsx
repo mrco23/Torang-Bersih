@@ -318,15 +318,6 @@ const DetailAset = () => {
 
       {/* ── Page Content ── */}
       <div className="mx-auto w-full max-w-6xl">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-emerald-700"
-        >
-          <ChevronLeft className="size-4" />
-          Kembali
-        </button>
-
         {/* ── Page Header ── */}
         <header className="mb-8">
           <div className="mb-3 flex flex-wrap items-center gap-2">

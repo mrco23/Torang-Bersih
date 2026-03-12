@@ -259,6 +259,33 @@ def test_laporan(app, test_user, ref_jenis_sampah):
 
 
 @pytest.fixture
+def test_laporan_diterima(app, test_user, test_admin, ref_jenis_sampah):
+    """Create a test laporan with status 'diterima' (needed for tindak lanjut tests)."""
+    from app.database.models import StatusLaporan
+    from datetime import datetime, timezone
+    with app.app_context():
+        item = LaporanSampahIlegal(
+            id_warga=test_user.id,
+            jenis_sampah_id=ref_jenis_sampah.id,
+            alamat_lokasi="Jl. Test Diterima No. 2",
+            latitude=-6.9210,
+            longitude=107.6110,
+            estimasi_berat_kg=30.0,
+            karakteristik=Karakteristik.RESIDU,
+            bentuk_timbulan=BentukTimbulan.TERCECER,
+            status_laporan=StatusLaporan.DITERIMA,
+            id_admin_verifikator=test_admin.id,
+            waktu_verifikasi=datetime.now(timezone.utc),
+        )
+        db.session.add(item)
+        db.session.commit()
+        item_id = item.id
+        yield item
+        db.session.query(LaporanSampahIlegal).filter_by(id=item_id).delete()
+        db.session.commit()
+
+
+@pytest.fixture
 def test_marketplace_item(app, test_user, ref_kategori_barang):
     """Create a test marketplace item owned by test_user."""
     with app.app_context():

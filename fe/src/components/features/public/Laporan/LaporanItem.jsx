@@ -1,10 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { formatBeratLaporan } from "../../../../utils/helpers";
+
 const LaporanItem = ({ data }) => {
   // Styling warna badge dinamis sesuai status laporan
   const getStatusStyle = (status) => {
-    switch (status) {
-      case "Menunggu":
+    switch (status?.toLowerCase()) {
+      case "menunggu":
         return {
           bg: "bg-red-50",
           text: "text-red-700",
@@ -12,7 +14,7 @@ const LaporanItem = ({ data }) => {
           dot: "bg-red-500",
           ping: true,
         };
-      case "Selesai":
+      case "selesai":
         return {
           bg: "bg-emerald-50",
           text: "text-emerald-700",
@@ -34,6 +36,7 @@ const LaporanItem = ({ data }) => {
   const statusStyle = getStatusStyle(data.status_laporan);
 
   const formatTanggal = (isoString) => {
+    if (!isoString) return "-";
     const date = new Date(isoString);
     return date.toLocaleDateString("id-ID", {
       day: "numeric",
@@ -44,12 +47,17 @@ const LaporanItem = ({ data }) => {
 
   // Helper untuk waktu (Contoh: 08:30)
   const formatWaktu = (isoString) => {
+    if (!isoString) return "-";
     const date = new Date(isoString);
     return date.toLocaleTimeString("id-ID", {
       hour: "2-digit",
       minute: "2-digit",
     });
   };
+
+  const pelaporName = data.pelapor ? (data.pelapor.full_name || data.pelapor.username) : "Anonim";
+  const namaJenisSampah = data.jenis_sampah ? data.jenis_sampah.nama : "Tidak diketahui";
+  const bentukTimbulan = data.bentuk_timbulan === "tercecer" ? "Tercecer" : "Menumpuk";
 
   return (
     <Link
@@ -62,7 +70,7 @@ const LaporanItem = ({ data }) => {
           <img
             src={data.foto_bukti_urls[0]}
             alt="Bukti Sampah"
-            className={`size-full object-cover transition-transform duration-700 group-hover:scale-110 ${data.status_laporan === "Selesai" ? "grayscale-[30%]" : ""}`}
+            className={`size-full object-cover transition-transform duration-700 group-hover:scale-110 ${data.status_laporan?.toLowerCase() === "selesai" ? "grayscale-30" : ""}`}
           />
         ) : (
           <div className="flex size-full items-center justify-center text-gray-300">
@@ -88,17 +96,17 @@ const LaporanItem = ({ data }) => {
         {/* Info Lokasi & Detail Sampah */}
         <div className="flex flex-1 flex-col">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bold tracking-widest text-gray-400 uppercase">
+            <span className="text-[11px] font-bold tracking-widest text-gray-400 uppercase break-all">
               {data.id}
             </span>
             <span className="hidden size-1 rounded-full bg-gray-300 sm:block"></span>
             <span className="text-[11px] font-bold text-gray-500">
-              Dilaporkan {formatTanggal(data.tanggal_lapor)} -{" "}
-              {formatWaktu(data.tanggal_lapor)}
+              Dilaporkan {formatTanggal(data.created_at)} -{" "}
+              {formatWaktu(data.created_at)}
             </span>
           </div>
-          <h3 className="line-clamp-1 text-base font-extrabold text-gray-900 transition-colors group-hover:text-(--primary)">
-            Timbulan Sampah {data.jenis_sampah}
+          <h3 className="line-clamp-1 text-base font-extrabold text-gray-900 transition-colors group-hover:text-[#1e1f78]">
+            Timbulan Sampah {namaJenisSampah}
           </h3>
           <p className="mt-1 line-clamp-1 text-sm font-medium text-gray-500">
             {data.alamat_lokasi}
@@ -120,7 +128,7 @@ const LaporanItem = ({ data }) => {
                   d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
                 />
               </svg>
-              ~ {data.estimasi_berat_kg} kg
+              ~ {formatBeratLaporan(data.estimasi_berat_kg)}
             </span>
             <span className="flex items-center gap-1 rounded-md bg-gray-50 px-2 py-1 ring-1 ring-gray-900/5">
               <svg
@@ -136,7 +144,7 @@ const LaporanItem = ({ data }) => {
                   d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                 />
               </svg>
-              {data.bentuk_timbulan}
+              {bentukTimbulan}
             </span>
           </div>
         </div>
@@ -156,10 +164,10 @@ const LaporanItem = ({ data }) => {
                 className={`relative inline-flex size-2 rounded-full ${statusStyle.dot}`}
               ></span>
             </span>
-            {data.status_laporan.toUpperCase()}
+            {(data.status_laporan || "").toUpperCase()}
           </span>
           <p className="hidden text-xs font-bold text-gray-400 sm:block">
-            Pelapor: {data.nama_pelapor}
+            Pelapor: {pelaporName}
           </p>
         </div>
       </div>

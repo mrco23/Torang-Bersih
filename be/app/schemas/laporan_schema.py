@@ -27,20 +27,35 @@ class LaporanQuerySchema(Schema):
     page = fields.Integer(load_default=1, validate=validate.Range(min=1))
     per_page = fields.Integer(load_default=20, validate=validate.Range(min=1, max=100))
     search = fields.String(validate=validate.Length(max=100))
-    status_laporan = fields.String(validate=validate.OneOf(['menunggu', 'diterima', 'ditolak', 'ditindak', 'selesai']))
+    # Allow comma-separated statuses like "diterima,ditindak,selesai"
+    status_laporan = fields.String(validate=validate.Length(max=100))
     jenis_sampah_id = fields.String()
     id_warga = fields.String()
-    sort_by = fields.String(load_default='tanggal_lapor', validate=validate.OneOf(['tanggal_lapor', 'estimasi_berat_kg']))
+    sort_by = fields.String(load_default='created_at', validate=validate.OneOf(['created_at', 'estimasi_berat_kg']))
     sort_order = fields.String(load_default='desc', validate=validate.OneOf(['asc', 'desc']))
 
 class MyLaporanQuerySchema(Schema):
     page = fields.Integer(load_default=1, validate=validate.Range(min=1))
     per_page = fields.Integer(load_default=20, validate=validate.Range(min=1, max=100))
     search = fields.String(validate=validate.Length(max=100))
-    status_laporan = fields.String(validate=validate.OneOf(['menunggu', 'diterima', 'ditolak', 'ditindak', 'selesai']))
+    # Allow comma-separated statuses
+    status_laporan = fields.String(validate=validate.Length(max=100))
     jenis_sampah_id = fields.String()
-    sort_by = fields.String(load_default='tanggal_lapor', validate=validate.OneOf(['tanggal_lapor', 'estimasi_berat_kg']))
+    sort_by = fields.String(load_default='created_at', validate=validate.OneOf(['created_at', 'estimasi_berat_kg']))
     sort_order = fields.String(load_default='desc', validate=validate.OneOf(['asc', 'desc']))
+
+
+class LaporanUpdateSchema(Schema):
+    foto_bukti_urls = fields.List(fields.String())
+    latitude = fields.Float()
+    longitude = fields.Float()
+    kabupaten_kota = fields.String()
+    alamat_lokasi = fields.String()
+    jenis_sampah_id = fields.String()
+    estimasi_berat_kg = fields.Float()
+    karakteristik = fields.String(validate=validate.OneOf(['bisa_didaur_ulang', 'residu']))
+    bentuk_timbulan = fields.String(validate=validate.OneOf(['tercecer', 'menumpuk']))
+    deskripsi_laporan = fields.String(validate=validate.Length(max=2000))
 
 
 class TindakLanjutCreateSchema(Schema):

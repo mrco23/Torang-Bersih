@@ -22,18 +22,6 @@ const ErrorMsg = ({ msg }) =>
     </p>
   ) : null;
 
-// Data dibersihkan dari emoji
-const JENIS = [
-  "Organik",
-  "Plastik",
-  "Tekstil",
-  "Kaca",
-  "Logam",
-  "Kertas",
-  "B3",
-  "Campuran",
-];
-
 const BERAT = [
   { label: "Kurang dari 5 kg", val: 2.5 },
   { label: "5 - 20 kg", val: 12.5 },
@@ -42,11 +30,16 @@ const BERAT = [
   { label: "Lebih dari 100 kg", val: 150 },
 ];
 
-const KARAKTERISTIK = ["Bisa didaur ulang", "Residu"];
+const KARAKTERISTIK = ["bisa_didaur_ulang", "residu"];
+// Using exact enums matching the backend
+const KARAKTERISTIK_LABELS = {
+  bisa_didaur_ulang: "Bisa didaur ulang",
+  residu: "Residu",
+};
 
 const BENTUK = [
-  { val: "Tercecer", desc: "Sampah tersebar di area sekitar" },
-  { val: "Menumpuk", desc: "Sampah bertumpuk di satu titik" },
+  { val: "tercecer", desc: "Sampah tersebar di area sekitar" },
+  { val: "menumpuk", desc: "Sampah bertumpuk di satu titik" },
 ];
 
 // Ikon panah bawah kustom untuk dropdown
@@ -72,6 +65,7 @@ export default function StepDetailLaporan({
   formData,
   setFormData,
   handleChange,
+  jenisSampahOptions = [],
 }) {
   const [touched, setTouched] = useState({});
 
@@ -86,8 +80,11 @@ export default function StepDetailLaporan({
   };
 
   const handleTextareaBlur = () => {
-    setTouched((p) => ({ ...p, deskripsi: true }));
+    setTouched((p) => ({ ...p, deskripsi_laporan: true }));
   };
+
+  const hasJenisSampahError =
+    touched.jenis_sampah_id && !formData.jenis_sampah_id;
 
   return (
     <div className="animate-in fade-in space-y-6 duration-300">
@@ -103,25 +100,23 @@ export default function StepDetailLaporan({
         </label>
         <div className="relative">
           <select
-            name="jenis_sampah"
-            value={formData.jenis_sampah || ""}
+            name="jenis_sampah_id"
+            value={formData.jenis_sampah_id || ""}
             onChange={handleSelectChange}
-            className={`${inputCls(touched.jenis_sampah, touched.jenis_sampah && !formData.jenis_sampah)} ${!formData.jenis_sampah ? "text-gray-400" : "text-gray-700"}`}
+            className={`${inputCls(touched.jenis_sampah_id, hasJenisSampahError)} ${!formData.jenis_sampah_id ? "text-gray-400" : "text-gray-700"}`}
           >
             <option value="" disabled>
               -- Pilih jenis sampah --
             </option>
-            {JENIS.map((jenis) => (
-              <option key={jenis} value={jenis} className="text-gray-900">
-                {jenis}
+            {jenisSampahOptions.map((jenis) => (
+              <option key={jenis.id} value={jenis.id} className="text-gray-900">
+                {jenis.nama}
               </option>
             ))}
           </select>
           <SelectArrow />
         </div>
-        {touched.jenis_sampah && !formData.jenis_sampah && (
-          <ErrorMsg msg="Jenis sampah wajib dipilih." />
-        )}
+        {hasJenisSampahError && <ErrorMsg msg="Jenis sampah wajib dipilih." />}
       </div>
 
       {/* Estimasi Berat */}
@@ -170,7 +165,7 @@ export default function StepDetailLaporan({
               </option>
               {KARAKTERISTIK.map((k) => (
                 <option key={k} value={k} className="text-gray-900">
-                  {k}
+                  {KARAKTERISTIK_LABELS[k]}
                 </option>
               ))}
             </select>
@@ -198,7 +193,7 @@ export default function StepDetailLaporan({
               </option>
               {BENTUK.map((b) => (
                 <option key={b.val} value={b.val} className="text-gray-900">
-                  {b.val} - {b.desc}
+                  {b.val === "tercecer" ? "Tercecer" : "Menumpuk"} - {b.desc}
                 </option>
               ))}
             </select>
@@ -219,8 +214,8 @@ export default function StepDetailLaporan({
           </span>
         </label>
         <textarea
-          name="deskripsi"
-          value={formData.deskripsi || ""}
+          name="deskripsi_laporan"
+          value={formData.deskripsi_laporan || ""}
           onChange={handleChange}
           onBlur={handleTextareaBlur}
           rows="3"
@@ -229,7 +224,7 @@ export default function StepDetailLaporan({
           className="w-full resize-none rounded border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 transition-colors placeholder:text-gray-400 focus:border-[#1e1f78] focus:outline-none"
         />
         <p className="mt-1 text-right text-[11px] text-gray-400">
-          {(formData.deskripsi || "").length} / 500
+          {(formData.deskripsi_laporan || "").length} / 500
         </p>
       </div>
     </div>

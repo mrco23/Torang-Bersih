@@ -15,6 +15,7 @@ function DaftarKolaborator() {
     per_page: 10,
     search: "",
     jenis_kolaborator_id: "",
+    status_aktif: "true",
     status_verifikasi: "terverifikasi",
     sort_by: "created_at",
     sort_order: "desc",

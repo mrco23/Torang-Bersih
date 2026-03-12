@@ -101,10 +101,10 @@ class TestUpdateStatusLaporan:
 class TestTindakLanjut:
     """Tests for tindak lanjut endpoints."""
 
-    def test_create_tindak_lanjut(self, client, auth_headers, test_laporan):
+    def test_create_tindak_lanjut(self, client, auth_headers, test_laporan_diterima):
         """Test creating tindak lanjut."""
         response = client.post(
-            f'/api/laporan/{test_laporan.id}/tindak-lanjut',
+            f'/api/laporan/{test_laporan_diterima.id}/tindak-lanjut',
             headers=auth_headers,
             json={
                 'tindak_lanjut_penanganan': 'Pembersihan area',
@@ -114,9 +114,9 @@ class TestTindakLanjut:
 
         assert response.status_code == 201
 
-    def test_list_tindak_lanjut(self, client, test_laporan):
+    def test_list_tindak_lanjut(self, client, test_laporan_diterima):
         """Test listing tindak lanjut for a laporan."""
-        response = client.get(f'/api/laporan/{test_laporan.id}/tindak-lanjut')
+        response = client.get(f'/api/laporan/{test_laporan_diterima.id}/tindak-lanjut')
 
         assert response.status_code == 200
         data = response.get_json()

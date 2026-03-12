@@ -55,8 +55,11 @@ const RegisterAsetPage = () => {
         return toaster.warning("Isi nama aset terlebih dahulu.");
       if (!formData.kategori_aset_id)
         return toaster.warning("Pilih kategori aset.");
-      if (!formData.deskripsi_aset.trim())
-        return toaster.warning("Isi deskripsi aset.");
+      if (
+        !formData.deskripsi_aset.trim() ||
+        formData.deskripsi_aset.length < 50
+      )
+        return toaster.warning("Isi deskripsi aset minimal 50 karakter.");
     }
     if (currentStep === 2) {
       if (!formData.kabupaten_kota)

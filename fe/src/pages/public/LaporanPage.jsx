@@ -13,7 +13,7 @@ const LaporanPage = () => {
         />
       </div>
 
-      <div className="relative z-20 bg-white">
+      <div className="relative z-20 bg-white px-4 py-8 md:px-10">
         <DaftarLaporan />
       </div>
     </div>
