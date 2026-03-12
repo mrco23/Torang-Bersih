@@ -75,7 +75,7 @@ export default function FloatingIcons() {
 
       <svg
         className="z-0"
-        width="1350"
+        width="650"
         height="498"
         viewBox="0 0 560 498"
         fill="none"

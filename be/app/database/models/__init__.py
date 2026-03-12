@@ -7,8 +7,8 @@ from app.database.models.referensi import (
     RefJenisKolaborator, RefKategoriAset, RefJenisSampah,
     RefKategoriBarang, RefKategoriArtikel
 )
-from app.database.models.kolaborator import Kolaborator
-from app.database.models.aset import Aset
+from app.database.models.kolaborator import Kolaborator, StatusVerifikasiKolaborator
+from app.database.models.aset import Aset, StatusVerifikasiAset
 from app.database.models.laporan_sampah_ilegal import (
     LaporanSampahIlegal, Karakteristik, BentukTimbulan, StatusLaporan
 )
@@ -26,8 +26,8 @@ __all__ = [
     'User', 'UserRole',
     'RefJenisKolaborator', 'RefKategoriAset', 'RefJenisSampah',
     'RefKategoriBarang', 'RefKategoriArtikel',
-    'Kolaborator',
-    'Aset',
+    'Kolaborator', 'StatusVerifikasiKolaborator',
+    'Aset', 'StatusVerifikasiAset',
     'LaporanSampahIlegal', 'Karakteristik', 'BentukTimbulan', 'StatusLaporan',
     'TindakLanjutLaporan',
     'MarketplaceDaurUlang', 'KondisiBarang', 'StatusKetersediaan',

@@ -30,17 +30,24 @@ class MarketplaceDaurUlang(db.Model):
     deskripsi_barang = db.Column(db.Text)
     harga = db.Column(db.Integer, default=0)
     berat_estimasi_kg = db.Column(db.Float)
-    kondisi = db.Column(Enum(KondisiBarang), nullable=False)
+    kondisi = db.Column(Enum(KondisiBarang, values_callable=lambda x: [e.value for e in x]), nullable=False)
     foto_barang_urls = db.Column(db.JSON)
+
+    kontak = db.Column(db.String(20), nullable=True)
 
     # Lokasi COD
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
+    kabupaten_kota = db.Column(db.String(100))
+    alamat_lengkap = db.Column(db.Text)
 
-    status_ketersediaan = db.Column(Enum(StatusKetersediaan), default=StatusKetersediaan.TERSEDIA, nullable=False)
+    status_ketersediaan = db.Column(Enum(StatusKetersediaan, values_callable=lambda x: [e.value for e in x]), default=StatusKetersediaan.TERSEDIA, nullable=False)
 
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+
+    # Relationships
+    penjual = db.relationship('User', foreign_keys=[id_penjual], backref='marketplace_items', lazy='select')
 
     def __repr__(self):
         return f'<MarketplaceDaurUlang {self.nama_barang}>'
@@ -49,6 +56,12 @@ class MarketplaceDaurUlang(db.Model):
         return {
             'id': self.id,
             'id_penjual': self.id_penjual,
+            'penjual': {
+                'id': self.penjual.id,
+                'username': self.penjual.username,
+                'full_name': self.penjual.full_name,
+                'avatar_url': self.penjual.avatar_url,
+            } if self.penjual else None,
             'nama_barang': self.nama_barang,
             'kategori_barang': self.kategori_ref.to_dict() if self.kategori_ref else None,
             'deskripsi_barang': self.deskripsi_barang,
@@ -56,8 +69,11 @@ class MarketplaceDaurUlang(db.Model):
             'berat_estimasi_kg': self.berat_estimasi_kg,
             'kondisi': self.kondisi.value if self.kondisi else None,
             'foto_barang_urls': self.foto_barang_urls,
+            'kontak': self.kontak,
             'latitude': self.latitude,
             'longitude': self.longitude,
+            'kabupaten_kota': self.kabupaten_kota,
+            'alamat_lengkap': self.alamat_lengkap,
             'status_ketersediaan': self.status_ketersediaan.value if self.status_ketersediaan else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,

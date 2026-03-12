@@ -39,6 +39,7 @@ class Artikel(db.Model):
     # Relationships
     likes = db.relationship('ArtikelLike', backref='artikel', lazy='dynamic', cascade='all, delete-orphan')
     komentar = db.relationship('ArtikelKomentar', backref='artikel', lazy='dynamic', cascade='all, delete-orphan')
+    penulis = db.relationship('User', foreign_keys=[id_penulis], backref='artikel', lazy='select')
 
     def __repr__(self):
         return f'<Artikel {self.judul_artikel}>'
@@ -47,6 +48,7 @@ class Artikel(db.Model):
         data = {
             'id': self.id,
             'id_penulis': self.id_penulis,
+            'penulis': self.penulis.to_dict() if self.penulis else None,
             'judul_artikel': self.judul_artikel,
             'slug': self.slug,
             'kategori': self.kategori_ref.to_dict() if self.kategori_ref else None,
@@ -73,6 +75,7 @@ class ArtikelLike(db.Model):
     id_user = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False, index=True)
 
     waktu_like = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    user = db.relationship('User', foreign_keys=[id_user], backref='artikel_likes', lazy='select')
 
     def __repr__(self):
         return f'<ArtikelLike artikel={self.id_artikel} user={self.id_user}>'
@@ -82,6 +85,7 @@ class ArtikelLike(db.Model):
             'id': self.id,
             'id_artikel': self.id_artikel,
             'id_user': self.id_user,
+            'user': self.user.to_dict() if self.user else None,
             'waktu_like': self.waktu_like.isoformat() if self.waktu_like else None,
         }
 
@@ -102,6 +106,7 @@ class ArtikelKomentar(db.Model):
 
     # Self-referential relationship for threaded comments
     replies = db.relationship('ArtikelKomentar', backref=db.backref('parent', remote_side='ArtikelKomentar.id'), lazy='dynamic')
+    user = db.relationship('User', foreign_keys=[id_user], backref='artikel_komentar', lazy='select')
 
     def __repr__(self):
         return f'<ArtikelKomentar {self.id}>'
@@ -111,6 +116,7 @@ class ArtikelKomentar(db.Model):
             'id': self.id,
             'id_artikel': self.id_artikel,
             'id_user': self.id_user,
+            'user': self.user.to_dict() if self.user else None,
             'parent_id': self.parent_id,
             'isi_komentar': self.isi_komentar,
             'status_komentar': self.status_komentar.value if self.status_komentar else None,

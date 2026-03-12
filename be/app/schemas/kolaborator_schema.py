@@ -5,7 +5,7 @@ from marshmallow import Schema, fields, validate
 class KolaboratorCreateSchema(Schema):
     nama_organisasi = fields.String(required=True, validate=validate.Length(min=1, max=100))
     jenis_kolaborator_id = fields.String(required=True)
-    deskripsi = fields.String(validate=validate.Length(min=500))
+    deskripsi = fields.String(validate=validate.Length(min=50))
     logo_url = fields.String(validate=validate.Length(max=500))
     email = fields.Email()
     kabupaten_kota = fields.String(validate=validate.Length(max=100))
@@ -20,7 +20,7 @@ class KolaboratorCreateSchema(Schema):
 class KolaboratorUpdateSchema(Schema):
     nama_organisasi = fields.String(validate=validate.Length(min=1, max=100))
     jenis_kolaborator_id = fields.String()
-    deskripsi = fields.String(validate=validate.Length(min=500))
+    deskripsi = fields.String(validate=validate.Length(min=50))
     logo_url = fields.String(validate=validate.Length(max=500))
     email = fields.Email()
     kabupaten_kota = fields.String(validate=validate.Length(max=100))
@@ -38,5 +38,16 @@ class KolaboratorQuerySchema(Schema):
     search = fields.String(validate=validate.Length(max=100))
     jenis_kolaborator_id = fields.String()
     kabupaten_kota = fields.String()
+    status_aktif = fields.Boolean()
+    status_verifikasi = fields.String(validate=validate.OneOf(['menunggu', 'terverifikasi', 'ditolak']))
     sort_by = fields.String(load_default='created_at', validate=validate.OneOf(['created_at', 'nama_organisasi']))
     sort_order = fields.String(load_default='desc', validate=validate.OneOf(['asc', 'desc']))
+
+
+
+class KolaboratorVerifySchema(Schema):
+    status_verifikasi = fields.String(
+        required=True,
+        validate=validate.OneOf(['terverifikasi', 'ditolak'])
+    )
+    catatan_verifikasi = fields.String(validate=validate.Length(max=1000))

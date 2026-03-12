@@ -1,6 +1,7 @@
 """Cloudinary integration for file uploads"""
 import cloudinary
 import cloudinary.uploader
+import concurrent.futures
 from flask import current_app
 
 from app.utils.logger import logger
@@ -43,6 +44,33 @@ def upload_image(file, folder="uploads", public_id=None, transformation=None):
         logger.error(f"Failed to upload image: {e}")
         return None
 
+
+def upload_images_concurrently(files, folder="uploads"):
+    """
+    Upload multiple files to Cloudinary concurrently using a ThreadPoolExecutor.
+    Returns a list of successful secure_urls.
+    """
+    uploaded_urls = []
+    if not files:
+        return uploaded_urls
+        
+    # We filter out empty files first
+    valid_files = [f for f in files if f.filename]
+    if not valid_files:
+        return uploaded_urls
+
+    # Use ThreadPoolExecutor to upload images in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(valid_files), 10)) as executor:
+        # Submit all tasks
+        futures = [executor.submit(upload_image, file, folder=folder) for file in valid_files]
+        
+        # Gather results as they complete
+        for future in concurrent.futures.as_completed(futures):
+            res = future.result()
+            if res and 'url' in res:
+                uploaded_urls.append(res['url'])
+                
+    return uploaded_urls
 
 def delete_image(public_id):
     try:

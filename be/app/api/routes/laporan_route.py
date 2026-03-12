@@ -20,6 +20,11 @@ def create():
     return laporan_controller.create()
 
 
+@laporan_bp.route('/<item_id>', methods=['PUT', 'PATCH'])
+def update(item_id):
+    return laporan_controller.update(item_id)
+
+
 @laporan_bp.route('/<item_id>/status', methods=['PATCH'])
 def update_status(item_id):
     return laporan_controller.update_status(item_id)

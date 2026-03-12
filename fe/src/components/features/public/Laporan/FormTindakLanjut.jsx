@@ -1,33 +1,74 @@
 import React, { useState } from "react";
+import { laporanAPI } from "../../../../services/api/routes/laporan.route";
+import toaster from "../../../../utils/toaster";
 
 const FormTindakLanjut = ({ isOpen, onClose, laporanId }) => {
   // STATE MAPPING KE DATABASE
   const [tindakan, setTindakan] = useState("Pembersihan Penuh");
   const [kategoriInstitusi, setKategoriInstitusi] = useState("Komunitas");
   const [namaInstitusi, setNamaInstitusi] = useState("");
-  const [foto, setFoto] = useState(null);
+  const [catatan, setCatatan] = useState("");
+  const [fotoSebelum, setFotoSebelum] = useState(null);
+  const [previewSebelum, setPreviewSebelum] = useState(null);
+  const [fotoSetelah, setFotoSetelah] = useState(null);
+  const [previewSetelah, setPreviewSetelah] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payloadTindakLanjut = {
-      id_laporan: laporanId,
-      tindak_lanjut_penanganan: tindakan,
-      kategori_institusi: kategoriInstitusi,
-      nama_institusi: namaInstitusi,
-      foto_tindakan_file: foto,
-    };
+    if (!fotoSetelah) {
+      toaster.warning("Bukti foto setelah tindakan wajib diunggah.");
+      return;
+    }
 
-    console.log("Data siap dikirim ke Database:", payloadTindakLanjut);
-    alert("Bukti penanganan berhasil dikirim! Laporan akan berstatus Selesai.");
-    onClose();
+    setSubmitting(true);
+    try {
+      const payloadTindakLanjut = {
+        tindak_lanjut_penanganan: tindakan,
+        tim_penindak: `${kategoriInstitusi} - ${namaInstitusi}`,
+        catatan: catatan,
+      };
+
+      const fotoFiles = {
+        ...(fotoSebelum && { foto_sebelum: [fotoSebelum] }),
+        foto_setelah: [fotoSetelah],
+      };
+
+      await laporanAPI.createTindakLanjut(
+        laporanId,
+        payloadTindakLanjut,
+        fotoFiles,
+      );
+
+      toaster.success(
+        "Bukti penanganan berhasil dikirim! Status laporan akan diperbarui.",
+      );
+
+      // Reset form
+      setTindakan("Pembersihan Penuh");
+      setKategoriInstitusi("Komunitas");
+      setNamaInstitusi("");
+      setCatatan("");
+      setFotoSebelum(null);
+      setPreviewSebelum(null);
+      setFotoSetelah(null);
+      setPreviewSetelah(null);
+
+      onClose();
+    } catch (error) {
+      console.error("Gagal mengirim tindak lanjut:", error);
+      toaster.error("Gagal mengirim bukti penanganan. Silakan coba lagi.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     // Tambahkan pt-20 agar modal agak ke bawah (tidak menabrak Navbar yang fixed di atas)
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pt-20 sm:p-6 sm:pt-24">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20 sm:p-6 sm:pt-24">
       {/* Latar Belakang Blur */}
       <div
         className="backdrop-blur-s absolute inset-0 bg-gray-900/60 transition-opacity"
@@ -166,73 +207,127 @@ const FormTindakLanjut = ({ isOpen, onClose, laporanId }) => {
               </div>
             </div>
 
-            {/* 4. FOTO TINDAKAN (Dibuat Lebih Pendek) */}
-            <div className="mb-1">
-              <label className="mb-1.5 block text-[13px] font-bold text-(--dark)">
-                Bukti Foto Tindakan <span className="text-red-500">*</span>
+            {/* 4. CATATAN (Opsional) */}
+            <div className="mb-4">
+              <label
+                htmlFor="catatan"
+                className="mb-1.5 block text-[13px] font-bold text-(--dark)"
+              >
+                Catatan (Opsional)
               </label>
-              <div className="group flex justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-5 transition-colors hover:border-(--primary) hover:bg-(--gray-shine)">
-                <div className="text-center">
-                  {foto ? (
-                    <div className="flex flex-col items-center">
-                      <div className="mb-2 flex size-10 items-center justify-center rounded-full bg-(--gray-shine) text-(--primary)">
-                        <svg
-                          className="size-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2.5"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+              <textarea
+                id="catatan"
+                rows="2"
+                className="block w-full resize-none rounded-lg border-0 bg-gray-50 px-3 py-2.5 text-sm text-(--dark-text) ring-1 ring-gray-200 transition-all ring-inset placeholder:text-(--gray-placeholder) focus:bg-white focus:ring-2 focus:ring-(--primary) focus:ring-inset"
+                placeholder="Tambahkan detail penanganan atau kendala (jika ada)"
+                value={catatan}
+                onChange={(e) => setCatatan(e.target.value)}
+              ></textarea>
+            </div>
+
+            {/* 4. FOTO TINDAKAN (Sebelum & Setelah) */}
+            <div className="mb-1 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Foto Sebelum */}
+              <div>
+                <label className="mb-1.5 block text-[13px] font-bold text-(--dark)">
+                  Foto Sebelum (Opsional)
+                </label>
+                <div className="relative group flex justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 transition-colors hover:border-(--primary) hover:bg-(--gray-shine) overflow-hidden h-32">
+                  <input 
+                    id="file-upload-sebelum" 
+                    type="file" 
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setFotoSebelum(file);
+                        setPreviewSebelum(URL.createObjectURL(file));
+                      }
+                    }} 
+                  />
+                  {previewSebelum ? (
+                    <div className="absolute inset-0 w-full h-full">
+                      <img src={previewSebelum} alt="Preview Sebelum" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+                        <span className="text-white text-[11px] font-bold ring-1 ring-white/50 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm">Ganti Foto</span>
                       </div>
-                      <p className="text-xs font-bold text-(--primary)">
-                        {foto.name}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setFoto(null)}
-                        className="mt-1 text-[11px] font-semibold text-red-500 hover:underline"
+                      <button 
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setFotoSebelum(null);
+                          setPreviewSebelum(null);
+                          document.getElementById("file-upload-sebelum").value = "";
+                        }} 
+                        className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-white/90 text-red-500 hover:bg-red-500 hover:text-white transition z-30 shadow-sm cursor-pointer border border-red-100"
+                        style={{ zIndex: 30 }}
                       >
-                        Hapus file
+                        <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
                     </div>
                   ) : (
-                    <>
-                      <svg
-                        className="mx-auto size-8 text-(--gray-placeholder) transition-colors group-hover:text-(--primary)"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="1.5"
-                          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-                        />
+                    <div className="flex flex-col items-center justify-center pointer-events-none">
+                      <svg className="size-6 mb-2 text-(--gray-placeholder) transition-colors group-hover:text-(--primary)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                       </svg>
-                      <div className="mt-2 flex justify-center text-xs leading-5 text-(--gray)">
-                        <label
-                          htmlFor="file-upload"
-                          className="relative cursor-pointer rounded-md font-bold text-(--primary) focus-within:outline-none hover:text-(--primary-dark) hover:underline"
-                        >
-                          <span>Pilih file</span>
-                          <input
-                            id="file-upload"
-                            type="file"
-                            className="sr-only"
-                            onChange={(e) => setFoto(e.target.files[0])}
-                            required
-                          />
-                        </label>
-                        <p className="pl-1">atau tarik ke sini</p>
+                      <div className="text-[11px] font-medium text-(--gray)">
+                        <span className="font-bold text-(--primary) group-hover:underline">Klik untuk unggah</span>
                       </div>
-                    </>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Foto Setelah */}
+              <div>
+                <label className="mb-1.5 block text-[13px] font-bold text-(--dark)">
+                  Foto Setelah <span className="text-red-500">*</span>
+                </label>
+                <div className="relative group flex justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 transition-colors hover:border-(--primary) hover:bg-(--gray-shine) overflow-hidden h-32">
+                  <input 
+                    id="file-upload-setelah" 
+                    type="file" 
+                    accept="image/*"
+                    required={!fotoSetelah}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setFotoSetelah(file);
+                        setPreviewSetelah(URL.createObjectURL(file));
+                      }
+                    }} 
+                  />
+                  {previewSetelah ? (
+                    <div className="absolute inset-0 w-full h-full">
+                      <img src={previewSetelah} alt="Preview Setelah" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+                        <span className="text-white text-[11px] font-bold ring-1 ring-white/50 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm">Ganti Foto</span>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setFotoSetelah(null);
+                          setPreviewSetelah(null);
+                          document.getElementById("file-upload-setelah").value = "";
+                        }} 
+                        className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-white/90 text-red-500 hover:bg-red-500 hover:text-white transition z-30 shadow-sm cursor-pointer border border-red-100"
+                        style={{ zIndex: 30 }}
+                      >
+                        <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center pointer-events-none">
+                      <svg className="size-6 mb-2 text-(--gray-placeholder) transition-colors group-hover:text-(--primary)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                      </svg>
+                      <div className="text-[11px] font-medium text-(--gray)">
+                        <span className="font-bold text-(--primary) group-hover:underline">Klik untuk unggah</span>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -245,29 +340,35 @@ const FormTindakLanjut = ({ isOpen, onClose, laporanId }) => {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-4 py-2 text-xs font-bold text-(--gray) transition-colors hover:bg-gray-200 hover:text-(--dark) active:scale-95"
+            disabled={submitting}
+            className="rounded-lg px-4 py-2 text-xs font-bold text-(--gray) transition-colors hover:bg-gray-200 hover:text-(--dark) active:scale-95 disabled:opacity-50"
           >
             Batal
           </button>
           <button
             type="submit"
             form="form-tindak-lanjut"
-            className="flex items-center gap-1.5 rounded-lg bg-(--primary) px-5 py-2 text-xs font-bold text-white shadow-md transition-all hover:bg-(--primary-dark) active:scale-95"
+            disabled={submitting}
+            className="flex items-center gap-1.5 rounded-lg bg-(--primary) px-5 py-2 text-xs font-bold text-white shadow-md transition-all hover:bg-(--primary-dark) active:scale-95 disabled:cursor-not-allowed disabled:opacity-75"
           >
-            <svg
-              className="size-3.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            Kirim Bukti
+            {submitting ? (
+              <div className="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+            ) : (
+              <svg
+                className="size-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            )}
+            {submitting ? "Mengirim..." : "Kirim Bukti"}
           </button>
         </div>
       </div>

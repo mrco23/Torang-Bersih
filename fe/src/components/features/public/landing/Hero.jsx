@@ -23,7 +23,7 @@ const Hero = () => {
             </p>
             <div className="align-start mt-2 flex">
               <Link
-                to="/fitur/kolaborator"
+                to="kolaborator"
                 className="rounded-lg bg-(--primary) px-10 py-2.5 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.03] hover:bg-(--primary-dark) hover:shadow-[0px_4px_20px_rgba(30,31,120,0.4)] sm:text-[1.4rem]"
               >
                 Daftar Kolaborator

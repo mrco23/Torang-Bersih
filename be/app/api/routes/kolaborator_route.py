@@ -30,6 +30,11 @@ def delete(item_id):
     return kolaborator_controller.delete(item_id)
 
 
+@kolaborator_bp.route('/<item_id>/verify', methods=['PATCH'])
+def verify(item_id):
+    return kolaborator_controller.verify(item_id)
+
+
 @kolaborator_bp.route('/my-kolaborator', methods=['GET'])
 def my_kolaborator():
     return kolaborator_controller.my_kolaborator()

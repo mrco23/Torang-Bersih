@@ -30,6 +30,11 @@ def delete(item_id):
     return marketplace_controller.delete(item_id)
 
 
+@marketplace_bp.route('/<item_id>/update-ketersediaan', methods=['PATCH'])
+def update_ketersediaan(item_id):
+    return marketplace_controller.update_ketersediaan(item_id)
+
+
 @marketplace_bp.route('/my-marketplace', methods=['GET'])
 def my_marketplace():
     return marketplace_controller.my_marketplace()

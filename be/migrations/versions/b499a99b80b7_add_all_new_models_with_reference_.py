@@ -1,8 +1,8 @@
 """add all new models with reference tables again
 
-Revision ID: 03feb0175714
-Revises: fa341cbd8ad6
-Create Date: 2026-03-09 10:49:26.854361
+Revision ID: b499a99b80b7
+Revises: 
+Create Date: 2026-03-12 18:08:43.774954
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '03feb0175714'
-down_revision = 'fa341cbd8ad6'
+revision = 'b499a99b80b7'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -110,6 +110,7 @@ def upgrade():
     sa.Column('id_user', sa.String(length=36), nullable=False),
     sa.Column('nama_aset', sa.String(length=200), nullable=False),
     sa.Column('kategori_aset_id', sa.String(length=36), nullable=False),
+    sa.Column('deskripsi_aset', sa.Text(), nullable=True),
     sa.Column('status_aktif', sa.Boolean(), nullable=False),
     sa.Column('kabupaten_kota', sa.String(length=100), nullable=True),
     sa.Column('alamat_lengkap', sa.Text(), nullable=True),
@@ -118,8 +119,13 @@ def upgrade():
     sa.Column('penanggung_jawab', sa.String(length=100), nullable=True),
     sa.Column('kontak', sa.String(length=20), nullable=True),
     sa.Column('pictures_urls', sa.JSON(), nullable=True),
+    sa.Column('status_verifikasi', sa.Enum('MENUNGGU', 'TERVERIFIKASI', 'DITOLAK', name='statusverifikasiaset'), nullable=False),
+    sa.Column('id_admin_verifikator', sa.String(length=36), nullable=True),
+    sa.Column('catatan_verifikasi', sa.Text(), nullable=True),
+    sa.Column('waktu_verifikasi', sa.DateTime(timezone=True), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.ForeignKeyConstraint(['id_admin_verifikator'], ['users.id'], ),
     sa.ForeignKeyConstraint(['id_user'], ['users.id'], ),
     sa.ForeignKeyConstraint(['kategori_aset_id'], ['ref_kategori_aset.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -143,9 +149,14 @@ def upgrade():
     sa.Column('penanggung_jawab', sa.String(length=100), nullable=True),
     sa.Column('kontak', sa.String(length=20), nullable=True),
     sa.Column('sosmed', sa.String(length=500), nullable=True),
-    sa.Column('status_verifikasi', sa.Boolean(), nullable=False),
+    sa.Column('status_aktif', sa.Boolean(), nullable=False),
+    sa.Column('status_verifikasi', sa.Enum('MENUNGGU', 'TERVERIFIKASI', 'DITOLAK', name='statusverifikasikolaborator'), nullable=False),
+    sa.Column('id_admin_verifikator', sa.String(length=36), nullable=True),
+    sa.Column('catatan_verifikasi', sa.Text(), nullable=True),
+    sa.Column('waktu_verifikasi', sa.DateTime(timezone=True), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.ForeignKeyConstraint(['id_admin_verifikator'], ['users.id'], ),
     sa.ForeignKeyConstraint(['id_user'], ['users.id'], ),
     sa.ForeignKeyConstraint(['jenis_kolaborator_id'], ['ref_jenis_kolaborator.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -160,14 +171,20 @@ def upgrade():
     sa.Column('foto_bukti_urls', sa.JSON(), nullable=True),
     sa.Column('latitude', sa.Float(), nullable=True),
     sa.Column('longitude', sa.Float(), nullable=True),
+    sa.Column('kabupaten_kota', sa.String(length=100), nullable=True),
     sa.Column('alamat_lokasi', sa.Text(), nullable=True),
     sa.Column('jenis_sampah_id', sa.String(length=36), nullable=False),
     sa.Column('estimasi_berat_kg', sa.Float(), nullable=True),
     sa.Column('karakteristik', sa.Enum('BISA_DIDAUR_ULANG', 'RESIDU', name='karakteristik'), nullable=True),
     sa.Column('bentuk_timbulan', sa.Enum('TERCECER', 'MENUMPUK', name='bentuktimbulan'), nullable=True),
-    sa.Column('status_laporan', sa.Enum('MENUNGGU', 'DITERIMA', 'DITINDAK', 'SELESAI', name='statuslaporan'), nullable=False),
-    sa.Column('tanggal_lapor', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('deskripsi_laporan', sa.Text(), nullable=True),
+    sa.Column('status_laporan', sa.Enum('MENUNGGU', 'DITERIMA', 'DITOLAK', 'DITINDAK', 'SELESAI', name='statuslaporan'), nullable=False),
+    sa.Column('id_admin_verifikator', sa.String(length=36), nullable=True),
+    sa.Column('catatan_verifikasi', sa.Text(), nullable=True),
+    sa.Column('waktu_verifikasi', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.ForeignKeyConstraint(['id_admin_verifikator'], ['users.id'], ),
     sa.ForeignKeyConstraint(['id_warga'], ['users.id'], ),
     sa.ForeignKeyConstraint(['jenis_sampah_id'], ['ref_jenis_sampah.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -184,11 +201,14 @@ def upgrade():
     sa.Column('deskripsi_barang', sa.Text(), nullable=True),
     sa.Column('harga', sa.Integer(), nullable=True),
     sa.Column('berat_estimasi_kg', sa.Float(), nullable=True),
-    sa.Column('kondisi', sa.Enum('LAYAK_PAKAI', 'BUTUH_PERBAIKAN', 'RONGSOKAN', name='kondisibarang'), nullable=False),
+    sa.Column('kondisi', sa.Enum('layak_pakai', 'butuh_perbaikan', 'rongsokan', name='kondisibarang'), nullable=False),
     sa.Column('foto_barang_urls', sa.JSON(), nullable=True),
+    sa.Column('kontak', sa.String(length=20), nullable=True),
     sa.Column('latitude', sa.Float(), nullable=True),
     sa.Column('longitude', sa.Float(), nullable=True),
-    sa.Column('status_ketersediaan', sa.Enum('TERSEDIA', 'DIPESAN', 'TERJUAL', name='statusketersediaan'), nullable=False),
+    sa.Column('kabupaten_kota', sa.String(length=100), nullable=True),
+    sa.Column('alamat_lengkap', sa.Text(), nullable=True),
+    sa.Column('status_ketersediaan', sa.Enum('tersedia', 'dipesan', 'terjual', name='statusketersediaan'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['id_penjual'], ['users.id'], ),
@@ -236,10 +256,11 @@ def upgrade():
     sa.Column('id_laporan', sa.String(length=36), nullable=False),
     sa.Column('tindak_lanjut_penanganan', sa.String(length=200), nullable=False),
     sa.Column('tim_penindak', sa.String(length=200), nullable=True),
-    sa.Column('foto_tindakan_urls', sa.JSON(), nullable=True),
+    sa.Column('foto_sebelum_tindakan_urls', sa.JSON(), nullable=True),
+    sa.Column('foto_setelah_tindakan_urls', sa.JSON(), nullable=True),
     sa.Column('id_user_penindak', sa.String(length=36), nullable=False),
     sa.Column('catatan', sa.Text(), nullable=True),
-    sa.Column('waktu_tindak_lanjut', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['id_laporan'], ['laporan_sampah_ilegal.id'], ),
     sa.ForeignKeyConstraint(['id_user_penindak'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
