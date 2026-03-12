@@ -12,7 +12,7 @@ class MarketplaceService:
 
     @staticmethod
     def get_all(page=1, per_page=20, search=None, kategori_barang_id=None,
-                kondisi=None, status_ketersediaan=None, id_penjual=None,
+                kondisi=None, status_ketersediaan=None, kabupaten_kota=None,
                 sort_by='created_at', sort_order='desc'):
         query = MarketplaceDaurUlang.query
 
@@ -28,13 +28,13 @@ class MarketplaceService:
             query = query.filter_by(kategori_barang_id=kategori_barang_id)
 
         if kondisi:
-            query = query.filter_by(kondisi=KondisiBarang(kondisi))
+            query = query.filter(MarketplaceDaurUlang.kondisi==KondisiBarang(kondisi))
 
         if status_ketersediaan:
-            query = query.filter_by(status_ketersediaan=StatusKetersediaan(status_ketersediaan))
+            query = query.filter(MarketplaceDaurUlang.status_ketersediaan==StatusKetersediaan(status_ketersediaan))
 
-        if id_penjual:
-            query = query.filter_by(id_penjual=id_penjual)
+        if kabupaten_kota:
+            query = query.filter(MarketplaceDaurUlang.kabupaten_kota.ilike(f'%{kabupaten_kota}%'))
 
         sort_column = getattr(MarketplaceDaurUlang, sort_by, MarketplaceDaurUlang.created_at)
         if sort_order == 'asc':
@@ -59,8 +59,6 @@ class MarketplaceService:
         if not ref or not ref.is_active:
             raise NotFoundError("Kategori barang tidak valid")
 
-        data['kondisi'] = KondisiBarang(data['kondisi'])
-
         item = MarketplaceDaurUlang(id_penjual=user.id, **data)
         db.session.add(item)
         db.session.commit()
@@ -79,12 +77,6 @@ class MarketplaceService:
             ref = db.session.get(RefKategoriBarang, data['kategori_barang_id'])
             if not ref or not ref.is_active:
                 raise NotFoundError("Kategori barang tidak valid")
-
-        if 'kondisi' in data:
-            data['kondisi'] = KondisiBarang(data['kondisi'])
-
-        if 'status_ketersediaan' in data:
-            data['status_ketersediaan'] = StatusKetersediaan(data['status_ketersediaan'])
 
         for key, value in data.items():
             setattr(item, key, value)
@@ -105,8 +97,25 @@ class MarketplaceService:
         db.session.commit()
 
     @staticmethod
+    def update_ketersediaan(item_id, user, status_str):
+        from datetime import datetime, timezone as tz
+
+        item = db.session.get(MarketplaceDaurUlang, item_id)
+        if not item:
+            raise NotFoundError("Barang tidak ditemukan")
+
+        if item.id_penjual != user.id and not user.is_admin:
+            raise ForbiddenError("Tidak memiliki akses untuk mengubah ketersediaan barang ini")
+
+        item.status_ketersediaan = StatusKetersediaan(status_str)
+        
+        db.session.commit()
+        return item
+
+
+    @staticmethod
     def get_my_marketplace(user_id, page=1, per_page=20, search=None, kategori_barang_id=None,
-                kondisi=None, status_ketersediaan=None, sort_by='created_at', sort_order='desc'):
+                kondisi=None, status_ketersediaan=None, kabupaten_kota=None, sort_by='created_at', sort_order='desc'):
         query = MarketplaceDaurUlang.query.filter_by(id_penjual=user_id)
 
         if search:
@@ -121,10 +130,13 @@ class MarketplaceService:
             query = query.filter_by(kategori_barang_id=kategori_barang_id)
 
         if kondisi:
-            query = query.filter_by(kondisi=KondisiBarang(kondisi))
+            query = query.filter(MarketplaceDaurUlang.kondisi==KondisiBarang(kondisi))
 
         if status_ketersediaan:
-            query = query.filter_by(status_ketersediaan=StatusKetersediaan(status_ketersediaan))
+            query = query.filter(MarketplaceDaurUlang.status_ketersediaan==StatusKetersediaan(status_ketersediaan))
+
+        if kabupaten_kota:
+            query = query.filter(MarketplaceDaurUlang.kabupaten_kota.ilike(f'%{kabupaten_kota}%'))
 
         sort_column = getattr(MarketplaceDaurUlang, sort_by, MarketplaceDaurUlang.created_at)
         if sort_order == 'asc':

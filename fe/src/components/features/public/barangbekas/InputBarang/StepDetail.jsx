@@ -1,10 +1,7 @@
-import React from "react";
-import { RiCheckLine } from "react-icons/ri";
-import {
-  KATEGORI,
-  KONDISI,
-  inputCls,
-} from "../../barangbekas/InputBarang/Constant";
+import React, { useState, useEffect } from "react";
+import { RiCheckLine, RiRecycleLine } from "react-icons/ri";
+import { KONDISI, inputCls } from "./Constant";
+import { referensiAPI } from "../../../../../services/api/routes/referensi.route";
 
 const Label = ({ children, req }) => (
   <p className="mb-1.5 text-[12px] font-bold text-gray-700">
@@ -14,6 +11,20 @@ const Label = ({ children, req }) => (
 );
 
 export const StepDetail = ({ form, setForm }) => {
+  const [kategoriOptions, setKategoriOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchKategori = async () => {
+      try {
+        const res = await referensiAPI.getAll("kategori-barang");
+        setKategoriOptions(res.data.data || []);
+      } catch {
+        /* ignore */
+      }
+    };
+    fetchKategori();
+  }, []);
+
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   return (
@@ -37,31 +48,31 @@ export const StepDetail = ({ form, setForm }) => {
         <div>
           <Label req>Kategori Barang</Label>
           <div className="grid grid-cols-5 gap-1.5">
-            {KATEGORI.map((k) => (
+            {kategoriOptions.map((k) => (
               <button
-                key={k.value}
+                key={k.id}
                 type="button"
                 onClick={() =>
-                  setForm((p) => ({ ...p, kategori_barang: k.value }))
+                  setForm((p) => ({ ...p, kategori_barang_id: k.id }))
                 }
                 className={`flex flex-col items-center gap-1 rounded-xl border-2 py-2.5 text-center transition-all ${
-                  form.kategori_barang === k.value
+                  form.kategori_barang_id === k.id
                     ? "border-[#1e1f78] bg-[#eef0ff]"
                     : "border-gray-200 bg-white hover:border-gray-300"
                 }`}
               >
-                <k.Icon
+                <RiRecycleLine
                   size={16}
                   className={
-                    form.kategori_barang === k.value
+                    form.kategori_barang_id === k.id
                       ? "text-[#1e1f78]"
                       : "text-gray-400"
                   }
                 />
                 <span
-                  className={`text-[10px] font-bold ${form.kategori_barang === k.value ? "text-[#1e1f78]" : "text-gray-500"}`}
+                  className={`text-[10px] font-bold ${form.kategori_barang_id === k.id ? "text-[#1e1f78]" : "text-gray-500"}`}
                 >
-                  {k.label}
+                  {k.nama}
                 </span>
               </button>
             ))}
@@ -87,7 +98,7 @@ export const StepDetail = ({ form, setForm }) => {
                 />
                 <div className="min-w-0 flex-1">
                   <p className="text-[12px] leading-tight font-bold">
-                    {k.value}
+                    {k.label}
                   </p>
                   <p className="text-[10px] text-gray-400">{k.desc}</p>
                 </div>

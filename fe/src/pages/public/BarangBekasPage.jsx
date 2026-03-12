@@ -1,199 +1,127 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ProductCard from "../../components/features/public/barangbekas/ProdukCard";
 import FiturHero from "../../components/shared/FiturHero";
 import { Link } from "react-router-dom";
+import { marketplaceAPI } from "../../services/api/routes/marketplace.route";
+import { referensiAPI } from "../../services/api/routes/referensi.route";
+import {
+  KONDISI,
+  KONDISI_LABELS,
+} from "../../components/features/public/barangbekas/InputBarang/Constant";
 
 const BarangBekasPage = () => {
-  const [activeCategory, setActiveCategory] = useState("Semua");
+  const [items, setItems] = useState([]);
+  const [meta, setMeta] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const categories = [
-    "Semua",
-    "Plastik",
-    "Kaca",
-    "Logam",
-    "Kertas",
-    "Elektronik",
-  ];
+  const [kategoriOptions, setKategoriOptions] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("");
+  const [activeKondisi, setActiveKondisi] = useState([]);
 
-  const products = [
-    {
-      id: 1,
-      nama_barang: "Botol Plastik PET Bersih (Siap Lebur)",
-      kategori_barang: "Plastik",
-      harga: 3500,
-      berat_estimasi_kg: 5.5,
-      kondisi: "Rongsokan",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1528323273322-d81458248d40?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Tersedia",
-      penjual_nama: "Bank Sampah Melati",
-      lokasi_cod: "Wanea, Manado",
-    },
-    {
-      id: 2,
-      nama_barang: "Monitor Tabung Bekas",
-      kategori_barang: "Elektronik",
-      harga: 0,
-      berat_estimasi_kg: 8.0,
-      kondisi: "Butuh Perbaikan",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Tersedia",
-      penjual_nama: "Budi Santoso",
-      lokasi_cod: "Malalayang, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-    {
-      id: 3,
-      nama_barang: "Kardus Pindahan Tebal",
-      kategori_barang: "Kertas",
-      harga: 15000,
-      berat_estimasi_kg: 3.2,
-      kondisi: "Layak Pakai",
-      foto_barang_urls: [
-        "https://images.unsplash.com/photo-1588609536893-7814cc5d9eb3?auto=format&fit=crop&w=600&q=80",
-      ],
-      status_ketersediaan: "Terjual",
-      penjual_nama: "Keluarga Walandouw",
-      lokasi_cod: "Tuminting, Manado",
-    },
-  ];
+  const [query, setQuery] = useState({
+    page: 1,
+    per_page: 12,
+    search: "",
+    status_ketersediaan: "tersedia",
+    sort_by: "created_at",
+    sort_order: "desc",
+  });
 
-  const filteredProducts =
-    activeCategory === "Semua"
-      ? products
-      : products.filter((p) => p.kategori_barang === activeCategory);
+  // Fetch kategori dari API referensi
+  useEffect(() => {
+    const fetchKategori = async () => {
+      try {
+        const res = await referensiAPI.getAll("kategori-barang");
+        setKategoriOptions(res.data.data || []);
+      } catch {
+        /* ignore */
+      }
+    };
+    fetchKategori();
+  }, []);
+
+  // Fetch items
+  const fetchItems = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = {
+        page: query.page,
+        per_page: query.per_page,
+        sort_by: query.sort_by,
+        sort_order: query.sort_order,
+        status_ketersediaan: query.status_ketersediaan,
+      };
+      if (query.search) params.search = query.search;
+      if (activeCategory) params.kategori_barang_id = activeCategory;
+      if (activeKondisi.length === 1) params.kondisi = activeKondisi[0];
+
+      const res = await marketplaceAPI.getAll(params);
+      setItems(res.data.data || []);
+      setMeta(res.data.meta?.pagination || null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Gagal memuat data barang");
+    } finally {
+      setLoading(false);
+    }
+  }, [query, activeCategory, activeKondisi]);
+
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setQuery((q) => ({ ...q, page: 1 }));
+  };
+
+  const toggleKondisi = (val) => {
+    setActiveKondisi((prev) =>
+      prev.includes(val) ? prev.filter((k) => k !== val) : [...prev, val],
+    );
+    setQuery((q) => ({ ...q, page: 1 }));
+  };
+
+  const handleCategoryChange = (catId) => {
+    setActiveCategory(catId);
+    setQuery((q) => ({ ...q, page: 1 }));
+  };
+
+  const handleSortChange = (e) => {
+    const val = e.target.value;
+    if (val === "harga_asc") {
+      setQuery((q) => ({ ...q, sort_by: "harga", sort_order: "asc", page: 1 }));
+    } else if (val === "harga_desc") {
+      setQuery((q) => ({
+        ...q,
+        sort_by: "harga",
+        sort_order: "desc",
+        page: 1,
+      }));
+    } else {
+      setQuery((q) => ({
+        ...q,
+        sort_by: "created_at",
+        sort_order: "desc",
+        page: 1,
+      }));
+    }
+  };
+
+  const currentSortValue =
+    query.sort_by === "harga"
+      ? query.sort_order === "asc"
+        ? "harga_asc"
+        : "harga_desc"
+      : "terbaru";
+
+  const activeKategoriNama = activeCategory
+    ? kategoriOptions.find((k) => k.id === activeCategory)?.nama || "Kategori"
+    : "Semua";
 
   return (
     <>
-      {" "}
       <div className="relative z-0">
         <FiturHero
           title="Temukan Barang Bekas Berkualitas untuk Daur Ulangmu"
@@ -202,8 +130,8 @@ const BarangBekasPage = () => {
           buttonLink="/peta"
         />
       </div>
-      <div className="relative z-0 min-h-dvh bg-white selection:bg-(--gray-shine) selection:text-(--primary)">
-        <div className="bg- z-20 mx-auto max-w-7xl px-4 py-8 pt-24 sm:px-6 lg:px-8">
+      <div className="relative z-0 min-h-dvh bg-white px-4 py-8 selection:bg-(--gray-shine) selection:text-(--primary) sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
           <div className="mb-8 flex flex-col gap-4 border-b border-gray-100 pb-6 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-2xl font-bold tracking-tight text-(--dark) md:text-3xl">
@@ -215,8 +143,11 @@ const BarangBekasPage = () => {
             </div>
 
             <div className="flex flex-1 items-center justify-end gap-4">
-              {/* Search Input E-commerce Style */}
-              <div className="group relative hidden w-full max-w-md sm:block">
+              {/* Search Input */}
+              <form
+                onSubmit={handleSearch}
+                className="group relative hidden w-full max-w-md sm:block"
+              >
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                   <svg
                     className="h-5 w-5 text-gray-400 transition-colors group-focus-within:text-(--primary)"
@@ -235,9 +166,13 @@ const BarangBekasPage = () => {
                 <input
                   type="text"
                   placeholder="Cari barang..."
+                  value={query.search}
+                  onChange={(e) =>
+                    setQuery((q) => ({ ...q, search: e.target.value }))
+                  }
                   className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pr-4 pl-10 text-sm text-(--dark-text) placeholder-(--gray-placeholder) transition-all outline-none focus:border-(--primary) focus:ring-1 focus:ring-(--primary)"
                 />
-              </div>
+              </form>
 
               {/* Tombol Jual */}
               <Link
@@ -263,22 +198,35 @@ const BarangBekasPage = () => {
           </div>
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+            {/* Sidebar Filter */}
             <aside className="sticky top-24 hidden h-fit rounded-xl border border-gray-100 bg-white p-5 shadow-sm lg:col-span-3 lg:block">
               <h3 className="mb-4 text-sm font-bold tracking-wider text-(--dark) uppercase">
                 Kategori Barang
               </h3>
               <ul className="flex flex-col gap-1">
-                {categories.map((cat) => (
-                  <li key={cat}>
+                <li>
+                  <button
+                    onClick={() => handleCategoryChange("")}
+                    className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                      !activeCategory
+                        ? "bg-(--gray-shine) font-bold text-(--primary)"
+                        : "font-medium text-(--gray) hover:bg-gray-50 hover:text-(--dark)"
+                    }`}
+                  >
+                    Semua
+                  </button>
+                </li>
+                {kategoriOptions.map((cat) => (
+                  <li key={cat.id}>
                     <button
-                      onClick={() => setActiveCategory(cat)}
+                      onClick={() => handleCategoryChange(cat.id)}
                       className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                        activeCategory === cat
+                        activeCategory === cat.id
                           ? "bg-(--gray-shine) font-bold text-(--primary)"
                           : "font-medium text-(--gray) hover:bg-gray-50 hover:text-(--dark)"
                       }`}
                     >
-                      {cat}
+                      {cat.nama}
                     </button>
                   </li>
                 ))}
@@ -290,67 +238,116 @@ const BarangBekasPage = () => {
                 Kondisi
               </h3>
               <div className="flex flex-col gap-3">
-                {["Layak Pakai", "Butuh Perbaikan", "Rongsokan"].map(
-                  (kondisi) => (
-                    <label
-                      key={kondisi}
-                      className="group flex cursor-pointer items-center gap-3"
-                    >
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-(--primary) focus:ring-(--primary)"
-                      />
-                      <span className="text-sm text-(--gray) transition-colors group-hover:text-(--dark)">
-                        {kondisi}
-                      </span>
-                    </label>
-                  ),
-                )}
+                {KONDISI.map((k) => (
+                  <label
+                    key={k.value}
+                    className="group flex cursor-pointer items-center gap-3"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={activeKondisi.includes(k.value)}
+                      onChange={() => toggleKondisi(k.value)}
+                      className="h-4 w-4 rounded border-gray-300 text-(--primary) focus:ring-(--primary)"
+                    />
+                    <span className="text-sm text-(--gray) transition-colors group-hover:text-(--dark)">
+                      {k.label}
+                    </span>
+                  </label>
+                ))}
               </div>
 
               <hr className="my-5 border-gray-100" />
 
-              <button className="w-full rounded-lg border border-(--primary) py-2 text-sm font-bold text-(--primary) transition-colors hover:bg-(--gray-shine)">
-                Terapkan Filter
+              <button
+                onClick={() => {
+                  setActiveCategory("");
+                  setActiveKondisi([]);
+                  setQuery((q) => ({
+                    ...q,
+                    page: 1,
+                    search: "",
+                    sort_by: "created_at",
+                    sort_order: "desc",
+                  }));
+                }}
+                className="w-full rounded-lg border border-(--primary) py-2 text-sm font-bold text-(--primary) transition-colors hover:bg-(--gray-shine)"
+              >
+                Reset Filter
               </button>
             </aside>
 
             <div className="lg:col-span-9">
+              {/* Mobile filter tabs */}
               <div className="scrollbar-hide mb-6 flex gap-2 overflow-x-auto lg:hidden">
-                {categories.map((cat) => (
+                <button
+                  onClick={() => handleCategoryChange("")}
+                  className={`rounded-full px-4 py-2 text-xs font-bold whitespace-nowrap transition-colors ${
+                    !activeCategory
+                      ? "bg-(--primary) text-white"
+                      : "border border-gray-200 bg-white text-(--gray) hover:bg-gray-50"
+                  }`}
+                >
+                  Semua
+                </button>
+                {kategoriOptions.map((cat) => (
                   <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
+                    key={cat.id}
+                    onClick={() => handleCategoryChange(cat.id)}
                     className={`rounded-full px-4 py-2 text-xs font-bold whitespace-nowrap transition-colors ${
-                      activeCategory === cat
+                      activeCategory === cat.id
                         ? "bg-(--primary) text-white"
                         : "border border-gray-200 bg-white text-(--gray) hover:bg-gray-50"
                     }`}
                   >
-                    {cat}
+                    {cat.nama}
                   </button>
                 ))}
               </div>
 
               <div className="mb-4 flex items-center justify-between text-sm text-(--gray)">
                 <p>
-                  Menampilkan <strong>{filteredProducts.length}</strong> barang
-                  untuk "{activeCategory}"
+                  {loading ? (
+                    "Memuat..."
+                  ) : (
+                    <>
+                      Menampilkan <strong>{items.length}</strong>
+                      {meta && <> dari {meta.total}</>} barang
+                      {activeCategory && (
+                        <> untuk &quot;{activeKategoriNama}&quot;</>
+                      )}
+                    </>
+                  )}
                 </p>
 
                 <div className="hidden items-center gap-2 sm:flex">
                   <span>Urutkan:</span>
-                  <select className="rounded border border-gray-200 bg-white py-1 pr-6 pl-2 text-sm font-medium text-(--dark) outline-none focus:border-(--primary)">
-                    <option>Terbaru</option>
-                    <option>Harga Terendah</option>
-                    <option>Harga Tertinggi</option>
+                  <select
+                    value={currentSortValue}
+                    onChange={handleSortChange}
+                    className="rounded border border-gray-200 bg-white py-1 pr-6 pl-2 text-sm font-medium text-(--dark) outline-none focus:border-(--primary)"
+                  >
+                    <option value="terbaru">Terbaru</option>
+                    <option value="harga_asc">Harga Terendah</option>
+                    <option value="harga_desc">Harga Tertinggi</option>
                   </select>
                 </div>
               </div>
 
-              {filteredProducts.length > 0 ? (
+              {/* Error state */}
+              {error && (
+                <div className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
+
+              {/* Loading state */}
+              {loading ? (
+                <div className="flex justify-center py-20">
+                  <div className="h-10 w-10 animate-spin rounded-full border-4 border-(--primary) border-t-transparent" />
+                </div>
+              ) : items.length > 0 ? (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5 xl:grid-cols-4">
-                  {filteredProducts.map((product) => (
+                  {items.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
@@ -377,6 +374,35 @@ const BarangBekasPage = () => {
                   <p className="text-xs text-(--gray)">
                     Coba hapus beberapa filter pencarian.
                   </p>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {meta && meta.total_pages > 1 && (
+                <div className="mt-8 flex flex-col items-center justify-between gap-3 sm:flex-row">
+                  <span className="text-sm text-gray-500">
+                    Halaman {meta.page} dari {meta.total_pages}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      disabled={!meta.has_prev}
+                      onClick={() =>
+                        setQuery((q) => ({ ...q, page: q.page - 1 }))
+                      }
+                      className="rounded-lg border px-4 py-2 text-sm transition hover:bg-gray-50 disabled:opacity-40"
+                    >
+                      ← Sebelumnya
+                    </button>
+                    <button
+                      disabled={!meta.has_next}
+                      onClick={() =>
+                        setQuery((q) => ({ ...q, page: q.page + 1 }))
+                      }
+                      className="rounded-lg border px-4 py-2 text-sm transition hover:bg-gray-50 disabled:opacity-40"
+                    >
+                      Selanjutnya →
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

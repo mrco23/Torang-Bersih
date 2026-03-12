@@ -118,9 +118,6 @@ def update(item_id):
         new_urls = upload_images_concurrently(files, folder="aset_pictures")
         uploaded_urls.extend(new_urls)
         
-    # If the user touched the photos (either provided existing photos or new uploads), update the pictures_urls
-    # Or if they deleted all photos (existing_pictures is empty but they submitted it).
-    # We can signal "photos updated" if 'existing_pictures' is in request.form
     if request.form and 'existing_pictures' in request.form:
         data['pictures_urls'] = uploaded_urls
     elif 'pictures_urls' in request.files:

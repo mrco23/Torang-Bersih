@@ -497,6 +497,7 @@ def seed_marketplace(user_ids, ref_ids):
             harga=25000,
             berat_estimasi_kg=5.0,
             kondisi=KondisiBarang.LAYAK_PAKAI,
+            kontak="08123456789",
             foto_barang_urls=[
                 "https://placehold.co/600x400?text=Botol+Kaca+1",
                 "https://placehold.co/600x400?text=Botol+Kaca+2",
@@ -518,6 +519,7 @@ def seed_marketplace(user_ids, ref_ids):
             harga=0,  # Donasi / gratis
             berat_estimasi_kg=15.0,
             kondisi=KondisiBarang.LAYAK_PAKAI,
+            kontak="08123456789",
             foto_barang_urls=[
                 "https://placehold.co/600x400?text=Kardus+Bekas",
             ],
@@ -538,6 +540,7 @@ def seed_marketplace(user_ids, ref_ids):
             harga=150000,
             berat_estimasi_kg=2.5,
             kondisi=KondisiBarang.BUTUH_PERBAIKAN,
+            kontak="08123456789",
             foto_barang_urls=[
                 "https://placehold.co/600x400?text=Laptop+Bekas",
             ],
@@ -558,6 +561,7 @@ def seed_marketplace(user_ids, ref_ids):
             harga=280000,
             berat_estimasi_kg=8.0,
             kondisi=KondisiBarang.RONGSOKAN,
+            kontak="08123456789",
             foto_barang_urls=[
                 "https://placehold.co/600x400?text=Kaleng+Aluminium",
             ],
@@ -578,6 +582,7 @@ def seed_marketplace(user_ids, ref_ids):
             harga=15000,
             berat_estimasi_kg=5.0,
             kondisi=KondisiBarang.RONGSOKAN,
+            kontak="08123456789",
             foto_barang_urls=[
                 "https://placehold.co/600x400?text=Botol+PET",
             ],

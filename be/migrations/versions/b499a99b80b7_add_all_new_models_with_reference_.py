@@ -1,8 +1,8 @@
 """add all new models with reference tables again
 
-Revision ID: abbf0934e740
+Revision ID: b499a99b80b7
 Revises: 
-Create Date: 2026-03-11 12:50:30.396047
+Create Date: 2026-03-12 18:08:43.774954
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'abbf0934e740'
+revision = 'b499a99b80b7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -201,13 +201,14 @@ def upgrade():
     sa.Column('deskripsi_barang', sa.Text(), nullable=True),
     sa.Column('harga', sa.Integer(), nullable=True),
     sa.Column('berat_estimasi_kg', sa.Float(), nullable=True),
-    sa.Column('kondisi', sa.Enum('LAYAK_PAKAI', 'BUTUH_PERBAIKAN', 'RONGSOKAN', name='kondisibarang'), nullable=False),
+    sa.Column('kondisi', sa.Enum('layak_pakai', 'butuh_perbaikan', 'rongsokan', name='kondisibarang'), nullable=False),
     sa.Column('foto_barang_urls', sa.JSON(), nullable=True),
+    sa.Column('kontak', sa.String(length=20), nullable=True),
     sa.Column('latitude', sa.Float(), nullable=True),
     sa.Column('longitude', sa.Float(), nullable=True),
     sa.Column('kabupaten_kota', sa.String(length=100), nullable=True),
     sa.Column('alamat_lengkap', sa.Text(), nullable=True),
-    sa.Column('status_ketersediaan', sa.Enum('TERSEDIA', 'DIPESAN', 'TERJUAL', name='statusketersediaan'), nullable=False),
+    sa.Column('status_ketersediaan', sa.Enum('tersedia', 'dipesan', 'terjual', name='statusketersediaan'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['id_penjual'], ['users.id'], ),

@@ -76,13 +76,9 @@ const DaftarLaporan = () => {
       {/* Header & Filter */}
       <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-            Pusat Laporan Warga
-          </h2>
+          <h2 className="text-3xl font-bold">Pusat Laporan Warga</h2>
           <p className="mt-1 text-sm font-medium text-gray-500">
-            {activeTab === "Semua"
-              ? "Menampilkan seluruh aduan tumpukan sampah."
-              : `Menampilkan laporan dengan status "${activeTab}".`}
+            Mari laporkan tumpukan sampah yang ada di sekitar kita.
           </p>
         </div>
 
@@ -92,7 +88,9 @@ const DaftarLaporan = () => {
               type="text"
               placeholder="Cari laporan..."
               value={query.search}
-              onChange={(e) => setQuery((q) => ({ ...q, search: e.target.value }))}
+              onChange={(e) =>
+                setQuery((q) => ({ ...q, search: e.target.value }))
+              }
               className="w-full rounded-l-full border border-gray-300 py-2 pr-4 pl-5 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 focus:outline-none sm:w-64"
             />
             <button
@@ -146,7 +144,7 @@ const DaftarLaporan = () => {
 
       {/* Tabs Filter */}
       <div className="mb-8">
-        <div className="scrollbar-hide flex overflow-x-auto rounded-full bg-white p-1.5 shadow-sm ring-1 ring-gray-900/5 sm:w-fit border border-gray-100">
+        <div className="scrollbar-hide flex overflow-x-auto rounded-full border border-gray-100 bg-white p-1.5 shadow-sm ring-1 ring-gray-900/5 sm:w-fit">
           {tabs.map((tab) => (
             <button
               key={tab}
