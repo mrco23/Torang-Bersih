@@ -10,19 +10,14 @@ post {
   auth: bearer
 }
 
-headers {
-  Accept: application/json
-  Content-Type: application/json
-}
-
 auth:bearer {
-  token: {{token}}
+  token: {{admin_access_token}}
 }
 
 body:json {
   {
     "judul_artikel": "Pembersihan Pantai di Manado",
-    "kategori_id": "8ee70098-95ff-4d51-a9f4-18471e956973",
+    "kategori_id": "a245825c-dc9a-452c-8f65-261af8f72029",
     "konten_teks": "Hari ini kita melakukan pembersihan pantai di sepanjang Manado...",
     "foto_cover_url": "https://example.com/cover.jpg",
     "status_publikasi": "draft"
