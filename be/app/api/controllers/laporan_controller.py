@@ -74,6 +74,9 @@ def create():
             status_code=422
         )
 
+    # Precheck (ref) sebelum upload foto bukti
+    LaporanService.precheck_create(data)
+
     # Handle multiple foto_bukti uploads if present
     if 'foto_bukti_urls' in request.files:
         from app.lib.cloudinary import upload_images_concurrently
@@ -111,6 +114,9 @@ def update(item_id):
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Precheck sebelum upload foto (akses + ref jika jenis_sampah_id diubah)
+    LaporanService.precheck_update(item_id, request.current_user, data)
 
     # Check for existing photos kept by user
     existing_foto = request.form.getlist('existing_foto_bukti') if request.form else []

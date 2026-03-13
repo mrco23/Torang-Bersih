@@ -1,5 +1,5 @@
 """Artikel validation schemas"""
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, validates_schema, ValidationError
 
 from app.database.models.artikel import StatusPublikasi
 
@@ -9,6 +9,15 @@ class ArtikelCreateSchema(Schema):
     konten_teks = fields.String(required=False)
     foto_cover_url = fields.String(required=False)
     status_publikasi = fields.Str(validate=validate.OneOf(['draft', 'published', 'archived']))
+
+    # Aturan business ringan di schema: published harus punya konten
+    # (validasi referensi kategori dilakukan di service)
+    @validates_schema
+    def validate_published_has_content(self, data, **kwargs):
+        status = (data.get("status_publikasi") or "").lower()
+        konten = data.get("konten_teks")
+        if status == "published" and (konten is None or str(konten).strip() == ""):
+            raise ValidationError("konten_teks wajib diisi jika status_publikasi=published", field_name="konten_teks")
 
 
 class ArtikelUpdateSchema(Schema):

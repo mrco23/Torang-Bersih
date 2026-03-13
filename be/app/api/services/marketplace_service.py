@@ -5,10 +5,70 @@ from app.config.extensions import db
 from app.database.models import (
     MarketplaceDaurUlang, KondisiBarang, StatusKetersediaan, RefKategoriBarang
 )
-from app.utils.exceptions import NotFoundError, ForbiddenError
+from app.utils.exceptions import NotFoundError, ForbiddenError, ConflictError
 
 
 class MarketplaceService:
+
+    @staticmethod
+    def precheck_create(user, data):
+        """Validasi sebelum upload file: cek referensi + duplikasi."""
+        ref = db.session.get(RefKategoriBarang, data['kategori_barang_id'])
+        if not ref or not ref.is_active:
+            raise NotFoundError("Kategori barang tidak valid")
+
+        nama = data['nama_barang'].strip()
+        kota = (data.get('kabupaten_kota') or '').strip()
+        query = MarketplaceDaurUlang.query.filter(
+            MarketplaceDaurUlang.id_penjual == user.id,
+            db.func.lower(MarketplaceDaurUlang.nama_barang) == nama.lower()
+        )
+        if kota:
+            query = query.filter(db.func.lower(MarketplaceDaurUlang.kabupaten_kota) == kota.lower())
+        existing = query.first()
+        if existing:
+            raise ConflictError("Nama barang sudah digunakan pada lokasi yang sama")
+
+        data['nama_barang'] = nama
+        if kota:
+            data['kabupaten_kota'] = kota
+        return data
+
+    @staticmethod
+    def precheck_update(item_id, user, data):
+        """Validasi sebelum upload file saat update: cek akses + referensi + duplikasi."""
+        item = db.session.get(MarketplaceDaurUlang, item_id)
+        if not item:
+            raise NotFoundError("Barang tidak ditemukan")
+
+        if item.id_penjual != user.id and not user.is_admin:
+            raise ForbiddenError("Tidak memiliki akses untuk mengubah barang ini")
+
+        if 'kategori_barang_id' in data:
+            ref = db.session.get(RefKategoriBarang, data['kategori_barang_id'])
+            if not ref or not ref.is_active:
+                raise NotFoundError("Kategori barang tidak valid")
+
+        if 'nama_barang' in data and data['nama_barang'] is not None:
+            data['nama_barang'] = data['nama_barang'].strip()
+        if 'kabupaten_kota' in data and data['kabupaten_kota'] is not None:
+            data['kabupaten_kota'] = data['kabupaten_kota'].strip()
+
+        if 'nama_barang' in data or 'kabupaten_kota' in data:
+            nama = (data.get('nama_barang') if 'nama_barang' in data else item.nama_barang).strip()
+            kota = (data.get('kabupaten_kota') if 'kabupaten_kota' in data else (item.kabupaten_kota or '')).strip()
+            query = MarketplaceDaurUlang.query.filter(
+                MarketplaceDaurUlang.id_penjual == item.id_penjual,
+                db.func.lower(MarketplaceDaurUlang.nama_barang) == nama.lower(),
+                MarketplaceDaurUlang.id != item.id
+            )
+            if kota:
+                query = query.filter(db.func.lower(MarketplaceDaurUlang.kabupaten_kota) == kota.lower())
+            existing = query.first()
+            if existing:
+                raise ConflictError("Nama barang sudah digunakan pada lokasi yang sama")
+
+        return item, data
 
     @staticmethod
     def get_all(page=1, per_page=20, search=None, kategori_barang_id=None,
@@ -55,10 +115,7 @@ class MarketplaceService:
 
     @staticmethod
     def create(user, data):
-        ref = db.session.get(RefKategoriBarang, data['kategori_barang_id'])
-        if not ref or not ref.is_active:
-            raise NotFoundError("Kategori barang tidak valid")
-
+        MarketplaceService.precheck_create(user, data)
         item = MarketplaceDaurUlang(id_penjual=user.id, **data)
         db.session.add(item)
         db.session.commit()
@@ -77,6 +134,25 @@ class MarketplaceService:
             ref = db.session.get(RefKategoriBarang, data['kategori_barang_id'])
             if not ref or not ref.is_active:
                 raise NotFoundError("Kategori barang tidak valid")
+
+        # Normalize & duplicate check if nama/kota changed
+        if 'nama_barang' in data and data['nama_barang'] is not None:
+            data['nama_barang'] = data['nama_barang'].strip()
+        if 'kabupaten_kota' in data and data['kabupaten_kota'] is not None:
+            data['kabupaten_kota'] = data['kabupaten_kota'].strip()
+        if 'nama_barang' in data or 'kabupaten_kota' in data:
+            nama = (data.get('nama_barang') if 'nama_barang' in data else item.nama_barang).strip()
+            kota = (data.get('kabupaten_kota') if 'kabupaten_kota' in data else (item.kabupaten_kota or '')).strip()
+            query = MarketplaceDaurUlang.query.filter(
+                MarketplaceDaurUlang.id_penjual == item.id_penjual,
+                db.func.lower(MarketplaceDaurUlang.nama_barang) == nama.lower(),
+                MarketplaceDaurUlang.id != item.id
+            )
+            if kota:
+                query = query.filter(db.func.lower(MarketplaceDaurUlang.kabupaten_kota) == kota.lower())
+            existing = query.first()
+            if existing:
+                raise ConflictError("Nama barang sudah digunakan pada lokasi yang sama")
 
         for key, value in data.items():
             setattr(item, key, value)

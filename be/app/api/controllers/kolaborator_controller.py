@@ -69,6 +69,9 @@ def create():
             status_code=422
         )
 
+    # Precheck (ref + duplikasi) sebelum upload logo
+    KolaboratorService.precheck_create(request.current_user, data)
+
     # Handle logo file upload if present
     if 'logo' in request.files:
         logo_file = request.files['logo']
@@ -108,6 +111,9 @@ def update(item_id):
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Precheck sebelum upload logo (akses + ref + duplikasi nama)
+    KolaboratorService.precheck_update(item_id, request.current_user, data)
 
     # Handle logo file upload if present
     if 'logo' in request.files:

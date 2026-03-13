@@ -55,6 +55,8 @@ class Artikel(db.Model):
             'foto_cover_url': self.foto_cover_url,
             'status_publikasi': self.status_publikasi.value if self.status_publikasi else None,
             'jumlah_views': self.jumlah_views,
+            'jumlah_likes': self.likes.count(),
+            'jumlah_komentar': self.komentar.count(),
             'waktu_publish': self.waktu_publish.isoformat() if self.waktu_publish else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,

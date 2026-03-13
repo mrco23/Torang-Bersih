@@ -1,6 +1,16 @@
 """Aset validation schemas"""
-from typing import Required
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, validates_schema, ValidationError
+
+
+def _validate_lat_lng_pair_and_range(data):
+    lat = data.get("latitude")
+    lng = data.get("longitude")
+    if (lat is None) ^ (lng is None):
+        raise ValidationError("Latitude dan longitude harus diisi bersamaan", field_name="latitude")
+    if lat is not None and (lat < -90 or lat > 90):
+        raise ValidationError("Latitude harus antara -90 sampai 90", field_name="latitude")
+    if lng is not None and (lng < -180 or lng > 180):
+        raise ValidationError("Longitude harus antara -180 sampai 180", field_name="longitude")
 
 
 class AsetCreateSchema(Schema):
@@ -14,7 +24,11 @@ class AsetCreateSchema(Schema):
     longitude = fields.Float()
     penanggung_jawab = fields.String(validate=validate.Length(max=100))
     kontak = fields.String(validate=validate.Length(max=20))
-    pictures_urls = fields.List(fields.String())
+    pictures_urls = fields.List(fields.String(), validate=validate.Length(max=10))
+
+    @validates_schema
+    def validate_location(self, data, **kwargs):
+        _validate_lat_lng_pair_and_range(data)
 
 
 class AsetUpdateSchema(Schema):
@@ -28,8 +42,12 @@ class AsetUpdateSchema(Schema):
     longitude = fields.Float()
     penanggung_jawab = fields.String(validate=validate.Length(max=100))
     kontak = fields.String(validate=validate.Length(max=20))
-    pictures_urls = fields.List(fields.String())
+    pictures_urls = fields.List(fields.String(), validate=validate.Length(max=10))
     existing_pictures = fields.List(fields.String(), required=False)
+
+    @validates_schema
+    def validate_location(self, data, **kwargs):
+        _validate_lat_lng_pair_and_range(data)
 
 
 class AsetQuerySchema(Schema):

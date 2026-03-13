@@ -53,6 +53,7 @@ class TestCreateKolaborator:
                 'jenis_kolaborator_id': ref_jenis_kolaborator.id,
                 'deskripsi': 'A' * 500,
                 'kabupaten_kota': 'Kota Bandung',
+                'email': 'orgbaru@example.com',
             }
         )
 
