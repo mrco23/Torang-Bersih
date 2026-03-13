@@ -24,6 +24,13 @@
   --gray-light: #888888;
   --gray-placeholder: #a7a7a7;
   --gray-shine: #f3f3fc;
+
+  /* Status Colors */
+  --red: #ef4444;
+  --green: #22c55e;
+  --indigo: #6366f1;
+  --orange: #f97316;
+  --yellow: #eab308;
 }
 
 /* Dark mode: aktif saat <html> punya class "dark" */

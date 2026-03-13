@@ -62,7 +62,7 @@ SEED_USERS = [
         "email": "user3@example.com",
         "username": "testuser3",
         "password": "User123!",
-        "full_name": "Ahmad Hidayat",
+        "full_name": "Ahmad Ridho Wael",
         "role": UserRole.USER,
         "is_verified": True,
         "auth_provider": "local",
