@@ -5,7 +5,7 @@ import {
   MapPin, 
   Store, 
   Package, 
-  Heart, 
+  ThumbsUp, 
   MessageSquare,
   AlertTriangle,
   TrendingUp,
@@ -105,7 +105,7 @@ const AdminDashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-indigo-50/50 rounded-2xl p-6 border border-indigo-100 flex items-center gap-4 group hover:bg-indigo-50 transition-all cursor-default">
           <div className="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-200 ring-4 ring-indigo-50">
-            <Heart size={24} className="group-hover:scale-110 transition-transform" />
+            <ThumbsUp size={24} className="group-hover:scale-110 transition-transform" />
           </div>
           <div>
             <p className="text-2xl font-bold text-indigo-900 leading-none mb-1">{stats.total_artikel_likes}</p>

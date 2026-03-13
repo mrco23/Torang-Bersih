@@ -44,12 +44,12 @@ const StatusGroupCard = ({ title, stats, icon: Icon, colorClass = "primary" }) =
         <h3 className="font-bold text-gray-800">{title}</h3>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-0 divide-y divide-gray-100 border-t border-gray-50 -mx-5 -mb-5 mt-4">
         {stats && Object.entries(stats).map(([label, count]) => (
-          <div key={label} className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">{formatLabel(label)}</span>
+          <div key={label} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50/50 transition-colors">
+            <span className="text-sm font-medium text-gray-600">{formatLabel(label)}</span>
             <span
-              className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+              className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                 statusColors[label] || "bg-gray-100 text-gray-600"
               }`}
             >
