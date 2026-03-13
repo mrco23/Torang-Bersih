@@ -272,7 +272,7 @@ const SidebarPeta = ({
             </svg>
           </button>
           <div
-            className={`scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-200 flex flex-col gap-2 overflow-y-auto pr-2 transition-all duration-300 ${isFilterExpanded ? "h-62 opacity-100" : "h-0 overflow-hidden opacity-0"}`}
+            className={`scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-200 flex flex-col gap-2 overflow-y-auto pr-2 transition-all duration-300 ${isFilterExpanded ? "h-56 opacity-100" : "h-0 overflow-hidden opacity-0"}`}
           >
             {FILTER_DEFINITIONS.map((cat) => {
               const isCatActive = filters.includes(cat.id);

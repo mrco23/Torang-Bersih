@@ -4,9 +4,9 @@ import uuid
 from sqlalchemy import or_
 
 from app.config.extensions import db
-from app.database.models import Artikel, StatusPublikasi
+from app.database.models import Artikel, StatusPublikasi, RefKategoriArtikel
 from app.database.models.artikel import ArtikelLike, ArtikelKomentar, StatusKomentar
-from app.utils.exceptions import NotFoundError, ForbiddenError
+from app.utils.exceptions import NotFoundError, ForbiddenError, BadRequestError
 
 class ArtikelService:
     @staticmethod
@@ -43,6 +43,11 @@ class ArtikelService:
 
     @staticmethod
     def create(user, data):
+        # Validate kategori exists & active
+        ref = db.session.get(RefKategoriArtikel, data['kategori_id'])
+        if not ref or not ref.is_active:
+            raise NotFoundError("Kategori artikel tidak valid")
+
         # Auto-generate slug jika tidak ada
         if not data.get('slug'):
             base_slug = re.sub(r'[^a-zA-Z0-9]+', '-', data['judul_artikel'].lower()).strip('-')
@@ -69,6 +74,23 @@ class ArtikelService:
         # Otorisasi: Hanya pemilik atau Admin yang bisa update
         if item.id_penulis != user.id and not getattr(user, 'is_admin', False):
             raise ForbiddenError("Tidak memiliki akses untuk mengubah artikel ini")
+
+        if 'kategori_id' in data:
+            ref = db.session.get(RefKategoriArtikel, data['kategori_id'])
+            if not ref or not ref.is_active:
+                raise NotFoundError("Kategori artikel tidak valid")
+
+        # Jika status dipublish, pastikan konten tidak kosong (pakai konten baru atau existing)
+        if 'status_publikasi' in data:
+            status_val = data.get('status_publikasi')
+            # status_val bisa Enum atau string (akan dikonversi di bawah), normalisasi dulu
+            status_str = status_val.value if hasattr(status_val, "value") else str(status_val or "").lower()
+            if status_str == StatusPublikasi.PUBLISHED.value:
+                konten = data.get('konten_teks')
+                if konten is None:
+                    konten = item.konten_teks
+                if konten is None or str(konten).strip() == "":
+                    raise BadRequestError("konten_teks wajib diisi jika status_publikasi=published")
 
         for key, value in data.items():
             # Handle Enum conversion khusus status_publikasi
@@ -212,4 +234,4 @@ class ArtikelService:
             raise ForbiddenError("Tidak memiliki akses untuk menghapus komentar ini")
 
         db.session.delete(komentar)
-        db.session.commit()
+        db.session.commit()

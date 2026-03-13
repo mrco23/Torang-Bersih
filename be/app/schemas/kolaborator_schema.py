@@ -1,5 +1,16 @@
 """Kolaborator validation schemas"""
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, validates_schema, ValidationError
+
+
+def _validate_lat_lng_pair_and_range(data):
+    lat = data.get("latitude")
+    lng = data.get("longitude")
+    if (lat is None) ^ (lng is None):
+        raise ValidationError("Latitude dan longitude harus diisi bersamaan", field_name="latitude")
+    if lat is not None and (lat < -90 or lat > 90):
+        raise ValidationError("Latitude harus antara -90 sampai 90", field_name="latitude")
+    if lng is not None and (lng < -180 or lng > 180):
+        raise ValidationError("Longitude harus antara -180 sampai 180", field_name="longitude")
 
 
 class KolaboratorCreateSchema(Schema):
@@ -16,6 +27,15 @@ class KolaboratorCreateSchema(Schema):
     kontak = fields.String(validate=validate.Length(max=20))
     sosmed = fields.String(validate=validate.Length(max=500))
 
+    @validates_schema
+    def validate_location_and_contact(self, data, **kwargs):
+        _validate_lat_lng_pair_and_range(data)
+        # Minimal salah satu metode kontak
+        email = data.get("email")
+        kontak = data.get("kontak")
+        if not email and not kontak:
+            raise ValidationError("Minimal salah satu dari email atau kontak harus diisi", field_name="email")
+
 
 class KolaboratorUpdateSchema(Schema):
     nama_organisasi = fields.String(validate=validate.Length(min=1, max=100))
@@ -30,6 +50,10 @@ class KolaboratorUpdateSchema(Schema):
     penanggung_jawab = fields.String(validate=validate.Length(max=100))
     kontak = fields.String(validate=validate.Length(max=20))
     sosmed = fields.String(validate=validate.Length(max=500))
+
+    @validates_schema
+    def validate_location_pair(self, data, **kwargs):
+        _validate_lat_lng_pair_and_range(data)
 
 
 class KolaboratorQuerySchema(Schema):

@@ -35,6 +35,7 @@ class PetaService:
                     'lat': item.latitude,
                     'lng': item.longitude,
                     'type': 'Kolaborator',
+                    'status': item.status_verifikasi.value if item.status_verifikasi else None,
                     'image_url': item.logo_url,
                     'detail': {
                         'jenis_kolaborator': item.jenis_ref.nama if item.jenis_ref else None,
@@ -62,6 +63,7 @@ class PetaService:
                     'lat': item.latitude,
                     'lng': item.longitude,
                     'type': 'Aset',
+                    'status': item.status_verifikasi.value if item.status_verifikasi else None,
                     'image_url': item.pictures_urls[0] if item.pictures_urls and len(item.pictures_urls) > 0 else None,
                     'detail': {
                         'kategori_aset': item.kategori_ref.nama if item.kategori_ref else None,
@@ -86,6 +88,7 @@ class PetaService:
                     'lat': item.latitude,
                     'lng': item.longitude,
                     'type': 'Laporan Sampah',
+                    'status': item.status_laporan.value if item.status_laporan else None,
                     'image_url': item.foto_bukti_urls[0] if item.foto_bukti_urls and len(item.foto_bukti_urls) > 0 else None,
                     'detail': {
                         'kabupaten_kota': item.kabupaten_kota,
@@ -113,6 +116,7 @@ class PetaService:
                     'lat': item.latitude,
                     'lng': item.longitude,
                     'type': 'Barang Daur Ulang',
+                    'status': item.status_ketersediaan.value if item.status_ketersediaan else None,
                     'image_url': item.foto_barang_urls[0] if item.foto_barang_urls and len(item.foto_barang_urls) > 0 else None,
                     'detail': {
                         'kategori_barang': item.kategori_ref.nama if item.kategori_ref else None,

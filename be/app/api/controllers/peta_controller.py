@@ -18,7 +18,9 @@ def get_markers():
         )
     types = params.get('types')
     if types:
-        types = types.split(',')
+        requested = [t.strip() for t in types.split(',') if t.strip()]
+        allowed = {'Kolaborator', 'Aset', 'Laporan Sampah', 'Barang Daur Ulang'}
+        types = [t for t in requested if t in allowed] or []
     else:
         types = None
     markers = PetaService.get_markers(types)

@@ -67,6 +67,9 @@ def create():
             status_code=422
         )
 
+    # Precheck (ref + duplikasi) sebelum upload foto
+    AsetService.precheck_create(request.current_user, data)
+
     # Handle multiple foto uploads
     if 'pictures_urls' in request.files:
         from app.lib.cloudinary import upload_images_concurrently
@@ -103,6 +106,9 @@ def update(item_id):
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Precheck sebelum upload foto (akses + ref + duplikasi nama)
+    AsetService.precheck_update(item_id, request.current_user, data)
 
     # Check for existing pictures kept by user
     existing_pictures = request.form.getlist('existing_pictures') if request.form else []

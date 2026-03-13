@@ -12,6 +12,31 @@ from app.utils.exceptions import NotFoundError, ForbiddenError
 class LaporanService:
 
     @staticmethod
+    def precheck_create(data):
+        """Validasi sebelum upload file: cek referensi wajib ada & aktif."""
+        ref = db.session.get(RefJenisSampah, data['jenis_sampah_id'])
+        if not ref or not ref.is_active:
+            raise NotFoundError("Jenis sampah tidak valid")
+        return data
+
+    @staticmethod
+    def precheck_update(item_id, user, data):
+        """Validasi sebelum upload file saat update: cek akses + referensi (jika diubah)."""
+        item = db.session.get(LaporanSampahIlegal, item_id)
+        if not item:
+            raise NotFoundError("Laporan tidak ditemukan")
+
+        if item.id_warga != user.id and not user.is_admin:
+            raise ForbiddenError("Tidak memiliki akses untuk mengubah laporan ini")
+
+        if 'jenis_sampah_id' in data:
+            ref = db.session.get(RefJenisSampah, data['jenis_sampah_id'])
+            if not ref or not ref.is_active:
+                raise NotFoundError("Jenis sampah tidak valid")
+
+        return item, data
+
+    @staticmethod
     def get_all(page=1, per_page=20, search=None, status_laporan=None,
                 jenis_sampah_id=None, id_warga=None, sort_by='created_at', sort_order='desc'):
         query = LaporanSampahIlegal.query
@@ -58,9 +83,7 @@ class LaporanService:
 
     @staticmethod
     def create(user, data):
-        ref = db.session.get(RefJenisSampah, data['jenis_sampah_id'])
-        if not ref or not ref.is_active:
-            raise NotFoundError("Jenis sampah tidak valid")
+        LaporanService.precheck_create(data)
 
         # Convert string enum values
         if 'karakteristik' in data and data['karakteristik']:
