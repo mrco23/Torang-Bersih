@@ -57,7 +57,7 @@ const AdminDashboardPage = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Dashboard Admin</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard Admin</h1>
           <p className="text-gray-500 mt-1">Ringkasan aktivitas dan performa sistem Torang-Bersih.</p>
         </div>
         <button 
