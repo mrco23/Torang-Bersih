@@ -3,6 +3,7 @@ import { LuArrowRight } from "react-icons/lu";
 import { Link } from "react-router-dom";
 
 const ArtikelHeadline = ({
+  id,
   image,
   author,
   authorAvatar,
@@ -38,11 +39,14 @@ const ArtikelHeadline = ({
       </h3>
 
       {/* Deskripsi */}
-      <p className="leading-6 text-(--gray)">{description}</p>
+      <p
+        className="leading-6 text-(--gray)"
+        dangerouslySetInnerHTML={{ __html: description }}
+      />
 
       {/* Link Selengkapnya */}
       <Link
-        to="/artikel"
+        to={`/artikel/${id}`}
         className="flex items-center gap-1 text-sm font-semibold text-(--accent) transition-all duration-300 hover:gap-2"
       >
         Selengkapnya

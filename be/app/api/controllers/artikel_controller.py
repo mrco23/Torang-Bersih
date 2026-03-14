@@ -7,9 +7,10 @@ from app.schemas.artikel_schema import (
     ArtikelCreateSchema, ArtikelUpdateSchema, ArtikelQuerySchema, MyArtikelQuerySchema,
     ArtikelKomentarCreateSchema, ArtikelKomentarUpdateSchema, ArtikelKomentarQuerySchema
 )
-from app.middlewares.auth_middleware import jwt_required_custom
+from app.middlewares.auth_middleware import jwt_required_custom, optional_jwt
 from app.utils.response import success_response, error_response, paginated_response
 
+@optional_jwt
 def get_all():
     try:
         params = ArtikelQuerySchema().load(request.args)
@@ -20,31 +21,52 @@ def get_all():
             status_code=422
         )
 
-    page = params.get('page', 1)
-    per_page = params.get('per_page', 20)
-
     items, total = ArtikelService.get_all(
-        page=page,
-        per_page=per_page,
+        page=params.get('page', 1),
+        per_page=params.get('per_page', 20),
         search=params.get('search'),
+        kategori_id=params.get('kategori_id'),
+        status_publikasi=params.get('status_publikasi'),
+        tag=params.get('tag'),
         sort_by=params.get('sort_by', 'created_at'),
         sort_order=params.get('sort_order', 'desc'),
     )
 
+    current_user_id = request.current_user.id if request.current_user else None
+    
     return paginated_response(
-        data=[item.to_dict() for item in items],
+        data=[item.to_dict(include_content=False, current_user_id=current_user_id) for item in items],
         total=total,
-        page=page,
-        per_page=per_page,
+        page=params.get('page', 1),
+        per_page=params.get('per_page', 20),
         message="Daftar artikel berhasil diambil"
     )
 
+@optional_jwt
 def get_one(item_id):
-    item = ArtikelService.get_by_id(item_id)
+    item = ArtikelService.get_by_id(item_id, increment_view=True)
+    current_user_id = request.current_user.id if request.current_user else None
     return success_response(
-        data=item.to_dict(include_content=True), 
+        data=item.to_dict(include_content=True, current_user_id=current_user_id), 
         message="Detail artikel berhasil diambil"
     )
+
+@optional_jwt
+def get_popular():
+    items = ArtikelService.get_popular(limit=3)
+    current_user_id = request.current_user.id if request.current_user else None
+    return success_response(
+        data=[item.to_dict(include_content=False, current_user_id=current_user_id) for item in items],
+        message="Artikel populer berhasil diambil"
+    )
+
+def get_tags():
+    tags = ArtikelService.get_unique_tags()
+    return success_response(
+        data=tags,
+        message="Daftar tag berhasil diambil"
+    )
+
 
 @jwt_required_custom
 def my_artikel():
@@ -72,7 +94,7 @@ def my_artikel():
     )
 
     return paginated_response(
-        data=[item.to_dict() for item in items],
+        data=[item.to_dict(include_content=False) for item in items],
         total=total,
         page=page,
         per_page=per_page,
@@ -81,24 +103,42 @@ def my_artikel():
 
 @jwt_required_custom
 def create():
-    # Proteksi: Hanya Admin atau Kolaborator Terverifikasi
-    if not getattr(request.current_user, 'is_admin', False):
-        kolaborator = getattr(request.current_user, 'kolaborator', None)
-        if hasattr(kolaborator, 'first'):
-            kolaborator = kolaborator.first()
-        
-        if not kolaborator or not getattr(kolaborator, 'status_verifikasi', False):
-            from app.utils.exceptions import ForbiddenError
-            raise ForbiddenError("Hanya Admin dan Kolaborator Terverifikasi yang dapat membuat artikel")
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        raw_data = request.form.to_dict()
+        # Handle lists and booleans from form-data
+        tags = request.form.getlist('tags') or request.form.getlist('tags[]')
+        if tags:
+            raw_data['tags'] = tags
+            
+        if 'is_featured' in raw_data:
+            val = str(raw_data['is_featured']).lower()
+            raw_data['is_featured'] = val in ['true', '1', 'yes']
+    else:
+        raw_data = request.get_json() or {}
 
     try:
-        data = ArtikelCreateSchema().load(request.get_json() or {})
+        data = ArtikelCreateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
             message="Validasi gagal",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Handle foto cover upload
+    if 'foto_cover' in request.files:
+        foto_file = request.files['foto_cover']
+        if foto_file.filename:
+            from app.lib.cloudinary import upload_image
+            upload_result = upload_image(
+                foto_file,
+                folder="artikel_covers",
+                transformation={"width": 1200, "height": 630, "crop": "fill"}
+            )
+            if upload_result:
+                data['foto_cover_url'] = upload_result['url']
+            else:
+                return error_response(message="Gagal mengunggah foto cover", status_code=500)
 
     item = ArtikelService.create(request.current_user, data)
     return success_response(
@@ -109,14 +149,41 @@ def create():
 
 @jwt_required_custom
 def update(item_id):
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        raw_data = request.form.to_dict()
+        tags = request.form.getlist('tags') or request.form.getlist('tags[]')
+        if tags:
+            raw_data['tags'] = tags
+            
+        if 'is_featured' in raw_data:
+            val = str(raw_data['is_featured']).lower()
+            raw_data['is_featured'] = val in ['true', '1', 'yes']
+    else:
+        raw_data = request.get_json() or {}
+
     try:
-        data = ArtikelUpdateSchema().load(request.get_json() or {})
+        data = ArtikelUpdateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
             message="Validasi gagal",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
+
+    # Handle foto cover upload
+    if 'foto_cover' in request.files:
+        foto_file = request.files['foto_cover']
+        if foto_file.filename:
+            from app.lib.cloudinary import upload_image
+            upload_result = upload_image(
+                foto_file,
+                folder="artikel_covers",
+                transformation={"width": 1200, "height": 630, "crop": "fill"}
+            )
+            if upload_result:
+                data['foto_cover_url'] = upload_result['url']
+            else:
+                return error_response(message="Gagal mengunggah foto cover", status_code=500)
 
     update_data = {k: v for k, v in data.items() if v is not None}
     item = ArtikelService.update(item_id, request.current_user, update_data)
@@ -209,4 +276,4 @@ def update_komentar(item_id, komentar_id):
 @jwt_required_custom
 def delete_komentar(item_id, komentar_id):
     ArtikelService.delete_komentar(komentar_id, request.current_user)
-    return success_response(message="Komentar berhasil dihapus")
+    return success_response(message="Komentar berhasil dihapus")

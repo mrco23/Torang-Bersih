@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ArticleCard from "../../components/features/public/artikel/articleCard";
 import Sidebar from "../../components/features/public/artikel/Sidebar";
-
-import { useArtikel } from "../../components/features/public/artikel/UseArticle"; // sesuaikan path jika berbeda
-
-// ── Tab config ──────────────────────────────────────────────────
-const TAB_LIST = ["Untuk Anda", "Edukasi", "Berita", "Event", "Opini"];
+import { artikelAPI } from "../../services/api/routes/artikel.route";
+import { referensiAPI } from "../../services/api/routes/referensi.route";
+import { RiCloseLine } from "react-icons/ri";
 
 // ── Loading skeleton (tidak ubah desain, hanya filler) ─────────
 function ArticleSkeleton() {
@@ -72,36 +70,139 @@ function Pagination({ meta, page, onPage }) {
 
 // ── Main page ────────────────────────────────────────────────────
 const ArtikelPage = () => {
-  const [activeTab, setActiveTab] = useState("Untuk Anda");
-  const [page, setPage] = useState(1);
+  const [categories, setCategories] = useState([]);
+  const [popularArticles, setPopularArticles] = useState([]);
+  const [topics, setTopics] = useState([]);
 
-  // Fetch dari backend — reset ke page 1 saat tab berubah
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    setPage(1);
-  };
+  const [activeTab, setActiveTab] = useState("Terbaru");
+  const [articles, setArticles] = useState([]);
+  const [meta, setMeta] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const { articles, loading, error, meta, refetch } = useArtikel({
-    kategori: activeTab,
-    page,
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [query, setQuery] = useState({
+    page: 1,
+    per_page: 10,
+    search: "",
+    kategori_id: "",
+    tag: "",
+    sort_by: "created_at",
+    sort_order: "desc",
+    status_publikasi: "published",
   });
 
-  // Sidebar data (static — belum ada endpoint populer/topik)
-  const popularArticles = [
-    {
-      id: 101,
-      author: "Anita R.",
-      title: "Perbedaan Sampah Residu dan Daur Ulang",
-      date: "5 Sep",
-    },
-    {
-      id: 102,
-      author: "Budi Santoso",
-      title: "5 Tips Mengurangi Pemakaian Plastik",
-      date: "22 Ags",
-    },
-  ];
-  const topics = ["Plastik", "Kompos", "Bank Sampah", "Laut", "Relawan"];
+  // Fetch meta data (categories, popular, tags)
+  useEffect(() => {
+    const fetchMeta = async () => {
+      try {
+        const [catRes, popRes, tagRes] = await Promise.all([
+          referensiAPI.getAll("kategori-artikel"),
+          artikelAPI.getPopular(),
+          artikelAPI.getTags(),
+        ]);
+        setCategories(catRes.data?.data || []);
+        setPopularArticles(popRes.data?.data || []);
+        setTopics(tagRes.data?.data || []);
+      } catch (err) {
+        console.error("Gagal memuat data meta sidebar", err);
+      }
+    };
+    fetchMeta();
+  }, []);
+
+  const tabList = ["Terbaru", ...categories.map((c) => c.nama)];
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === "Terbaru") {
+      setQuery((q) => ({ ...q, page: 1, kategori_id: "" }));
+    } else {
+      const cat = categories.find((c) => c.nama === tab);
+      if (cat) {
+        setQuery((q) => ({ ...q, page: 1, kategori_id: cat.id }));
+      }
+    }
+  };
+
+  const handleSearchSubmit = () => {
+    setQuery((q) => ({ ...q, page: 1, search: searchQuery }));
+    setActiveTab("Terbaru");
+  };
+
+  const handleTagClick = (tag) => {
+    setQuery((q) => ({ ...q, page: 1, tag: tag }));
+    setActiveTab("Terbaru");
+  };
+
+  const clearTag = () => {
+    setQuery((q) => ({ ...q, page: 1, tag: "" }));
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setQuery((q) => ({ ...q, page: 1, search: "" }));
+  };
+
+  const fetchArtikel = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const params = Object.fromEntries(
+        // eslint-disable-next-line no-unused-vars
+        Object.entries(query).filter(([_, v]) => v !== ""),
+      );
+
+      const res = await artikelAPI.getAll(params);
+      const data = res.data.data || [];
+
+      setArticles(
+        data.map((item) => ({
+          id: item.id,
+          slug: item.slug,
+          title: item.judul_artikel,
+          excerpt: item.excerpt ?? "",
+          image: item.foto_cover_url ?? "",
+          category: item.kategori?.nama ?? item.kategori ?? "",
+          author: item.penulis?.full_name ?? item.penulis?.username ?? "Anonim",
+          authorImage:
+            item.penulis?.avatar_url ??
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              item.penulis?.full_name ?? "A",
+            )}&background=1e1f78&color=fff`,
+          date: item.waktu_publish
+            ? new Date(item.waktu_publish).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })
+            : "-",
+          views: item.jumlah_views ?? 0,
+          likes: item.jumlah_likes ?? 0,
+          comments: item.jumlah_komentar ?? 0,
+          status: item.status_publikasi,
+        })),
+      );
+      setMeta(res.data.meta || null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Gagal memuat artikel.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArtikel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    query.page,
+    query.kategori_id,
+    query.search,
+    query.tag,
+    query.sort_by,
+    query.sort_order,
+  ]);
 
   return (
     <div className="bg-white pt-20 text-gray-900">
@@ -109,9 +210,9 @@ const ArtikelPage = () => {
         <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
           {/* ── Konten utama ── */}
           <div className="lg:col-span-8">
-            {/* Tab bar — tidak diubah */}
-            <div className="scrollbar-hide mb-8 flex overflow-x-auto border-b border-gray-200">
-              {TAB_LIST.map((tab) => (
+            {/* Tab bar */}
+            <div className="scrollbar-hide mb-0 flex overflow-x-auto border-b border-gray-200">
+              {tabList.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => handleTabChange(tab)}
@@ -129,6 +230,37 @@ const ArtikelPage = () => {
               ))}
             </div>
 
+            {/* Indikator Filter Aktif */}
+            {(query.search || query.tag) && (
+              <div className="mt-6 flex flex-wrap items-center gap-2">
+                <span className="text-sm text-gray-500">
+                  Menampilkan hasil untuk:
+                </span>
+                {query.search && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
+                    Pencarian: "{query.search}"
+                    <button
+                      onClick={clearSearch}
+                      className="text-blue-500 hover:text-blue-900"
+                    >
+                      <RiCloseLine />
+                    </button>
+                  </span>
+                )}
+                {query.tag && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
+                    Tag: #{query.tag}
+                    <button
+                      onClick={clearTag}
+                      className="text-gray-500 hover:text-gray-900"
+                    >
+                      <RiCloseLine />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* ── Loading ── */}
             {loading && (
               <div className="flex flex-col">
@@ -140,7 +272,7 @@ const ArtikelPage = () => {
 
             {/* ── Error ── */}
             {!loading && error && (
-              <ErrorState message={error} onRetry={refetch} />
+              <ErrorState message={error} onRetry={fetchArtikel} />
             )}
 
             {/* ── Empty ── */}
@@ -150,12 +282,13 @@ const ArtikelPage = () => {
                   Belum ada artikel
                 </p>
                 <p className="text-sm text-gray-500">
-                  Belum ada artikel di kategori ini.
+                  Kami tidak menemukan artikel yang sesuai dengan kriteria yang
+                  Anda cari.
                 </p>
               </div>
             )}
 
-            {/* ── Daftar artikel — markup sama persis ── */}
+            {/* ── Daftar artikel ── */}
             {!loading && !error && articles.length > 0 && (
               <>
                 <div className="flex flex-col">
@@ -181,17 +314,27 @@ const ArtikelPage = () => {
                 </div>
 
                 {/* Pagination */}
-                <Pagination meta={meta} page={page} onPage={setPage} />
+                <Pagination
+                  meta={meta}
+                  page={query.page}
+                  onPage={(newPage) =>
+                    setQuery((q) => ({ ...q, page: newPage }))
+                  }
+                />
               </>
             )}
           </div>
 
-          {/* ── Sidebar — tidak diubah ── */}
-          <div className="sticky top-24 hidden h-fit lg:col-span-4 lg:block">
+          {/* ── Sidebar ── */}
+          <div className="sticky top-30 hidden h-fit lg:col-span-4 lg:block">
             <Sidebar
               popularArticles={popularArticles}
               topics={topics}
               isDetail={false}
+              searchQuery={searchQuery}
+              onSearchChange={(e) => setSearchQuery(e.target.value)}
+              onSearchSubmit={handleSearchSubmit}
+              onTagClick={handleTagClick}
             />
           </div>
         </div>

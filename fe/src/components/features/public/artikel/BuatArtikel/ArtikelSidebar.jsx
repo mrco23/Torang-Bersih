@@ -1,190 +1,313 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
-  RiBook2Line,
-  RiNewspaperLine,
-  RiCalendarEventLine,
-  RiChat3Line,
   RiImageAddLine,
   RiCloseLine,
   RiTimeLine,
   RiFileTextLine,
   RiCheckLine,
-  RiInformationLine,
   RiArrowDownSLine,
   RiArrowUpSLine,
   RiStarLine,
   RiLightbulbLine,
+  RiUploadCloud2Line,
+  RiPriceTag3Line,
 } from "react-icons/ri";
-
-const KATEGORI_LIST = [
-  {
-    id: "a245825c-dc9a-452c-8f65-261af8f72029", // <-- UUID Edukasi (dari Create.bru)
-    label: "Edukasi",
-    desc: "Artikel ilmu & edukasi lingkungan",
-    icon: RiBook2Line,
-    color: "text-blue-700",
-    bg: "bg-blue-50",
-    border: "border-blue-300",
-  },
-  {
-    id: "b1111111-1111-1111-1111-111111111111", // <-- Ganti dengan UUID Kategori Berita di DB Anda
-    label: "Berita",
-    desc: "Kabar terkini seputar lingkungan",
-    icon: RiNewspaperLine,
-    color: "text-amber-700",
-    bg: "bg-amber-50",
-    border: "border-amber-300",
-  },
-  {
-    id: "c1111111-1111-1111-1111-111111111111", // <-- Ganti dengan UUID Kategori Event di DB Anda
-    label: "Event",
-    desc: "Kegiatan atau kampanye",
-    icon: RiCalendarEventLine,
-    color: "text-green-700",
-    bg: "bg-green-50",
-    border: "border-green-300",
-  },
-  {
-    id: "d1111111-1111-1111-1111-111111111111", // <-- Ganti dengan UUID Kategori Opini di DB Anda
-    label: "Opini",
-    desc: "Pendapat atau sudut pandang",
-    icon: RiChat3Line,
-    color: "text-purple-700",
-    bg: "bg-purple-50",
-    border: "border-purple-300",
-  },
-];
+import toaster from "../../../../../utils/toaster";
+import { getKatStyle } from "./constant";
 
 const TARGET_WORDS = 300;
 
-const ArtikelSidebar = ({ form, wordCount, readTime, onFormChange }) => {
-  const [coverError, setCoverError] = useState("");
-  const [showTips, setShowTips] = useState(true);
+const ArtikelSidebar = ({
+  form,
+  wordCount,
+  readTime,
+  onFormChange,
+  onFotoFileChange,
+  kategoriList,
+  loadingKategori,
+  fotoPreview,
+}) => {
+  const [showTips, setShowTips] = useState(false);
+  const fileInputRef = useRef(null);
 
   const hasJudul = form.judul_artikel?.trim().length > 0;
   const hasKonten = wordCount >= 50;
   const hasKategori = !!form.kategori_id;
-  const hasCover = !!form.foto_cover_url && !coverError;
+  const hasCover = !!fotoPreview;
+  const hasTags = (form.tags || []).length > 0;
 
   const CHECKS = [
     { label: "Judul artikel", done: hasJudul, required: true },
     { label: "Isi artikel (≥ 50 kata)", done: hasKonten, required: true },
     { label: "Pilih topik", done: hasKategori, required: true },
-    { label: "Foto cover", done: hasCover, required: false },
+    { label: "Foto cover (opsional)", done: hasCover, required: false },
+    { label: "Tags artikel (opsional)", done: hasTags, required: false },
   ];
 
   const doneMandatory = CHECKS.filter((c) => c.required && c.done).length;
   const totalMandatory = CHECKS.filter((c) => c.required).length;
   const percent = Math.round((doneMandatory / totalMandatory) * 100);
 
-  const handleCoverUrl = (e) => {
-    onFormChange("foto_cover_url", e.target.value.trim());
-    setCoverError("");
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      toaster.error("Format file tidak didukung. Gunakan JPG, PNG, atau WebP.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toaster.error("Ukuran foto maks 5 MB.");
+      return;
+    }
+
+    onFotoFileChange(file);
+    // Kosongkan fallback URL jika user memilih file lokal
+    onFormChange("foto_cover_url", "");
+  };
+
+  const handleRemoveFoto = () => {
+    onFotoFileChange(null);
+    onFormChange("foto_cover_url", "");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
     <div className="space-y-6">
       {/* CHECKLIST */}
-      <div className={`rounded-xl border p-5 ${
-        percent === 100 ? "border-green-200 bg-green-50" : "border-[#1e1f78]/20 bg-white"
-      }`}>
-        <div className="flex items-center justify-between mb-4">
+      <div
+        className={`rounded-xl border p-5 ${percent === 100 ? "border-green-200 bg-green-50" : "border-[#1e1f78]/20 bg-white"}`}
+      >
+        <div className="mb-4 flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-800">
             {percent === 100 ? (
-              <><RiCheckLine className="text-green-600" /> Artikel Siap Diterbitkan</>
+              <>
+                <RiCheckLine className="text-green-600" /> Artikel Siap
+                Diterbitkan
+              </>
             ) : (
-              <><RiStarLine className="text-[#1e1f78]" /> Kelengkapan Artikel</>
+              <>
+                <RiStarLine className="text-[#1e1f78]" /> Kelengkapan Artikel
+              </>
             )}
           </h3>
-          <span className={`text-sm font-semibold ${percent === 100 ? "text-green-600" : "text-[#1e1f78]"}`}>{percent}%</span>
+          <span
+            className={`text-sm font-semibold ${percent === 100 ? "text-green-600" : "text-[#1e1f78]"}`}
+          >
+            {percent}%
+          </span>
         </div>
-        <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
-          <div className={`h-2 transition-all ${percent === 100 ? "bg-green-500" : "bg-[#1e1f78]"}`} style={{ width: `${percent}%` }} />
+        <div className="mb-4 h-2 overflow-hidden rounded-full bg-gray-200">
+          <div
+            className={`h-2 transition-all ${percent === 100 ? "bg-green-500" : "bg-[#1e1f78]"}`}
+            style={{ width: `${percent}%` }}
+          />
         </div>
         <ul className="space-y-2 text-sm">
           {CHECKS.map((c, i) => (
             <li key={i} className="flex items-center gap-2">
-              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${c.done ? "bg-green-500 border-green-500" : "border-gray-300"}`}>
-                {c.done && <RiCheckLine className="text-white text-xs" />}
+              <div
+                className={`flex h-5 w-5 items-center justify-center rounded-full border ${c.done ? "border-green-500 bg-green-500" : "border-gray-300"}`}
+              >
+                {c.done && <RiCheckLine className="text-xs text-white" />}
               </div>
-              <span className={`${c.done ? "line-through text-gray-400" : "text-gray-700 font-medium"}`}>{c.label}</span>
+              <span
+                className={`${c.done ? "text-gray-400 line-through" : "font-medium text-gray-700"}`}
+              >
+                {c.label}
+              </span>
             </li>
           ))}
         </ul>
       </div>
 
       {/* PANJANG ARTIKEL */}
-      <div className="bg-white border rounded-xl p-5 shadow-sm">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+      <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
           <RiFileTextLine className="text-gray-400" /> Panjang Artikel
         </h3>
-        <div className="flex justify-between text-xs text-gray-500 mb-2">
+        <div className="mb-2 flex justify-between text-xs text-gray-500">
           <span>{wordCount} kata</span>
           <span>Target {TARGET_WORDS}</span>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className={`h-2 ${wordCount >= TARGET_WORDS ? "bg-green-500" : "bg-[#1e1f78]"}`} style={{ width: `${Math.min((wordCount / TARGET_WORDS) * 100, 100)}%` }} />
+        <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+          <div
+            className={`h-2 ${wordCount >= TARGET_WORDS ? "bg-green-500" : "bg-[#1e1f78]"}`}
+            style={{
+              width: `${Math.min((wordCount / TARGET_WORDS) * 100, 100)}%`,
+            }}
+          />
         </div>
-        <div className="flex items-center gap-4 text-xs text-gray-500 mt-3">
-          <span className="flex items-center gap-1"><RiTimeLine /> {readTime} menit baca</span>
-        </div>
-      </div>
-
-      {/* PILIH TOPIK */}
-      <div className="bg-white border rounded-xl p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">Pilih Topik Artikel</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {KATEGORI_LIST.map((kat) => {
-            const Icon = kat.icon;
-            const selected = form.kategori_id === kat.id;
-            return (
-              <button
-                key={kat.id}
-                onClick={() => onFormChange("kategori_id", kat.id)}
-                className={`rounded-lg border p-3 text-left transition ${selected ? `${kat.bg} ${kat.border}` : "border-gray-200 hover:bg-gray-50"}`}
-              >
-                <Icon className={`text-lg mb-1 ${selected ? kat.color : "text-gray-400"}`} />
-                <p className="text-xs font-semibold text-gray-700">{kat.label}</p>
-                <p className="text-[11px] text-gray-500">{kat.desc}</p>
-              </button>
-            );
-          })}
+        <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
+          <span className="flex items-center gap-1">
+            <RiTimeLine /> {readTime} menit baca
+          </span>
         </div>
       </div>
 
-      {/* FOTO COVER */}
-      <div className="bg-white border rounded-xl p-5 shadow-sm">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+      {/* PILIH TOPIK dari API */}
+      <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <h3 className="mb-4 text-sm font-semibold text-gray-700">
+          Pilih Topik Artikel
+        </h3>
+        {loadingKategori ? (
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="h-16 animate-pulse rounded-lg border border-gray-100 bg-gray-100 p-3"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {kategoriList.map((kat, idx) => {
+              const style = getKatStyle(idx);
+              const selected = form.kategori_id === kat.id;
+              return (
+                <button
+                  key={kat.id}
+                  onClick={() => onFormChange("kategori_id", kat.id)}
+                  className={`rounded-lg border p-3 text-left transition ${selected ? `${style.bg} ${style.border}` : "border-gray-200 hover:bg-gray-50"}`}
+                >
+                  <p
+                    className={`text-xs font-semibold ${selected ? style.color : "text-gray-700"}`}
+                  >
+                    {kat.nama}
+                  </p>
+                  {kat.deskripsi && (
+                    <p className="mt-0.5 line-clamp-2 text-[11px] text-gray-500">
+                      {kat.deskripsi}
+                    </p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* FOTO COVER — file upload */}
+      <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
           <RiImageAddLine className="text-gray-400" /> Foto Cover
         </h3>
-        {form.foto_cover_url && !coverError ? (
-          <div className="relative mb-3 rounded-lg overflow-hidden">
-            <img src={form.foto_cover_url} alt="cover" onError={() => setCoverError("Gambar tidak bisa dimuat")} className="h-36 w-full object-cover" />
-            <button onClick={() => { onFormChange("foto_cover_url", ""); setCoverError(""); }} className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full">
+
+        {fotoPreview ? (
+          <div className="relative mb-3 overflow-hidden rounded-lg">
+            <img
+              src={fotoPreview}
+              alt="cover preview"
+              className="h-36 w-full object-cover"
+            />
+            <button
+              onClick={handleRemoveFoto}
+              className="absolute top-2 right-2 rounded-full bg-red-500 p-1 text-white transition hover:bg-red-600"
+            >
               <RiCloseLine />
             </button>
           </div>
         ) : (
-          <div className="h-28 border-2 border-dashed rounded-lg flex items-center justify-center text-gray-400 mb-3">
-            <RiImageAddLine size={24} />
-          </div>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="mb-3 flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-gray-400 transition hover:border-[#1e1f78] hover:text-[#1e1f78]"
+          >
+            <RiUploadCloud2Line size={28} className="mb-1" />
+            <span className="text-xs">Klik untuk pilih foto</span>
+            <span className="text-[11px] text-gray-400">
+              JPG, PNG, WebP · Maks 5 MB
+            </span>
+          </button>
         )}
-        <input type="url" value={form.foto_cover_url} onChange={handleCoverUrl} placeholder="https://images.unsplash.com/..." className="w-full border rounded-lg px-3 py-2 text-sm focus:border-[#1e1f78] outline-none" />
-        {coverError && <p className="text-xs text-red-500 mt-2">{coverError}</p>}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+
+        {fotoPreview && (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full text-center text-xs font-medium text-[#1e1f78] hover:underline"
+          >
+            Ganti foto
+          </button>
+        )}
+      </div>
+
+      {/* TAGS (Opsional) */}
+      <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <RiPriceTag3Line className="text-gray-400" /> Tags Artikel
+        </h3>
+
+        <div className="mb-3 flex flex-wrap gap-2">
+          {(form.tags || []).map((tag, i) => (
+            <span
+              key={i}
+              className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-[#1e1f78]"
+            >
+              #{tag}
+              <button
+                type="button"
+                onClick={() => {
+                  const newTags = form.tags.filter((_, idx) => idx !== i);
+                  onFormChange("tags", newTags);
+                }}
+                className="text-[#1e1f78] hover:text-red-500"
+              >
+                <RiCloseLine className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          ))}
+        </div>
+
+        <input
+          type="text"
+          placeholder="Ketik tag dan tekan Enter..."
+          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#1e1f78] focus:ring-1 focus:ring-[#1e1f78] focus:outline-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const val = e.target.value.trim();
+              if (val) {
+                const currentTags = form.tags || [];
+                if (!currentTags.includes(val) && currentTags.length < 10) {
+                  onFormChange("tags", [...currentTags, val]);
+                } else if (currentTags.length >= 10) {
+                  toaster.warning("Maksimal 10 tag.");
+                }
+              }
+              e.target.value = "";
+            }
+          }}
+        />
       </div>
 
       {/* TIPS */}
-      <div className="bg-white border rounded-xl shadow-sm">
-        <button onClick={() => setShowTips(!showTips)} className="flex items-center justify-between w-full px-5 py-4">
-          <span className="flex items-center gap-2 text-sm font-semibold text-gray-700"><RiLightbulbLine /> Tips Menulis</span>
+      <div className="rounded-xl border bg-white shadow-sm">
+        <button
+          onClick={() => setShowTips(!showTips)}
+          className="flex w-full items-center justify-between px-5 py-4"
+        >
+          <span className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <RiLightbulbLine /> Tips Menulis
+          </span>
           {showTips ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
         </button>
         {showTips && (
-          <div className="border-t px-5 py-4 space-y-3 text-xs text-gray-600">
+          <div className="space-y-3 border-t px-5 py-4 text-xs text-gray-600">
             <p>Gunakan judul yang jelas dan mudah dipahami.</p>
             <p>Mulai artikel dengan inti cerita.</p>
             <p>Gunakan foto agar artikel lebih menarik.</p>
             <p>Bagi artikel menjadi beberapa sub judul.</p>
+            <p>Gunakan tag agar artikel lebih mudah ditemukan.</p>
           </div>
         )}
       </div>

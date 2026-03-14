@@ -1,61 +1,72 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ArtikelHeadline from "./ArtikelHeadline";
 import ArtikelItem from "./ArtikelItem";
 import { HiFire } from "react-icons/hi";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "motion/react";
+import { artikelAPI } from "../../../../../services/api/routes/artikel.route";
 
 const Artikel = () => {
-  const headline = {
-    image:
-      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&q=80",
-    author: "Leonardo moreno",
-    authorAvatar:
-      "https://ui-avatars.com/api/?name=Leonardo+Moreno&background=1e1f78&color=fff&size=64",
-    title:
-      "Menjawab Krisis Ruang Buang TPA Sumompo, PSEL Regional Ilo-Ilo Minut Beroperasi 2026",
-    description:
-      "Kota Manado menghasilkan sekitar 650 ton sampah setiap harinya yang membebani TPA Sumompo. Sebagai solusi jangka panjang, Pemerintah Provinsi Sulawesi Utara mempercepat pengoperasian Tempat Pemrosesan Akhir (TPA) Regional Mamitarang di Ilo-Ilo yang dilengkapi teknologi Pengolahan Sampah menjadi Energi Listrik (PSEL) pada tahun 2026...",
-  };
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const artikelTerbaru = [
-    {
-      image:
-        "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&q=80",
-      title:
-        "Menjawab Krisis Ruang Buang TPA Sumompo, PSEL Regional Ilo-Ilo Minut Beroperasi 2026",
-      views: 300,
-      likes: 256,
-      comments: 6,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=400&q=80",
-      title:
-        "Menjawab Krisis Ruang Buang TPA Sumompo, PSEL Regional Ilo-Ilo Minut Beroperasi 2026",
-      views: 300,
-      likes: 256,
-      comments: 6,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=400&q=80",
-      title:
-        "Menjawab Krisis Ruang Buang TPA Sumompo, PSEL Regional Ilo-Ilo Minut Beroperasi 2026",
-      views: 300,
-      likes: 256,
-      comments: 6,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=400&q=80",
-      title:
-        "Menjawab Krisis Ruang Buang TPA Sumompo, PSEL Regional Ilo-Ilo Minut Beroperasi 2026",
-      views: 300,
-      likes: 256,
-      comments: 6,
-    },
-  ];
+  useEffect(() => {
+    const fetchLandingArtikel = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const params = {
+          per_page: 5,
+          sort_by: "created_at",
+          sort_order: "desc",
+          status_publikasi: "published",
+        };
+
+        const res = await artikelAPI.getAll(params);
+        const data = res.data.data || [];
+
+        setArticles(
+          data.map((item) => ({
+            id: item.id,
+            slug: item.slug,
+            title: item.judul_artikel,
+            excerpt: item.excerpt ?? "",
+            image: item.foto_cover_url ?? "",
+            category: item.kategori?.nama ?? item.kategori ?? "",
+            author:
+              item.penulis?.full_name ?? item.penulis?.username ?? "Anonim",
+            authorImage:
+              item.penulis?.avatar_url ??
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                item.penulis?.full_name ?? "A",
+              )}&background=1e1f78&color=fff`,
+            date: item.waktu_publish
+              ? new Date(item.waktu_publish).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })
+              : "-",
+            views: item.jumlah_views ?? 0,
+            likes: item.jumlah_likes ?? 0,
+            comments: item.jumlah_komentar ?? 0,
+            status: item.status_publikasi,
+          })),
+        );
+      } catch (err) {
+        setError(err.response?.data?.message || "Gagal memuat artikel.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLandingArtikel();
+  }, []);
+
+  const hasData = !loading && !error && articles.length > 0;
+  const headline = hasData ? articles[0] : null;
+  const artikelTerbaru = hasData ? articles.slice(1) : [];
 
   return (
     <motion.div
@@ -81,7 +92,24 @@ const Artikel = () => {
         <div className="flex flex-col gap-10 lg:flex-row lg:gap-10">
           {/* Kolom Kiri — Headline */}
           <div className="w-full lg:w-[55%]">
-            <ArtikelHeadline {...headline} />
+            {loading && (
+              <div className="h-[250px] w-full animate-pulse rounded-2xl bg-gray-100 md:h-[420px]" />
+            )}
+            {!loading && error && (
+              <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">
+                Gagal memuat artikel: {error}
+              </div>
+            )}
+            {!loading && !error && headline && (
+              <ArtikelHeadline
+                id={headline.id}
+                image={headline.image}
+                author={headline.author}
+                authorAvatar={headline.authorImage}
+                title={headline.title}
+                description={headline.excerpt}
+              />
+            )}
           </div>
 
           {/* Kolom Kanan — Terbaru */}
@@ -96,9 +124,54 @@ const Artikel = () => {
 
             {/* List Artikel */}
             <div className="flex flex-col gap-5">
-              {artikelTerbaru.map((item, index) => (
-                <ArtikelItem key={index} {...item} />
-              ))}
+              {loading && (
+                <>
+                  {[...Array(3)].map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="flex animate-pulse flex-col gap-4 rounded-xl bg-white sm:flex-row"
+                    >
+                      <div className="h-[150px] w-full rounded-lg bg-gray-100 sm:h-[140px] sm:w-[200px]" />
+                      <div className="flex flex-1 flex-col gap-3 py-0.5">
+                        <div className="h-4 w-3/4 rounded bg-gray-100" />
+                        <div className="h-3 w-1/2 rounded bg-gray-100" />
+                        <div className="mt-auto flex gap-4">
+                          <div className="h-3 w-10 rounded bg-gray-100" />
+                          <div className="h-3 w-10 rounded bg-gray-100" />
+                          <div className="h-3 w-10 rounded bg-gray-100" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {!loading && error && (
+                <p className="text-sm text-red-600">
+                  Tidak dapat menampilkan artikel terbaru.
+                </p>
+              )}
+
+              {!loading && !error && artikelTerbaru.length === 0 && hasData && (
+                <p className="text-sm text-gray-500">
+                  Belum ada artikel lainnya.
+                </p>
+              )}
+
+              {!loading &&
+                !error &&
+                artikelTerbaru.length > 0 &&
+                artikelTerbaru.map((item) => (
+                  <ArtikelItem
+                    key={item.id}
+                    id={item.id}
+                    image={item.image}
+                    title={item.title}
+                    views={item.views}
+                    likes={item.likes}
+                    comments={item.comments}
+                  />
+                ))}
             </div>
           </div>
         </div>

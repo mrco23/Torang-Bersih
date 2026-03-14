@@ -6,70 +6,32 @@ import {
   RiCheckLine,
   RiAlertLine,
   RiEyeLine,
+  RiArrowLeftLine,
+  RiDeleteBinLine,
 } from "react-icons/ri";
-
-const STEPS = [
-  { id: 1, label: "Tulis" },
-  { id: 2, label: "Lengkapi" },
-  { id: 3, label: "Terbitkan" },
-];
 
 const ArtikelNavbar = ({
   saveStatus,
   isDirty,
   canPublish,
-  currentStep = 1,
+  onBack,
   onSaveDraft,
   onPublish,
   onPreview,
+  onReset,
 }) => {
   return (
-    <header className="z-[9999] rounded-lg border-b border-gray-100 bg-white shadow-sm">
+    <header className="z-9999 rounded-lg border-b border-gray-100 bg-white shadow-sm">
       <div className="mx-auto grid h-16 max-w-7xl grid-cols-[1fr_auto] items-center px-4">
         {/* STEP PROGRESS */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {STEPS.map((step, idx) => {
-            const done = step.id < currentStep;
-            const active = step.id === currentStep;
-
-            return (
-              <React.Fragment key={step.id}>
-                <div className="flex flex-col items-center gap-0.5">
-                  <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
-                      done
-                        ? "bg-green-500 text-white"
-                        : active
-                          ? "bg-[#1e1f78] text-white"
-                          : "bg-gray-100 text-gray-400"
-                    }`}
-                  >
-                    {done ? <RiCheckLine className="h-3 w-3" /> : step.id}
-                  </div>
-
-                  <span
-                    className={`hidden text-[10px] sm:block ${
-                      active
-                        ? "text-[#1e1f78]"
-                        : done
-                          ? "text-green-600"
-                          : "text-gray-400"
-                    }`}
-                  >
-                    {step.label}
-                  </span>
-                </div>
-
-                {idx < STEPS.length - 1 && (
-                  <div
-                    className={`h-px w-6 sm:w-10 ${
-                      done ? "bg-green-400" : "bg-gray-200"
-                    }`}
-                  />
-                )}
-              </React.Fragment>
-            );
-          })}
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 rounded-full border border-gray-200 p-2 text-gray-700 hover:border-[#1e1f78] hover:bg-blue-50 hover:text-[#1e1f78] disabled:opacity-40 sm:px-4 sm:py-2"
+          >
+            <RiArrowLeftLine className="h-4 w-4" />
+            <span className="hidden sm:inline">Kembali</span>
+          </button>
         </div>
 
         {/* ACTION BUTTON */}
@@ -79,9 +41,17 @@ const ArtikelNavbar = ({
           </div>
 
           <button
+            onClick={onReset}
+            className="flex items-center gap-1.5 rounded-full border border-gray-200 p-2 text-gray-700 hover:border-[#1e1f78] hover:bg-blue-50 hover:text-[#1e1f78] disabled:pointer-events-none disabled:opacity-40 sm:px-4 sm:py-2"
+          >
+            <RiDeleteBinLine className="h-4 w-4" />
+            <span className="hidden sm:inline">Reset</span>
+          </button>
+
+          <button
             onClick={onSaveDraft}
-            disabled={!isDirty || saveStatus === "saving"}
-            className="flex items-center gap-1.5 rounded-full border border-gray-200 p-2 text-gray-700 hover:border-[#1e1f78] hover:bg-blue-50 hover:text-[#1e1f78] disabled:opacity-40 sm:px-4 sm:py-2"
+            disabled={!isDirty || saveStatus === "saving" || !canPublish}
+            className="flex items-center gap-1.5 rounded-full border border-gray-200 p-2 text-gray-700 hover:border-[#1e1f78] hover:bg-blue-50 hover:text-[#1e1f78] disabled:pointer-events-none disabled:opacity-40 sm:px-4 sm:py-2"
           >
             <RiSaveLine className="h-4 w-4" />
             <span className="hidden sm:inline">Simpan Draf</span>

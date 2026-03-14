@@ -1,10 +1,10 @@
 // components/features/admin/artikel/AdminArtikelPage.jsx
 import React, { useState, useEffect } from "react";
 import { RiAddLine, RiDashboardLine } from "react-icons/ri";
-import { BASE_URL, getToken } from "../../utils/ArtikelHelpers";
 import AdminArtikelStats from "../../components/features/admin/Artikel/AdminArtikelStats";
 import AdminArtikelTable from "../../components/features/admin/Artikel/AdminArtikelTabel";
 import AdminArtikelDeleteModal from "../../components/features/admin/Artikel/AdminArtikelDeleteModal";
+import { artikelAPI } from "../../services/api/routes/artikel.route";
 
 const AdminArtikelPage = () => {
   // --- States ---
@@ -14,28 +14,32 @@ const AdminArtikelPage = () => {
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
+  const [filters, setFilters] = useState({
+    jenis: "",
+    status: "",
+    sort: "terbaru",
+  });
 
   // --- Fetch Data ---
   const fetchArticles = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
+      const query = {
         page,
         per_page: 10,
         search,
-        sort_by: "created_at",
-        sort_order: "desc",
-      });
+        sort_by: filters.sort === "terpopuler" ? "jumlah_views" : "created_at",
+        sort_order: filters.sort === "terlama" ? "asc" : "desc",
+        status_publikasi: filters.status,
+      };
+      const params = Object.fromEntries(
+        // eslint-disable-next-line no-unused-vars
+        Object.entries(query).filter(([_, v]) => v !== ""),
+      );
 
-      const res = await fetch(`${BASE_URL}/api/artikel?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      const json = await res.json();
-
-      if (res.ok && json.success) {
-        setArticles(json.data);
-        setMeta(json.meta);
-      }
+      const res = await artikelAPI.getAll(params);
+      setArticles(res.data.data || []);
+      setMeta(res.data.meta || null);
     } catch (err) {
       console.error("Gagal memuat artikel admin", err);
     } finally {
@@ -45,20 +49,20 @@ const AdminArtikelPage = () => {
 
   useEffect(() => {
     fetchArticles();
-  }, [page, search]);
+  }, [page, search, filters]);
+
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  };
 
   // --- Handlers ---
   const handleDelete = async () => {
     if (!deleteModal.id) return;
     try {
-      const res = await fetch(`${BASE_URL}/api/artikel/${deleteModal.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      if (res.ok) {
-        setDeleteModal({ show: false, id: null });
-        fetchArticles();
-      }
+      await artikelAPI.delete(deleteModal.id);
+      setDeleteModal({ show: false, id: null });
+      fetchArticles();
     } catch {
       alert("Gagal menghapus artikel.");
     }
@@ -77,20 +81,14 @@ const AdminArtikelPage = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-8 sm:p-8">
+    <div className="min-h-screen space-y-8">
       {/* ── HEADER ── */}
-      <div className="mx-auto mb-10 max-w-7xl">
+      <div className="">
         <div className="flex flex-col justify-between space-y-4 md:flex-row md:items-center">
           <div>
-            <h1
-              className="text-3xl font-black tracking-tight"
-              style={{ color: "var(--dark-text)" }}
-            >
+            <h1 className="text-2xl font-bold text-gray-800">
               Manajemen Artikel
             </h1>
-            <p className="mt-1 text-sm" style={{ color: "var(--gray-muted)" }}>
-              Kelola konten, verifikasi tulisan warga, dan publikasi.
-            </p>
           </div>
           <button
             className="flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold shadow-lg transition-all"
@@ -112,7 +110,7 @@ const AdminArtikelPage = () => {
           </button>
         </div>
 
-        <AdminArtikelStats meta={meta} articles={articles} />
+        {/* <AdminArtikelStats meta={meta} articles={articles} /> */}
       </div>
 
       {/* ── TABLE ── */}
@@ -121,6 +119,8 @@ const AdminArtikelPage = () => {
         loading={loading}
         search={search}
         onSearchChange={setSearch}
+        filters={filters}
+        onFilterChange={handleFilterChange}
         page={page}
         meta={meta}
         onPageChange={setPage}

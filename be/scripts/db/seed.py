@@ -701,6 +701,8 @@ def seed_artikel(user_ids, ref_ids):
             foto_cover_url="https://placehold.co/800x400?text=Sampah+Plastik",
             status_publikasi=StatusPublikasi.PUBLISHED,
             jumlah_views=150,
+            tags=["sampah", "plastik", "edukasi", "rumah tangga"],
+            is_featured=True,
             waktu_publish=now - timedelta(days=15),
         ),
         Artikel(
@@ -710,18 +712,20 @@ def seed_artikel(user_ids, ref_ids):
             kategori_id=ka_ids[2],  # Event
             konten_teks=(
                 "<p>Mari bergabung dalam acara gotong royong membersihkan sungai Citarum "
-                "pada hari Minggu ini di Jembatan Citarum, Bandung.</p>"
+                "pada hari Minggu ini di Jembatan Citarum, Tomohon.</p>"
                 "<p>Acara ini diselenggarakan oleh Komunitas Peduli Sampah bekerja sama "
-                "dengan Dinas Lingkungan Hidup Kota Bandung.</p>"
+                "dengan Dinas Lingkungan Hidup Kota Tomohon.</p>"
                 "<h3>Detail Acara</h3>"
                 "<ul><li>Hari: Minggu, 15 Maret 2026</li>"
                 "<li>Pukul: 07.00 - 11.00 WIB</li>"
-                "<li>Lokasi: Jembatan Citarum, Bandung</li>"
+                "<li>Lokasi: Jembatan Citarum, Tomohon</li>"
                 "<li>Bawa: Sarung tangan, sepatu boot, dan semangat!</li></ul>"
             ),
             foto_cover_url="https://placehold.co/800x400?text=Gotong+Royong+Citarum",
             status_publikasi=StatusPublikasi.PUBLISHED,
             jumlah_views=320,
+            tags=["event", "gotong royong", "tomohon", "sulawesi utara"],
+            is_featured=False,
             waktu_publish=now - timedelta(days=7),
         ),
         Artikel(
@@ -738,6 +742,8 @@ def seed_artikel(user_ids, ref_ids):
             foto_cover_url="https://placehold.co/800x400?text=Bank+Sampah+RT",
             status_publikasi=StatusPublikasi.PUBLISHED,
             jumlah_views=45,
+            tags=["opini", "bank sampah", "rumah tangga", "tomohon"],
+            is_featured=False,
             waktu_publish=now - timedelta(days=3),
         ),
         Artikel(
@@ -753,6 +759,8 @@ def seed_artikel(user_ids, ref_ids):
             foto_cover_url="https://placehold.co/800x400?text=Program+Daur+Ulang+Bandung",
             status_publikasi=StatusPublikasi.PUBLISHED,
             jumlah_views=210,
+            tags=["berita", "daur ulang", "plastik", "manado"],
+            is_featured=False,
             waktu_publish=now - timedelta(days=1),
         ),
         Artikel(

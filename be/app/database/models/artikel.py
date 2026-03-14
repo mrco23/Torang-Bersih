@@ -31,6 +31,9 @@ class Artikel(db.Model):
     foto_cover_url = db.Column(db.String(500))
     status_publikasi = db.Column(Enum(StatusPublikasi), default=StatusPublikasi.DRAFT, nullable=False)
     jumlah_views = db.Column(db.Integer, default=0, nullable=False)
+    
+    tags = db.Column(db.JSON, nullable=True)
+    is_featured = db.Column(db.Boolean, default=False, nullable=False)
 
     waktu_publish = db.Column(db.DateTime(timezone=True))
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
@@ -44,7 +47,7 @@ class Artikel(db.Model):
     def __repr__(self):
         return f'<Artikel {self.judul_artikel}>'
 
-    def to_dict(self, include_content=False):
+    def to_dict(self, include_content=False, current_user_id=None):
         data = {
             'id': self.id,
             'id_penulis': self.id_penulis,
@@ -52,15 +55,25 @@ class Artikel(db.Model):
             'judul_artikel': self.judul_artikel,
             'slug': self.slug,
             'kategori': self.kategori_ref.to_dict() if self.kategori_ref else None,
+            'excerpt': self.konten_teks[:300] + "..." if self.konten_teks else "",
             'foto_cover_url': self.foto_cover_url,
             'status_publikasi': self.status_publikasi.value if self.status_publikasi else None,
             'jumlah_views': self.jumlah_views,
             'jumlah_likes': self.likes.count(),
             'jumlah_komentar': self.komentar.count(),
+            'tags': self.tags or [],
+            'is_featured': self.is_featured,
             'waktu_publish': self.waktu_publish.isoformat() if self.waktu_publish else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
+        
+        # Check if current user liked this article
+        if current_user_id:
+            data['is_liked'] = self.likes.filter_by(id_user=current_user_id).first() is not None
+        else:
+            data['is_liked'] = False
+
         if include_content:
             data['konten_teks'] = self.konten_teks
         return data
@@ -113,8 +126,8 @@ class ArtikelKomentar(db.Model):
     def __repr__(self):
         return f'<ArtikelKomentar {self.id}>'
 
-    def to_dict(self):
-        return {
+    def to_dict(self, include_replies=True):
+        data = {
             'id': self.id,
             'id_artikel': self.id_artikel,
             'id_user': self.id_user,
@@ -125,3 +138,6 @@ class ArtikelKomentar(db.Model):
             'waktu_komentar': self.waktu_komentar.isoformat() if self.waktu_komentar else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
+        if include_replies and hasattr(self, 'replies'):
+            data['replies'] = [reply.to_dict(include_replies=False) for reply in self.replies.all()]
+        return data

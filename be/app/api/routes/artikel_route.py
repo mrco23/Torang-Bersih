@@ -7,6 +7,15 @@ artikel_bp = Blueprint('artikel', __name__, url_prefix='/api/artikel')
 def get_all():
     return artikel_controller.get_all()
 
+@artikel_bp.route('/popular', methods=['GET'])
+def get_popular():
+    return artikel_controller.get_popular()
+
+@artikel_bp.route('/tags', methods=['GET'])
+def get_tags():
+    return artikel_controller.get_tags()
+
+
 @artikel_bp.route('/my-artikel', methods=['GET'])
 def my_artikel():
     return artikel_controller.my_artikel()

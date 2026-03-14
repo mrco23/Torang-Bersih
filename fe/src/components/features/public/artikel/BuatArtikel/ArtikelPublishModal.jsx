@@ -10,37 +10,8 @@ import {
   Info,
   ArrowLeft,
   BookOpen,
-  Newspaper,
-  CalendarDays,
-  MessageSquare,
 } from "lucide-react";
-
-const KATEGORI_MAP = {
-  "a245825c-dc9a-452c-8f65-261af8f72029": {
-    label: "Edukasi",
-    icon: BookOpen,
-    color: "text-blue-700",
-    bg: "bg-blue-100",
-  },
-  "b1111111-1111-1111-1111-111111111111": {
-    label: "Berita",
-    icon: Newspaper,
-    color: "text-amber-700",
-    bg: "bg-amber-100",
-  },
-  "c1111111-1111-1111-1111-111111111111": {
-    label: "Event",
-    icon: CalendarDays,
-    color: "text-green-700",
-    bg: "bg-green-100",
-  },
-  "d1111111-1111-1111-1111-111111111111": {
-    label: "Opini",
-    icon: MessageSquare,
-    color: "text-purple-700",
-    bg: "bg-purple-100",
-  },
-};
+import { getKatStyle } from "./constant";
 
 const ArtikelPublishModal = ({
   isOpen,
@@ -50,14 +21,20 @@ const ArtikelPublishModal = ({
   wordCount,
   readTime,
   isPublishing = false,
-  isWargaBiasa,
+  kategoriList = [],
+  fotoPreview,
 }) => {
   const [step, setStep] = useState(1);
-
   if (!isOpen) return null;
 
-  const kategori = KATEGORI_MAP[form.kategori_id];
-  const KatIcon = kategori?.icon;
+  const kategoriIndex = kategoriList.findIndex(
+    (k) => k.id === form.kategori_id,
+  );
+  const kategoriObj = kategoriIndex > -1 ? kategoriList[kategoriIndex] : null;
+  const style =
+    kategoriIndex > -1
+      ? getKatStyle(kategoriIndex)
+      : { color: "text-gray-700", bg: "bg-gray-100" };
 
   const checks = [
     {
@@ -76,58 +53,49 @@ const ArtikelPublishModal = ({
       label: "Topik artikel",
       ok: !!form.kategori_id,
       required: true,
-      hint: kategori?.label ?? "Belum dipilih",
+      hint: kategoriObj?.nama ?? "Belum dipilih",
     },
     {
       label: "Foto cover",
-      ok: !!form.foto_cover_url,
+      ok: !!fotoPreview,
       required: false,
-      hint: form.foto_cover_url ? "Ada" : "Tidak ada — opsional",
+      hint: fotoPreview ? "Ada" : "Tidak ada — opsional",
+    },
+    {
+      label: "Tags",
+      ok: !!form.tags?.length,
+      required: false,
+      hint: form.tags?.length ? "Ada" : "Tidak ada — opsional",
     },
   ];
 
   const mandatoryOk = checks.every((c) => !c.required || c.ok);
-  const excerptText = (() => {
-    const tmp = document.createElement("div");
-    tmp.innerHTML = form.konten_teks ?? "";
-    return tmp.textContent.slice(0, 140);
-  })();
-  
 
   const handlePublish = () => {
     onPublish();
-    setStep(1);
+    onClose();
   };
   const handleClose = () => {
     setStep(1);
     onClose();
   };
 
-  // Dynamic Wording
-  const titleText = isWargaBiasa
-    ? "Ajukan untuk Ditinjau 👀"
-    : "Siap Diterbitkan? 🚀";
-  const subtitleText = isWargaBiasa
-    ? "Artikelmu akan diperiksa oleh tim kami."
-    : "Artikel akan langsung bisa dibaca semua orang";
-  const buttonText = isWargaBiasa
-    ? "Kirim untuk Verifikasi"
-    : "Ya, Terbitkan Sekarang!";
-
   return (
     <>
       <div
-        className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-9998 bg-black/40 backdrop-blur-sm"
         onClick={handleClose}
       />
-      <div className="fixed inset-x-4 top-1/2 z-[9999] mx-auto max-w-lg -translate-y-1/2 overflow-hidden rounded-2xl bg-white shadow-2xl sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2">
+      <div className="fixed inset-x-4 top-1/2 z-9999 mx-auto w-full max-w-xl -translate-y-1/2 overflow-hidden rounded-2xl bg-white shadow-2xl sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2">
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <div>
             <h2 className="text-base font-bold text-gray-900">
-              {step === 1 ? "Cek Dulu Ya" : titleText}
+              {step === 1 ? "Cek Dulu Ya" : "Siap Diterbitkan? 🚀"}
             </h2>
             <p className="text-xs text-gray-500">
-              {step === 1 ? "Pastikan kelengkapan artikel" : subtitleText}
+              {step === 1
+                ? "Pastikan kelengkapan artikel"
+                : "Artikel akan langsung bisa dibaca semua orang"}
             </p>
           </div>
           <button
@@ -137,14 +105,13 @@ const ArtikelPublishModal = ({
             <X className="h-5 w-5" />
           </button>
         </div>
-
         <div className="max-h-[70vh] overflow-y-auto">
           {step === 1 && (
             <div className="px-6 py-5">
               <div className="mb-5 overflow-hidden rounded-xl border border-gray-100">
-                {form.foto_cover_url && (
+                {fotoPreview && (
                   <img
-                    src={form.foto_cover_url}
+                    src={fotoPreview}
                     alt="Cover"
                     className="h-36 w-full object-cover"
                     onError={(e) => {
@@ -153,14 +120,29 @@ const ArtikelPublishModal = ({
                   />
                 )}
                 <div className="p-4">
-                  {kategori && (
-                    <div
-                      className={`mb-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${kategori.bg} ${kategori.color}`}
-                    >
-                      {KatIcon && <KatIcon className="h-3.5 w-3.5" />}
-                      {kategori.label}
-                    </div>
-                  )}
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    {kategoriObj && (
+                      <div
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${style.bg} ${style.color}`}
+                      >
+                        <BookOpen className="h-3.5 w-3.5" />
+                        {kategoriObj.nama}
+                      </div>
+                    )}
+                    {(form.tags || []).slice(0, 3).map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                    {(form.tags || []).length > 3 && (
+                      <span className="text-xs text-gray-400">
+                        +{(form.tags || []).length - 3} lainnya
+                      </span>
+                    )}
+                  </div>
                   <h3 className="mb-1 line-clamp-2 text-base font-bold text-gray-900">
                     {form.judul_artikel || "Judul belum diisi"}
                   </h3>
@@ -226,40 +208,19 @@ const ArtikelPublishModal = ({
                   <span className="text-3xl">📣</span>
                   <div>
                     <p className="text-sm font-bold text-gray-900">
-                      {isWargaBiasa
-                        ? "Alur Verifikasi Artikel:"
-                        : "Setelah diterbitkan, artikelmu akan:"}
+                      Alur Verifikasi Artikel:
                     </p>
                   </div>
                 </div>
                 <ul className="space-y-2">
-                  {isWargaBiasa ? (
-                    <>
-                      <li className="flex items-start gap-2.5 text-xs text-gray-600">
-                        <Check className="mt-0.5 h-3.5 w-3.5 text-[#1e1f78]" />{" "}
-                        Masuk ke antrean pengecekan oleh Admin
-                      </li>
-                      <li className="flex items-start gap-2.5 text-xs text-gray-600">
-                        <Check className="mt-0.5 h-3.5 w-3.5 text-[#1e1f78]" />{" "}
-                        Akan muncul di halaman publik jika disetujui
-                      </li>
-                      <li className="flex items-start gap-2.5 text-xs text-gray-600">
-                        <Check className="mt-0.5 h-3.5 w-3.5 text-[#1e1f78]" />{" "}
-                        Kamu bisa memantau statusnya di menu "Artikel Saya"
-                      </li>
-                    </>
-                  ) : (
-                    <>
-                      <li className="flex items-start gap-2.5 text-xs text-gray-600">
-                        <Check className="mt-0.5 h-3.5 w-3.5 text-[#1e1f78]" />{" "}
-                        Langsung tayang untuk semua pengguna
-                      </li>
-                      <li className="flex items-start gap-2.5 text-xs text-gray-600">
-                        <Check className="mt-0.5 h-3.5 w-3.5 text-[#1e1f78]" />{" "}
-                        Bisa dikomentari dan dibagikan
-                      </li>
-                    </>
-                  )}
+                  <li className="flex items-start gap-2.5 text-xs text-gray-600">
+                    <Check className="mt-0.5 h-3.5 w-3.5 text-[#1e1f78]" />{" "}
+                    Langsung tayang untuk semua pengguna
+                  </li>
+                  <li className="flex items-start gap-2.5 text-xs text-gray-600">
+                    <Check className="mt-0.5 h-3.5 w-3.5 text-[#1e1f78]" /> Bisa
+                    dikomentari dan dibagikan
+                  </li>
                 </ul>
               </div>
 
@@ -276,7 +237,7 @@ const ArtikelPublishModal = ({
                     </>
                   ) : (
                     <>
-                      <Send className="h-4 w-4" /> {buttonText}
+                      <Send className="h-4 w-4" /> Terbitkan Artikel
                     </>
                   )}
                 </button>

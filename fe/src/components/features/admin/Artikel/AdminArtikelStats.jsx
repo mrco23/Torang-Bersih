@@ -9,35 +9,46 @@ import {
 import StatsCard from "../../../ui/StatsCard";
 
 const AdminArtikelStats = ({ meta, articles }) => {
+  const total = meta?.total || 0;
+  const totalPublished = articles.filter(
+    (a) => a.status_publikasi === "published"
+  ).length;
+  const totalDraft = articles.filter(
+    (a) => a.status_publikasi === "draft"
+  ).length;
+  const totalViews = articles.reduce(
+    (sum, a) => sum + (a.jumlah_views || 0),
+    0
+  );
+
   const stats = [
     {
       title: "Total Artikel",
-      value: meta?.total || 0,
+      value: total,
       icon: RiFileTextLine,
       colorVar: "--primary",
       subtitle: "Semua waktu",
     },
     {
       title: "Dipublikasikan",
-      value: articles.filter((a) => a.status_publikasi === "published").length || 0,
+      value: totalPublished,
       icon: RiCheckboxCircleLine,
       colorVar: "--cyan",
       subtitle: "Artikel terbit",
     },
     {
       title: "Menunggu Verifikasi",
-      value: articles.filter((a) => a.status_publikasi === "draft").length || 0,
+      value: totalDraft,
       icon: RiTimeLine,
       colorVar: "--accent",
       subtitle: "Perlu review",
     },
     {
       title: "Total Views",
-      value: "12.4K",
+      value: totalViews.toLocaleString("id-ID"),
       icon: RiLineChartLine,
       colorVar: "--accent-dark",
-      trend: "+12%",
-      subtitle: "Bulan ini",
+      subtitle: "Akumulasi tampilan",
     },
   ];
 

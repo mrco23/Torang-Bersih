@@ -5,7 +5,7 @@ import { BiLike } from "react-icons/bi";
 import { LuMessageSquare } from "react-icons/lu";
 import { Link } from "react-router-dom";
 
-const ArtikelItem = ({ image, title, views, likes, comments }) => {
+const ArtikelItem = ({ id, image, title, views, likes, comments }) => {
   return (
     <div className="flex flex-col gap-4 rounded-xl bg-white sm:flex-row">
       {/* Thumbnail */}
@@ -42,7 +42,7 @@ const ArtikelItem = ({ image, title, views, likes, comments }) => {
 
         {/* Link Selengkapnya */}
         <Link
-          to="/artikel"
+          to={`/artikel/${id}`}
           className="flex flex-1 items-end gap-1 text-xs font-semibold text-(--accent) transition-all duration-300 hover:gap-2"
         >
           Selengkapnya

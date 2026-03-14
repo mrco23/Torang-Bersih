@@ -9,6 +9,8 @@ class ArtikelCreateSchema(Schema):
     konten_teks = fields.String(required=False)
     foto_cover_url = fields.String(required=False)
     status_publikasi = fields.Str(validate=validate.OneOf(['draft', 'published', 'archived']))
+    tags = fields.List(fields.String(), load_default=[])
+    is_featured = fields.Boolean(load_default=False)
 
     # Aturan business ringan di schema: published harus punya konten
     # (validasi referensi kategori dilakukan di service)
@@ -26,10 +28,18 @@ class ArtikelUpdateSchema(Schema):
     konten_teks = fields.String()
     foto_cover_url = fields.String(validate=validate.Length(max=500))
     status_publikasi = fields.String(validate=validate.OneOf([s.value for s in StatusPublikasi]))
+    tags = fields.List(fields.String())
+    is_featured = fields.Boolean()
 
 
 class ArtikelQuerySchema(Schema):
+    page = fields.Integer(load_default=1, validate=validate.Range(min=1))
+    per_page = fields.Integer(load_default=20, validate=validate.Range(min=1, max=100))
     search = fields.String(validate=validate.Length(max=100))
+    # Filter tambahan untuk list publik (opsional)
+    kategori_id = fields.String()
+    status_publikasi = fields.String(validate=validate.OneOf([s.value for s in StatusPublikasi]))
+    tag = fields.String()
     sort_by = fields.String(load_default='created_at', validate=validate.OneOf(['created_at', 'judul_artikel', 'waktu_publish', 'jumlah_views']))
     sort_order = fields.String(load_default='desc', validate=validate.OneOf(['asc', 'desc']))
 
