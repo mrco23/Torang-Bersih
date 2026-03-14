@@ -8,14 +8,14 @@ const AdminArtikelDeleteModal = ({ isOpen, onClose, onConfirm, title }) => {
   return (
     <>
       <div
-        className="fixed inset-0 z-[10000] flex items-center justify-center p-4 backdrop-blur-sm"
+        className="fixed inset-0 z-10000 flex h-full items-center justify-center p-4 backdrop-blur-sm"
         style={{
           backgroundColor: "color-mix(in srgb, var(--dark) 40%, transparent)",
         }}
         onClick={onClose}
       />
       <div
-        className="fixed inset-x-4 top-1/2 z-[10001] mx-auto max-w-sm -translate-y-1/2 animate-in zoom-in-95 rounded-3xl bg-white p-6 shadow-2xl sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2"
+        className="animate-in zoom-in-95 fixed inset-x-4 top-1/2 z-10001 mx-auto max-w-sm -translate-y-1/2 rounded-3xl bg-white p-6 shadow-2xl sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2"
         style={{
           boxShadow:
             "0 25px 80px -30px color-mix(in srgb, var(--dark) 40%, transparent)",

@@ -97,7 +97,11 @@ export default function ArtikelEditModal({
       return toaster.error("Judul tidak boleh kosong");
     const success = await onSave(form, fotoFile);
     if (success) {
-      toaster.success("Artikel berhasil diperbarui");
+      if (success.message) {
+        toaster.success(success.message);
+      } else {
+        toaster.success("Artikel berhasil diperbarui");
+      }
       onClose();
     }
   };
