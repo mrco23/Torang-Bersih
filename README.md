@@ -114,4 +114,3 @@ Educational content management system:
 - **SMTP Server** - Email delivery service
 
 ## System Architecture
-
