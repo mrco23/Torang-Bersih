@@ -121,9 +121,14 @@ function Sidebar({ user, sidebarOpen, onClose, onLogout, onNavClick }) {
             <p className="truncate text-xs text-gray-400">{user?.email}</p>
           </div>
         </div>
+        <Link to="/">
+          <button className="w-full cursor-pointer rounded-lg border-y border-gray-800 px-3 py-3 text-center text-sm text-gray-400 transition hover:bg-gray-800 hover:text-white">
+            Kembali ke halaman publik
+          </button>
+        </Link>
         <button
           onClick={onLogout}
-          className="w-full cursor-pointer rounded-lg px-3 py-2 text-center text-sm text-gray-400 transition hover:bg-gray-800 hover:text-white"
+          className="w-full cursor-pointer rounded-lg px-3 py-2 text-center text-sm text-gray-400 transition hover:bg-red-600/80 hover:text-white"
         >
           Keluar
         </button>
