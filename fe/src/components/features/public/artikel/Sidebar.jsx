@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getToken } from "../../../../utils/storage";
 import { RiPencilLine, RiSearchLine } from "react-icons/ri";
+import { useAuth } from "../../../../contexts/AuthContext";
+// import toaster from "../../../../utils/toaster";
 
 /**
  * Sidebar.jsx
@@ -18,24 +19,39 @@ import { RiPencilLine, RiSearchLine } from "react-icons/ri";
 export const Sidebar = ({
   popularArticles,
   topics,
-  openModal,
   comments = [],
   commentsCount = 0,
   komentarTeks = "",
   onKomentarChange = () => {},
   onKomentarSubmit = () => {},
   komentarLoading = false,
-  komentarError = "",
+  // komentarError = "",
   isDetail = false,
-  isCommentOpen = false,
-  onCloseComment = () => {},
+  replyTo = null,
+  onReplyClick = () => {},
+  onCancelReply = () => {},
+  onKomentarDelete = () => {},
   searchQuery = "",
   onSearchChange = () => {},
   onSearchSubmit = () => {},
   onTagClick = () => {},
 }) => {
-  const isLoggedIn = !!getToken();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const komentarInputRef = useRef(null);
+
+  // if (komentarError) {
+  //   toaster.error(komentarError);
+  // }
+  const onReplyClickFocus = (id, name) => {
+    onReplyClick(id, name);
+    window.scrollTo({
+      behavior: "smooth",
+    });
+    setTimeout(() => {
+      komentarInputRef.current.focus();
+    }, 200);
+  };
 
   return (
     <>
@@ -43,8 +59,8 @@ export const Sidebar = ({
         <aside className="hidden h-fit border-l border-gray-100 pl-8 lg:block">
           <div className="w-full">
             {/* ── Tombol Tulis Artikel ── */}
-            {isLoggedIn ? (
-              <div className="mb-5">
+            {isAuthenticated ? (
+              <div className="mb-6">
                 <Link
                   to="/artikel/buat"
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-[#1e1f78] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#1a1b65] active:scale-[0.98]"
@@ -54,7 +70,7 @@ export const Sidebar = ({
                 </Link>
               </div>
             ) : (
-              <div className="mb-5 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 text-center">
+              <div className="mb-6 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 text-center">
                 <p className="mb-3 text-sm leading-relaxed text-gray-500">
                   Punya cerita seputar lingkungan? Yuk bagikan!
                 </p>
@@ -69,10 +85,10 @@ export const Sidebar = ({
             )}
 
             {/* Divider */}
-            <div className="mb-5 h-px bg-gray-100" />
+            <div className="mb-6 h-px bg-gray-100" />
 
             {/* ── Search Bar ── */}
-            <div className="mb-5">
+            <div className="mb-7">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -93,7 +109,7 @@ export const Sidebar = ({
 
             {/* ── Topik yang Sama ── */}
             {popularArticles && popularArticles.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-7">
                 <h3 className="mb-5 flex items-center gap-2 text-base font-bold text-gray-900">
                   <svg
                     className="h-5 w-5 text-blue-600"
@@ -182,202 +198,206 @@ export const Sidebar = ({
           </div>
         </aside>
       ) : (
-        <>
-          {/* Overlay — z-[9998] */}
-          <div
-            className={`fixed inset-0 z-9998 bg-black/5 transition-opacity duration-300 ${
-              isCommentOpen ? "visible opacity-100" : "invisible opacity-0"
-            }`}
-            onClick={onCloseComment}
-          />
+        <aside className="h-fit lg:border-l lg:border-gray-100 lg:pl-8">
+          <div className="flex h-full flex-col">
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between border-b border-gray-100 pb-4">
+              <h2 className="text-xl font-bold text-gray-900">
+                Komentar ({commentsCount})
+              </h2>
+            </div>
 
-          {/* Panel — z-[9999] */}
-          <div
-            className={`fixed top-0 right-0 z-9999 h-full w-full max-w-[400px] bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
-              isCommentOpen ? "translate-x-0" : "translate-x-full"
-            }`}
-          >
-            <div className="flex h-full flex-col">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Responses ({commentsCount})
-                </h2>
-                <svg
-                  onClick={onCloseComment}
-                  className="h-6 w-6 cursor-pointer text-gray-400 transition-colors hover:text-gray-700"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </div>
-
-              {/* Body */}
-              <div className="flex-1 overflow-y-auto px-6 py-6">
-                {/* Input komentar */}
-                {isLoggedIn ? (
-                  <div className="mb-8 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all focus-within:border-gray-400 focus-within:shadow-md">
+            {/* Body */}
+            <div className="flex-1">
+              {/* Input komentar */}
+              {isAuthenticated ? (
+                <div className="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all focus-within:border-gray-400 focus-within:shadow-md">
+                  {replyTo && (
+                    <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-2">
+                      <span className="text-xs font-medium text-gray-500 italic">
+                        Membalas{" "}
+                        <span className="font-bold text-blue-600">
+                          @{replyTo.name}
+                        </span>
+                      </span>
+                      <button
+                        onClick={onCancelReply}
+                        className="text-xs font-bold text-gray-400 hover:text-red-500"
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  )}
+                  <div className="p-4">
                     <div className="mb-3 flex items-center gap-3">
                       <img
-                        src="https://ui-avatars.com/api/?name=Anda&background=random&size=32"
+                        src={
+                          user?.avatar_url ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.full_name)}&background=random&size=32`
+                        }
                         alt="Anda"
                         className="h-8 w-8 rounded-full object-cover"
                       />
                       <span className="text-sm font-medium text-gray-800">
-                        Anda
+                        {user?.full_name}
                       </span>
                     </div>
                     <textarea
                       value={komentarTeks}
                       onChange={onKomentarChange}
                       disabled={komentarLoading}
-                      className="min-h-[80px] w-full resize-none border-none text-sm text-gray-700 placeholder-gray-400 focus:ring-0 focus:outline-none disabled:opacity-60"
-                      placeholder="What are your thoughts?"
+                      ref={komentarInputRef}
+                      className="min-h-[60px] w-full resize-none border-none text-sm text-gray-700 placeholder-gray-400 focus:ring-0 focus:outline-none disabled:opacity-60"
+                      placeholder={
+                        replyTo ? "Tulis balasan..." : "Berikan pendapatmu..."
+                      }
                     />
-                    {komentarError && (
-                      <p className="mb-2 text-xs font-medium text-red-500">
-                        {komentarError}
-                      </p>
-                    )}
-                    <div className="mt-2 flex items-center justify-between pt-2">
-                      <div className="flex gap-3 text-gray-400">
-                        <button className="font-serif text-lg font-bold hover:text-gray-700">
-                          B
-                        </button>
-                        <button className="font-serif text-lg italic hover:text-gray-700">
-                          i
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={onCloseComment}
-                          className="text-sm font-medium text-gray-500 hover:text-gray-800"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={onKomentarSubmit}
-                          disabled={komentarLoading || !komentarTeks.trim()}
-                          className="rounded-full bg-green-600 px-5 py-2 text-sm font-medium text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
-                        >
-                          {komentarLoading ? "..." : "Respond"}
-                        </button>
-                      </div>
+
+                    <div className="mt-2 flex items-center justify-end pt-2">
+                      <button
+                        onClick={onKomentarSubmit}
+                        disabled={komentarLoading || !komentarTeks.trim()}
+                        className="rounded-full bg-green-600 px-5 py-2 text-sm font-medium text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
+                      >
+                        {komentarLoading ? "..." : replyTo ? "Balas" : "Kirim"}
+                      </button>
                     </div>
                   </div>
-                ) : (
-                  <div
-                    onClick={openModal}
-                    className="group mb-8 cursor-pointer rounded-xl border border-gray-200 bg-gray-50 p-6 text-center transition-all hover:border-gray-300"
-                  >
-                    <p className="mb-4 text-sm font-medium text-gray-600 group-hover:text-gray-800">
-                      Log in to leave a response.
-                    </p>
-                    <Link
-                      to="/login"
-                      className="inline-block w-full rounded-full bg-green-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-green-700"
-                    >
-                      Login
-                    </Link>
-                  </div>
-                )}
-
-                {/* Sort */}
-                {comments.length > 0 && (
-                  <div className="mb-6 flex items-center border-b border-gray-100 pb-4">
-                    <span className="cursor-pointer text-xs font-bold tracking-wide text-gray-900 uppercase transition-colors hover:text-gray-600">
-                      Most Relevant <span className="ml-1 text-[10px]">▼</span>
-                    </span>
-                  </div>
-                )}
-
-                {/* List komentar */}
-                <div className="space-y-8">
-                  {comments.map((c, i) => {
-                    const nama =
-                      c.user?.full_name ??
-                      c.user?.username ??
-                      (typeof c.user === "string" ? c.user : "Anonim");
-                    const avatarUrl =
-                      c.user?.avatar_url ??
-                      c.userImage ??
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=random&size=32`;
-                    const teks = c.teks ?? c.text ?? "";
-                    return (
-                      <div key={c.id ?? i} className="group">
-                        <div className="mb-3 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={avatarUrl}
-                              alt={nama}
-                              className="h-8 w-8 rounded-full object-cover shadow-sm"
-                            />
-                            <div>
-                              <p className="text-[13px] font-bold text-gray-900">
-                                {nama}
-                              </p>
-                              <p className="text-[11px] font-medium text-gray-500">
-                                Baru saja
-                              </p>
-                            </div>
-                          </div>
-                          <button className="text-gray-400 hover:text-gray-700">
-                            <svg
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                        <p className="text-[14px] leading-relaxed text-gray-800">
-                          {teks}
-                        </p>
-                        <div className="mt-4 flex items-center justify-between border-t border-gray-50 pt-3 text-gray-400">
-                          <div className="flex cursor-pointer items-center gap-1.5 transition-colors hover:text-gray-700">
-                            <svg
-                              className="h-5 w-5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={1.5}
-                                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                              />
-                            </svg>
-                            <span className="text-[12px] font-medium">0</span>
-                          </div>
-                          <span className="cursor-pointer text-[12px] font-medium transition-colors hover:text-gray-700">
-                            Reply
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
+              ) : (
+                <div className="group mb-8 cursor-pointer rounded-xl border border-gray-200 bg-gray-50 p-6 text-center transition-all hover:border-gray-300">
+                  <p className="mb-4 text-sm font-medium text-gray-600 group-hover:text-gray-800">
+                    Masuk untuk memberi komentar...
+                  </p>
+                  <Link
+                    to="/login"
+                    className="inline-block w-full rounded-full bg-green-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-green-700"
+                  >
+                    Masuk
+                  </Link>
+                </div>
+              )}
+
+              {/* Sort */}
+              {comments.length > 0 && (
+                <div className="mb-4 flex items-center border-b border-gray-100 pb-4">
+                  <span className="cursor-pointer text-xs font-bold tracking-wide text-gray-900 uppercase transition-colors hover:text-gray-600">
+                    Terbaru
+                  </span>
+                </div>
+              )}
+
+              {/* List komentar */}
+              <div className="space-y-6">
+                {comments.map((c, i) => (
+                  <CommentItem
+                    key={c.id || i}
+                    comment={c}
+                    onReplyClickFocus={onReplyClickFocus}
+                    onKomentarDelete={onKomentarDelete}
+                    currentUser={user}
+                  />
+                ))}
               </div>
             </div>
           </div>
-        </>
+        </aside>
       )}
     </>
+  );
+};
+
+const CommentItem = ({
+  comment,
+  onReplyClickFocus,
+  onKomentarDelete,
+  currentUser,
+  isReply = false,
+}) => {
+  const nama =
+    comment.user?.full_name ??
+    comment.user?.username ??
+    (typeof comment.user === "string" ? comment.user : "Anonim");
+
+  const avatarUrl =
+    comment.user?.avatar_url ??
+    comment.userImage ??
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(nama)}&background=random&size=32`;
+
+  const teks = comment.isi_komentar ?? comment.text ?? "";
+
+  const dateStr = comment.waktu_komentar
+    ? new Date(comment.waktu_komentar).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+      })
+    : "Baru saja";
+
+  return (
+    <div
+      className={`group ${isReply ? "mt-0 ml-2 border-l border-gray-300 pb-2 pl-4" : ""}`}
+    >
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <img
+            src={avatarUrl}
+            alt={nama}
+            className={`${isReply ? "h-6 w-6" : "h-8 w-8"} rounded-full object-cover shadow-sm`}
+          />
+          <div>
+            <p
+              className={`${isReply ? "text-[12px]" : "text-[13px]"} font-bold text-gray-900`}
+            >
+              {nama}
+            </p>
+            <p className="text-[10px] font-medium text-gray-400">{dateStr}</p>
+          </div>
+        </div>
+      </div>
+      <p
+        className={`${isReply ? "text-[13px]" : "text-[14px]"} leading-relaxed text-gray-800`}
+      >
+        {teks}
+      </p>
+
+      <div className="mt-1 flex justify-end gap-3">
+        {currentUser?.id === comment.id_user && (
+          <button
+            onClick={() => onKomentarDelete(comment.id)}
+            className="text-[11px] font-bold text-red-400 transition-colors hover:text-red-600"
+          >
+            Delete
+          </button>
+        )}
+        {!isReply && (
+          <button
+            onClick={() => onReplyClickFocus(comment.id, nama)}
+            className="text-[11px] font-bold text-gray-400 transition-colors hover:text-blue-600"
+          >
+            Reply
+          </button>
+        )}
+      </div>
+
+      {/* Render Nested Replies */}
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="mt-0">
+          {comment.replies.map((reply, idx) => (
+            <CommentItem
+              key={reply.id || idx}
+              comment={reply}
+              onReplyClickFocus={onReplyClickFocus}
+              onKomentarDelete={onKomentarDelete}
+              currentUser={currentUser}
+              isReply={true}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -36,9 +36,8 @@ import LaporanPage from "./pages/public/LaporanPage";
 import BuatLaporanPageUser from "./pages/public/BuatLaporanPage";
 import DetailLaporan from "./pages/public/DetailLaporan";
 import ArtikelPage from "./pages/public/ArtikelPage";
-import ArticleDetailPage from "./components/features/public/artikel/DetailArticle";
+import ArticleDetailPage from "./pages/public/DetailArticle";
 import BuatArtikelPage from "./pages/public/BuatArtikelPage";
-
 
 /* user pages */
 import UserDashboardPage from "./pages/user/UserDashboardPage";
@@ -102,11 +101,9 @@ function App() {
         <Route path="/laporan/:id" element={<DetailLaporan />} />
         <Route path="artikel" element={<ArtikelPage />} />
         <Route path="/artikel/:id" element={<ArticleDetailPage />} />
-       
 
         <Route element={<ProtectedRoute />}>
           {/* Untuk halaman publik yang perlu login user */}
-           
         </Route>
       </Route>
 

@@ -27,19 +27,21 @@ const ArtikelSidebar = ({
   loadingKategori,
   fotoPreview,
 }) => {
-  const [showTips, setShowTips] = useState(true);
+  const [showTips, setShowTips] = useState(false);
   const fileInputRef = useRef(null);
 
   const hasJudul = form.judul_artikel?.trim().length > 0;
   const hasKonten = wordCount >= 50;
   const hasKategori = !!form.kategori_id;
   const hasCover = !!fotoPreview;
+  const hasTags = (form.tags || []).length > 0;
 
   const CHECKS = [
     { label: "Judul artikel", done: hasJudul, required: true },
     { label: "Isi artikel (≥ 50 kata)", done: hasKonten, required: true },
     { label: "Pilih topik", done: hasKategori, required: true },
-    { label: "Foto cover", done: hasCover, required: false },
+    { label: "Foto cover (opsional)", done: hasCover, required: false },
+    { label: "Tags artikel (opsional)", done: hasTags, required: false },
   ];
 
   const doneMandatory = CHECKS.filter((c) => c.required && c.done).length;
@@ -244,7 +246,7 @@ const ArtikelSidebar = ({
         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
           <RiPriceTag3Line className="text-gray-400" /> Tags Artikel
         </h3>
-        
+
         <div className="mb-3 flex flex-wrap gap-2">
           {(form.tags || []).map((tag, i) => (
             <span
@@ -265,11 +267,11 @@ const ArtikelSidebar = ({
             </span>
           ))}
         </div>
-        
+
         <input
           type="text"
           placeholder="Ketik tag dan tekan Enter..."
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#1e1f78] focus:outline-none focus:ring-1 focus:ring-[#1e1f78]"
+          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#1e1f78] focus:ring-1 focus:ring-[#1e1f78] focus:outline-none"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -305,6 +307,7 @@ const ArtikelSidebar = ({
             <p>Mulai artikel dengan inti cerita.</p>
             <p>Gunakan foto agar artikel lebih menarik.</p>
             <p>Bagi artikel menjadi beberapa sub judul.</p>
+            <p>Gunakan tag agar artikel lebih mudah ditemukan.</p>
           </div>
         )}
       </div>

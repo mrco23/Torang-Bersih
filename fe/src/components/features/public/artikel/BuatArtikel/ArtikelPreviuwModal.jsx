@@ -145,10 +145,6 @@ const ArtikelPreviewModal = ({
                       <RiChat1Line className="h-5 w-5" /> <span>0</span>
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 text-gray-400">
-                    <RiBookmarkLine className="h-5 w-5 cursor-not-allowed hover:text-gray-500" />
-                    <RiShareForwardLine className="h-5 w-5 cursor-not-allowed hover:text-gray-500" />
-                  </div>
                 </div>
 
                 <article

@@ -1,31 +1,52 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import LoginModal from "../../../common/LoginModal";
-import { Sidebar } from "./Sidebar"; // Pastikan path dan importnya sesuai
-import {
-  useArtikelDetail,
-  useArtikelKomentar, // <-- IMPORT BARU: Untuk mengambil daftar komentar
-  postLike,
-  postKomentar,
-} from "../../../../components/features/public/artikel/UseArticle";
-import { getToken } from "../../../../utils/storage";
+import { Sidebar } from "../../components/features/public/artikel/Sidebar";
+import { artikelAPI } from "../../services/api/routes/artikel.route";
+import { useAuth } from "../../contexts/AuthContext";
+import toaster from "../../utils/toaster";
 
 const ArticleDetailPage = () => {
   const { id } = useParams();
+  const { isAuthenticated } = useAuth();
 
-  // ── Auth: cek token & Sidebar State ──────────────────────────────
-  const [isLoggedIn, setIsLoggedIn] = useState(!!getToken());
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isCommentOpen, setIsCommentOpen] = useState(false); // <-- STATE BARU: Mengontrol laci komentar
-
-  // Re-check login state setiap kali modal ditutup
-  useEffect(() => {
-    setIsLoggedIn(!!getToken());
-  }, [showLoginModal]);
+  // ── Auth: cek token & Sidebar State ────────────────────────
 
   // ── Fetch artikel detail & daftar komentar ───────────────────────
-  const { artikel, loading, error } = useArtikelDetail(id);
-  const { komentar: fetchedKomentar, refetch: refetchKomentar } = useArtikelKomentar(id); // <-- AMBIL DATA KOMENTAR
+  const [artikel, setArtikel] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [fetchedKomentar, setFetchedKomentar] = useState([]);
+
+  const fetchDetail = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await artikelAPI.getById(id);
+      setArtikel(res.data.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Artikel tidak ditemukan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchKomentar = async () => {
+    try {
+      const res = await artikelAPI.getKomentar(id);
+      setFetchedKomentar(res.data.data || []);
+      console.log(res.data.data);
+    } catch (err) {
+      console.error("Gagal memuat komentar:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchDetail();
+      fetchKomentar();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // ── Like state ───────────────────────────────────────────────────
   const [isLiked, setIsLiked] = useState(false);
@@ -37,19 +58,35 @@ const ArticleDetailPage = () => {
   }, [artikel]);
 
   const handleLike = async () => {
-    if (!isLoggedIn) {
-      setShowLoginModal(true);
+    if (!isAuthenticated) {
+      toaster.error("Anda harus login untuk menyukai artikel");
       return;
     }
     if (likeLoading) return;
+
+    // Optimistic Update
+    const prevLiked = isLiked;
+    const prevCount = likesCount;
+
+    setIsLiked(!prevLiked);
+    setLikesCount(prevLiked ? prevCount - 1 : prevCount + 1);
     setLikeLoading(true);
+
     try {
-      const result = await postLike(id);
-      setIsLiked(result.liked);
-      setLikesCount(result.jumlah_likes);
+      await artikelAPI.toggleLike(id);
+      // Optional: you can sync with actual server count here if needed
+      // setLikesCount(res.data.jumlah_like); 
     } catch (err) {
-      if (err.message === "not_authenticated") setShowLoginModal(true);
-      else console.error("[Like]", err.message);
+      // Revert on Error
+      setIsLiked(prevLiked);
+      setLikesCount(prevCount);
+      
+      if (err.response?.status === 401)
+        toaster.error("Anda harus login untuk menyukai artikel");
+      else {
+        toaster.error("Gagal menyukai artikel");
+        console.error("[Like]", err.message);
+      }
     } finally {
       setLikeLoading(false);
     }
@@ -60,6 +97,7 @@ const ArticleDetailPage = () => {
   const [komentarList, setKomentarList] = useState([]);
   const [komentarLoading, setKomentarLoading] = useState(false);
   const [komentarError, setKomentarError] = useState("");
+  const [replyTo, setReplyTo] = useState(null); // { id: string, name: string }
 
   // Sinkronisasi data komentar dari fetch API ke state lokal
   useEffect(() => {
@@ -69,21 +107,45 @@ const ArticleDetailPage = () => {
   }, [fetchedKomentar]);
 
   const handleKomentar = async () => {
-    if (!isLoggedIn) {
-      setShowLoginModal(true);
+    if (!isAuthenticated) {
+      toaster.error("Anda harus login untuk berkomentar");
       return;
     }
     if (!komentarTeks.trim()) return;
     setKomentarLoading(true);
     setKomentarError("");
     try {
-      await postKomentar(id, komentarTeks.trim());
+      await artikelAPI.createKomentar(id, {
+        isi_komentar: komentarTeks.trim(),
+        parent_id: replyTo?.id || null,
+      });
       setKomentarTeks("");
-      // Setelah sukses posting, tarik ulang data komentar terbaru dari server
-      refetchKomentar(); 
+      setReplyTo(null);
+      fetchKomentar();
     } catch (err) {
-      if (err.message === "not_authenticated") setShowLoginModal(true);
-      else setKomentarError(err.message || "Gagal mengirim komentar.");
+      if (err.response?.status === 401)
+        toaster.error("Anda harus login untuk berkomentar");
+      else
+        setKomentarError(
+          err.response?.data?.message || "Gagal mengirim komentar.",
+        );
+      console.log(err.response?.data?.errors);
+    } finally {
+      setKomentarLoading(false);
+    }
+  };
+
+  const handleDeleteKomentar = async (komentarId) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus komentar ini?"))
+      return;
+
+    setKomentarLoading(true);
+    try {
+      await artikelAPI.deleteKomentar(id, komentarId);
+      toaster.success("Komentar berhasil dihapus");
+      fetchKomentar();
+    } catch (err) {
+      toaster.error(err.response?.data?.message || "Gagal menghapus komentar.");
     } finally {
       setKomentarLoading(false);
     }
@@ -151,34 +213,33 @@ const ArticleDetailPage = () => {
     .split(/\s+/).length;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
-  const commentsCount = komentarList.length || artikel.jumlah_komentar || 0;
+  const commentsCount = artikel.jumlah_komentar || 0;
 
   // ── Render ───────────────────────────────────────────────────────
   return (
     <div className="relative bg-white pt-20 pb-20 text-gray-900">
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
-
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
-          {/* Kolom kiri */}
-          <div className="hidden lg:col-span-2 lg:block">
-            <div className="sticky top-30">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-blue-600 font-bold text-white">
-                TB
-              </div>
-              <h3 className="font-bold text-gray-900">Torang Bersih</h3>
-              <p className="mt-2 text-xs text-gray-500">
-                Platform Komunitas Persampahan Sulut.
-              </p>
-            </div>
-          </div>
-
           {/* Kolom tengah */}
-          <main className="pt-2 lg:col-span-7">
+          <main className="pt-2 lg:col-span-8">
             <header className="mb-8">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                {artikel.kategori && (
+                  <span
+                    className={`inline-block rounded-full bg-blue-500 px-3 py-1 text-xs font-semibold text-white`}
+                  >
+                    {artikel.kategori.nama}
+                  </span>
+                )}
+                {(artikel.tags || []).map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-block rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
               <h1 className="mb-6 text-3xl leading-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl">
                 {artikel.judul_artikel}
               </h1>
@@ -198,15 +259,13 @@ const ArticleDetailPage = () => {
             </header>
 
             {/* Like & Comment Buttons Section */}
-            <div className="mb-8 flex items-center border-y border-gray-100 py-3 gap-6">
+            <div className="mb-8 flex items-center gap-6 border-y border-gray-100 py-3">
               {/* Tombol Like */}
               <button
                 onClick={handleLike}
                 disabled={likeLoading}
                 className={`flex items-center gap-2 transition-all disabled:opacity-60 ${
-                  isLiked
-                    ? "text-blue-600"
-                    : "text-gray-500 hover:text-gray-900"
+                  isLiked ? "text-red-600" : "text-gray-500 hover:text-gray-900"
                 }`}
               >
                 <svg
@@ -214,21 +273,33 @@ const ArticleDetailPage = () => {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                  />
                 </svg>
                 <span className="text-sm font-medium">{likesCount}</span>
               </button>
 
               {/* Tombol Komentar Baru (Buka Drawer) */}
-              <button
-                onClick={() => setIsCommentOpen(true)}
-                className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-all"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              <div className="flex items-center gap-2 text-gray-500 transition-all">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
                 </svg>
                 <span className="text-sm font-medium">{commentsCount}</span>
-              </button>
+              </div>
             </div>
 
             {/* Konten artikel */}
@@ -247,10 +318,8 @@ const ArticleDetailPage = () => {
           </main>
 
           {/* Sidebar kanan — Menyuplai state dan props drawer */}
-          <div className="sticky top-30 h-fit lg:col-span-3">
+          <div className="sticky top-30 h-fit lg:col-span-4">
             <Sidebar
-              isLoggedIn={isLoggedIn}
-              openModal={() => setShowLoginModal(true)}
               comments={komentarList}
               commentsCount={commentsCount}
               komentarTeks={komentarTeks}
@@ -258,13 +327,11 @@ const ArticleDetailPage = () => {
               onKomentarSubmit={handleKomentar}
               komentarLoading={komentarLoading}
               komentarError={komentarError}
-              popularArticles={[]}
-              topics={[]}
-              
-              // TIGA PROP INI YANG MEMBUAT DRAWER BEKERJA
+              replyTo={replyTo}
+              onReplyClick={(id, name) => setReplyTo({ id, name })}
+              onCancelReply={() => setReplyTo(null)}
+              onKomentarDelete={handleDeleteKomentar}
               isDetail={true}
-              isCommentOpen={isCommentOpen}
-              onCloseComment={() => setIsCommentOpen(false)}
             />
           </div>
         </div>

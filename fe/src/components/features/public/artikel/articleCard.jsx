@@ -40,12 +40,12 @@ const ArticleCard = ({ article }) => {
           <span>{article.date}</span>
 
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-1.5 transition-colors hover:text-gray-900">
+            <div className="flex items-center gap-1.5 transition-colors">
               <AiTwotoneLike /> <span>{article.likes}</span>
-            </button>
-            <button className="flex items-center gap-1.5 transition-colors hover:text-gray-900">
+            </div>
+            <div className="flex items-center gap-1.5 transition-colors">
               <FaComment /> <span>{article.comments}</span>
-            </button>
+            </div>
           </div>
         </div>
       </div>

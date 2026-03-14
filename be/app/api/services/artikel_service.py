@@ -283,5 +283,10 @@ class ArtikelService:
         if komentar.id_user != user.id and not getattr(user, 'is_admin', False):
             raise ForbiddenError("Tidak memiliki akses untuk menghapus komentar ini")
 
+        # hapus juga komentar-komentar yang merupakan balasan dari komentar ini
+        replies = ArtikelKomentar.query.filter_by(parent_id=komentar_id).all()
+        for reply in replies:
+            db.session.delete(reply)
+
         db.session.delete(komentar)
         db.session.commit()
