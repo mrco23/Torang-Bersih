@@ -22,7 +22,11 @@ const ArticleDetailPage = () => {
     setError("");
     try {
       const res = await artikelAPI.getById(id);
-      setArtikel(res.data.data);
+      const data = res.data.data;
+      setArtikel(data);
+      setIsLiked(data.is_liked || false);
+      setLikesCount(data.jumlah_likes || 0);
+      setCommentsCount(data.jumlah_komentar || 0);
     } catch (err) {
       setError(err.response?.data?.message || "Artikel tidak ditemukan.");
     } finally {
@@ -34,7 +38,6 @@ const ArticleDetailPage = () => {
     try {
       const res = await artikelAPI.getKomentar(id);
       setFetchedKomentar(res.data.data || []);
-      console.log(res.data.data);
     } catch (err) {
       console.error("Gagal memuat komentar:", err);
     }
@@ -51,11 +54,10 @@ const ArticleDetailPage = () => {
   // ── Like state ───────────────────────────────────────────────────
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
+  const [commentsCount, setCommentsCount] = useState(0);
   const [likeLoading, setLikeLoading] = useState(false);
 
-  useEffect(() => {
-    if (artikel) setLikesCount(artikel.jumlah_likes ?? 0);
-  }, [artikel]);
+  // Redundant useEffect removed
 
   const handleLike = async () => {
     if (!isAuthenticated) {
@@ -75,12 +77,12 @@ const ArticleDetailPage = () => {
     try {
       await artikelAPI.toggleLike(id);
       // Optional: you can sync with actual server count here if needed
-      // setLikesCount(res.data.jumlah_like); 
+      // setLikesCount(res.data.jumlah_like);
     } catch (err) {
       // Revert on Error
       setIsLiked(prevLiked);
       setLikesCount(prevCount);
-      
+
       if (err.response?.status === 401)
         toaster.error("Anda harus login untuk menyukai artikel");
       else {
@@ -121,6 +123,12 @@ const ArticleDetailPage = () => {
       });
       setKomentarTeks("");
       setReplyTo(null);
+      if (replyTo) {
+        toaster.success("Balasan berhasil ditambahkan");
+      } else {
+        toaster.success("Komentar berhasil ditambahkan");
+      }
+      setCommentsCount((prev) => prev + 1);
       fetchKomentar();
     } catch (err) {
       if (err.response?.status === 401)
@@ -143,6 +151,7 @@ const ArticleDetailPage = () => {
     try {
       await artikelAPI.deleteKomentar(id, komentarId);
       toaster.success("Komentar berhasil dihapus");
+      setCommentsCount((prev) => prev - 1);
       fetchKomentar();
     } catch (err) {
       toaster.error(err.response?.data?.message || "Gagal menghapus komentar.");
@@ -213,7 +222,7 @@ const ArticleDetailPage = () => {
     .split(/\s+/).length;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
-  const commentsCount = artikel.jumlah_komentar || 0;
+  // commentsCount now uses state initialized in fetchDetail
 
   // ── Render ───────────────────────────────────────────────────────
   return (

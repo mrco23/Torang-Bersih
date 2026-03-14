@@ -205,6 +205,12 @@ const BuatArtikelPage = () => {
 
   return (
     <div className="min-h-screen bg-[#f3f3fc]">
+      {saveStatus === "saving" && (
+        <div className="bg-opacity-30 fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-transparent p-4 backdrop-blur-sm">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-black"></div>
+          <p className="text-sm text-gray-500">Menyimpan draf...</p>
+        </div>
+      )}
       <div className="mx-auto max-w-7xl space-y-5 px-4 pt-5 pb-20 sm:px-6 lg:px-8">
         <ArtikelNavbar
           saveStatus={saveStatus}

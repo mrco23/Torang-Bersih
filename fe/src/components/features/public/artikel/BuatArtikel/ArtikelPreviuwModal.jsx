@@ -10,6 +10,7 @@ import {
   RiBookmarkLine,
   RiShareForwardLine,
   RiAlertLine,
+  RiHeartLine,
 } from "react-icons/ri";
 import { getKatStylePreview } from "./constant";
 
@@ -17,7 +18,7 @@ const ArtikelPreviewModal = ({
   isOpen,
   onClose,
   form,
-  wordCount = 0,
+  // wordCount = 0,
   readTime = 1,
   canPublish = false,
   kategoriList = [],
@@ -139,7 +140,7 @@ const ArtikelPreviewModal = ({
                 <div className="mb-8 flex items-center justify-between border-y border-gray-100 py-3">
                   <div className="flex items-center gap-5 text-gray-400">
                     <span className="flex cursor-not-allowed items-center gap-1.5 text-sm hover:text-gray-500">
-                      <RiThumbUpLine className="h-5 w-5" /> <span>0</span>
+                      <RiHeartLine className="h-5 w-5" /> <span>0</span>
                     </span>
                     <span className="flex cursor-not-allowed items-center gap-1.5 text-sm hover:text-gray-500">
                       <RiChat1Line className="h-5 w-5" /> <span>0</span>
@@ -179,24 +180,16 @@ const ArtikelPreviewModal = ({
                 <div className="sticky top-0 space-y-6">
                   <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
                     <p className="mb-4 text-xs font-bold tracking-wider text-gray-400 uppercase">
-                      Informasi Publikasi
+                      Input Komentar
                     </p>
-                    <div className="space-y-3">
+                    <div className="space-y-3 text-transparent!">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center gap-2 text-gray-500">
-                          <RiFileTextLine className="h-4 w-4" /> Kata
-                        </span>
-                        <span className="font-bold text-gray-900">
-                          {wordCount.toLocaleString("id")}
-                        </span>
+                        <span className="flex items-center gap-2 text-gray-500"></span>
+                        <span className="font-bold text-gray-900"></span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center gap-2 text-gray-500">
-                          <RiTimeLine className="h-4 w-4" /> Durasi
-                        </span>
-                        <span className="font-bold text-gray-900">
-                          {readTime} min
-                        </span>
+                        <span className="flex items-center gap-2 text-gray-500"></span>
+                        <span className="font-bold text-gray-900"></span>
                       </div>
                     </div>
                   </div>

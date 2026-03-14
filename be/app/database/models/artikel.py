@@ -47,7 +47,7 @@ class Artikel(db.Model):
     def __repr__(self):
         return f'<Artikel {self.judul_artikel}>'
 
-    def to_dict(self, include_content=False):
+    def to_dict(self, include_content=False, current_user_id=None):
         data = {
             'id': self.id,
             'id_penulis': self.id_penulis,
@@ -67,6 +67,13 @@ class Artikel(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
+        
+        # Check if current user liked this article
+        if current_user_id:
+            data['is_liked'] = self.likes.filter_by(id_user=current_user_id).first() is not None
+        else:
+            data['is_liked'] = False
+
         if include_content:
             data['konten_teks'] = self.konten_teks
         return data

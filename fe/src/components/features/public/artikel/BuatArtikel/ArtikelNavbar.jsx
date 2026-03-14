@@ -50,7 +50,7 @@ const ArtikelNavbar = ({
 
           <button
             onClick={onSaveDraft}
-            disabled={!isDirty || saveStatus === "saving"}
+            disabled={!isDirty || saveStatus === "saving" || !canPublish}
             className="flex items-center gap-1.5 rounded-full border border-gray-200 p-2 text-gray-700 hover:border-[#1e1f78] hover:bg-blue-50 hover:text-[#1e1f78] disabled:pointer-events-none disabled:opacity-40 sm:px-4 sm:py-2"
           >
             <RiSaveLine className="h-4 w-4" />

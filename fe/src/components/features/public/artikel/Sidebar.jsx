@@ -109,8 +109,8 @@ export const Sidebar = ({
 
             {/* ── Topik yang Sama ── */}
             {popularArticles && popularArticles.length > 0 && (
-              <div className="mb-7">
-                <h3 className="mb-5 flex items-center gap-2 text-base font-bold text-gray-900">
+              <div className="mb-8">
+                <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
                   <svg
                     className="h-5 w-5 text-blue-600"
                     fill="none"
@@ -369,7 +369,7 @@ const CommentItem = ({
             onClick={() => onKomentarDelete(comment.id)}
             className="text-[11px] font-bold text-red-400 transition-colors hover:text-red-600"
           >
-            Delete
+            Hapus
           </button>
         )}
         {!isReply && (
@@ -377,7 +377,7 @@ const CommentItem = ({
             onClick={() => onReplyClickFocus(comment.id, nama)}
             className="text-[11px] font-bold text-gray-400 transition-colors hover:text-blue-600"
           >
-            Reply
+            Balas
           </button>
         )}
       </div>

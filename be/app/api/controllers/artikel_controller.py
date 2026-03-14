@@ -7,9 +7,10 @@ from app.schemas.artikel_schema import (
     ArtikelCreateSchema, ArtikelUpdateSchema, ArtikelQuerySchema, MyArtikelQuerySchema,
     ArtikelKomentarCreateSchema, ArtikelKomentarUpdateSchema, ArtikelKomentarQuerySchema
 )
-from app.middlewares.auth_middleware import jwt_required_custom
+from app.middlewares.auth_middleware import jwt_required_custom, optional_jwt
 from app.utils.response import success_response, error_response, paginated_response
 
+@optional_jwt
 def get_all():
     try:
         params = ArtikelQuerySchema().load(request.args)
@@ -31,25 +32,31 @@ def get_all():
         sort_order=params.get('sort_order', 'desc'),
     )
 
+    current_user_id = request.current_user.id if request.current_user else None
+    
     return paginated_response(
-        data=[item.to_dict(include_content=False) for item in items],
+        data=[item.to_dict(include_content=False, current_user_id=current_user_id) for item in items],
         total=total,
         page=params.get('page', 1),
         per_page=params.get('per_page', 20),
         message="Daftar artikel berhasil diambil"
     )
 
+@optional_jwt
 def get_one(item_id):
     item = ArtikelService.get_by_id(item_id, increment_view=True)
+    current_user_id = request.current_user.id if request.current_user else None
     return success_response(
-        data=item.to_dict(include_content=True), 
+        data=item.to_dict(include_content=True, current_user_id=current_user_id), 
         message="Detail artikel berhasil diambil"
     )
 
+@optional_jwt
 def get_popular():
     items = ArtikelService.get_popular(limit=3)
+    current_user_id = request.current_user.id if request.current_user else None
     return success_response(
-        data=[item.to_dict(include_content=False) for item in items],
+        data=[item.to_dict(include_content=False, current_user_id=current_user_id) for item in items],
         message="Artikel populer berhasil diambil"
     )
 
