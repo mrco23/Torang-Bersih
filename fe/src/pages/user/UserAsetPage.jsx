@@ -39,7 +39,7 @@ function UserAsetPage() {
       referensiAPI
         .getAll("kategori-aset", { include_inactive: true })
         .then((res) => setKategoriOptions(res.data.data || []))
-        .catch(() => {});
+        .catch(() => { });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing]);
@@ -139,7 +139,7 @@ function UserAsetPage() {
         </div>
         <button
           onClick={() => navigate("/aset/daftar")}
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-700 active:scale-95"
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-(--primary) px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-500/20 transition hover:bg-(--primary-dark) active:scale-95"
         >
           <svg
             className="size-4"
