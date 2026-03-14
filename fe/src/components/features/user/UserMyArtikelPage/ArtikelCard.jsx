@@ -21,15 +21,16 @@ import {
 } from "react-icons/ri";
 import { fmtDate, stripHtml } from "../../../../utils/Artikel.Utils";
 
-// Hapus button Edit dari action list
+// Hapus button Edit dari action list (dikembalikan lagi)
 const ACTION_BTNS = [
   { icon: <RiEyeLine />,       label: "Lihat",  key: "view",   danger: false },
+  { icon: <RiDraftLine />,     label: "Edit",   key: "edit",   danger: false },
   { icon: <RiDeleteBinLine />, label: "Hapus",  key: "delete", danger: true  },
 ];
 
-export default function ArtikelCard({ art, onView, onDelete }) {
+export default function ArtikelCard({ art, onView, onDelete, onEdit }) {
   const isPublished = art.status_publikasi === "published";
-  const handlers    = { view: onView, delete: onDelete };
+  const handlers    = { view: onView, delete: onDelete, edit: onEdit };
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">

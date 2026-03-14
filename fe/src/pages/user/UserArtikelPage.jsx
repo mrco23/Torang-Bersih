@@ -8,6 +8,7 @@ import ArtikelCard from "../../components/features/user/UserMyArtikelPage/Artike
 import ArtikelToolbar from "../../components/features/user/UserMyArtikelPage/ArtikelToolbar";
 import ArtikelPagination from "../../components/features/user/UserMyArtikelPage/ArtikelPagnition";
 import ArtikelDeleteModal from "../../components/features/user/UserMyArtikelPage/ArtikelDeleteModal";
+import ArtikelEditModal from "../../components/features/user/UserMyArtikelPage/ArtikelEditModal";
 import { ArtikelSkeleton, ArtikelEmpty } from "../../components/features/user/UserMyArtikelPage/ArtikelStates";
 
 export default function UserArtikelPage() {
@@ -33,6 +34,13 @@ export default function UserArtikelPage() {
     setConfirmId,
     deleting,
     doDelete,
+    // edit
+    editId,
+    setEditId,
+    editingArt,
+    updating,
+    openEdit,
+    doUpdate,
     load,
   } = useArtikelSaya();
 
@@ -45,6 +53,15 @@ export default function UserArtikelPage() {
         deleting={deleting}
         onCancel={() => setConfirmId(null)}
         onConfirm={doDelete}
+      />
+
+      {/* Modal edit */}
+      <ArtikelEditModal
+        isOpen={!!editId}
+        onClose={() => setEditId(null)}
+        article={editingArt}
+        onSave={doUpdate}
+        updating={updating}
       />
 
       {/* Header */}
@@ -121,6 +138,7 @@ export default function UserArtikelPage() {
               key={art.id}
               art={art}
               onView={() => navigate(`/artikel/${art.id}`)}
+              onEdit={() => openEdit(art.id)}
               onDelete={() => setConfirmId(art.id)}
             />
           ))}

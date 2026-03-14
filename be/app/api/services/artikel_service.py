@@ -118,7 +118,7 @@ class ArtikelService:
 
         if 'kategori_id' in data:
             ref = db.session.get(RefKategoriArtikel, data['kategori_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Kategori artikel tidak valid")
 
         # Jika status dipublish, pastikan konten tidak kosong (pakai konten baru atau existing)

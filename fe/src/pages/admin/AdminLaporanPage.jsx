@@ -5,6 +5,7 @@ import { referensiAPI } from "../../services/api/routes/referensi.route";
 import AdminLaporanFilter from "../../components/features/admin/Laporan/AdminLaporanFilter";
 import AdminLaporanTable from "../../components/features/admin/Laporan/AdminLaporanTable";
 import AdminLaporanDetailModal from "../../components/features/admin/Laporan/AdminLaporanDetailModal";
+import ReferensiModalManager from "../../components/ui/ReferensiModalManager";
 
 const STATUS_LABELS = {
   menunggu: { text: "Menunggu", bg: "bg-yellow-50", color: "text-yellow-700" },
@@ -21,6 +22,7 @@ function AdminLaporanPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [jenisOptions, setJenisOptions] = useState([]);
+  const [refModal, setRefModal] = useState({ show: false, tipe: "", label: "" });
   const [query, setQuery] = useState({
     page: 1,
     per_page: 10,
@@ -196,6 +198,7 @@ function AdminLaporanPage() {
         handleSearch={handleSearch}
         STATUS_LABELS={STATUS_LABELS}
         jenisOptions={jenisOptions}
+        onManageRef={() => setRefModal({ show: true, tipe: 'jenis-sampah', label: 'Jenis Sampah' })}
       />
 
       {/* Content */}
@@ -265,6 +268,16 @@ function AdminLaporanPage() {
           tlLoading={tlLoading}
         />
       )}
+      {/* Referensi Modal */}
+      <ReferensiModalManager
+        isOpen={refModal.show}
+        onClose={() => {
+          setRefModal({ ...refModal, show: false });
+          fetchJenis();
+        }}
+        tipe={refModal.tipe}
+        label={refModal.label}
+      />
     </div>
   );
 }

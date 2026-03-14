@@ -6,6 +6,8 @@ import {
   STATUS_LABELS,
   formatHarga,
 } from "../../components/features/public/barangbekas/InputBarang/Constant";
+import ReferensiModalManager from "../../components/ui/ReferensiModalManager";
+import { RiSettings4Line } from "react-icons/ri";
 
 const STATUS_OPTIONS = [
   { value: "tersedia", label: "Tersedia" },
@@ -264,6 +266,7 @@ function AdminBarangBekasPage() {
   const [error, setError] = useState(null);
   const [kategoriOptions, setKategoriOptions] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [refModal, setRefModal] = useState({ show: false, tipe: "", label: "" });
 
   const [query, setQuery] = useState({
     page: 1,
@@ -293,12 +296,18 @@ function AdminBarangBekasPage() {
     }
   }, [query]);
 
-  useEffect(() => {
-    referensiAPI
-      .getAll("kategori-barang")
-      .then((res) => setKategoriOptions(res.data.data || []))
-      .catch(() => {});
+  const fetchKategori = useCallback(async () => {
+    try {
+      const res = await referensiAPI.getAll("kategori-barang");
+      setKategoriOptions(res.data.data || []);
+    } catch {
+      /* ignore */
+    }
   }, []);
+
+  useEffect(() => {
+    fetchKategori();
+  }, [fetchKategori]);
 
   useEffect(() => {
     fetchItems();
@@ -350,25 +359,34 @@ function AdminBarangBekasPage() {
             Cari
           </button>
         </form>
-        <div className="flex flex-wrap gap-2 md:gap-3">
-          <select
-            value={query.kategori_barang_id}
-            onChange={(e) =>
-              setQuery((q) => ({
-                ...q,
-                kategori_barang_id: e.target.value,
-                page: 1,
-              }))
-            }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
-          >
-            <option value="">Semua Kategori</option>
-            {kategoriOptions.map((k) => (
-              <option key={k.id} value={k.id}>
-                {k.nama}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-1.5">
+            <select
+              value={query.kategori_barang_id}
+              onChange={(e) =>
+                setQuery((q) => ({
+                  ...q,
+                  kategori_barang_id: e.target.value,
+                  page: 1,
+                }))
+              }
+              className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            >
+              <option value="">Semua Kategori</option>
+              {kategoriOptions.map((k) => (
+                <option key={k.id} value={k.id}>
+                  {k.nama}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => setRefModal({ show: true, tipe: 'kategori-barang', label: 'Kategori Barang' })}
+              className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2 text-gray-500 hover:border-(--primary) hover:bg-(--primary-lightest) hover:text-(--primary)"
+              title="Kelola Kategori Barang"
+            >
+              <RiSettings4Line className="size-4" />
+            </button>
+          </div>
           <select
             value={query.kondisi}
             onChange={(e) =>
@@ -622,6 +640,17 @@ function AdminBarangBekasPage() {
           onStatusChange={handleStatusChange}
         />
       )}
+
+      {/* Referensi Modal */}
+      <ReferensiModalManager
+        isOpen={refModal.show}
+        onClose={() => {
+          setRefModal({ ...refModal, show: false });
+          fetchKategori();
+        }}
+        tipe={refModal.tipe}
+        label={refModal.label}
+      />
     </div>
   );
 }

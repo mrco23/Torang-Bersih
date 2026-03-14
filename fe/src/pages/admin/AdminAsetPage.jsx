@@ -4,6 +4,8 @@ import { referensiAPI } from "../../services/api/routes/referensi.route";
 import toaster from "../../utils/toaster";
 import StatusBadge from "../../components/shared/kolaborator/StatusBadge";
 import AsetDetailModal from "../../components/shared/aset/AsetDetailModal";
+import ReferensiModalManager from "../../components/ui/ReferensiModalManager";
+import { RiSettings4Line } from "react-icons/ri";
 
 function AdminAsetPage() {
   const [items, setItems] = useState([]);
@@ -23,6 +25,7 @@ function AdminAsetPage() {
 
   const [selectedAset, setSelectedAset] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [refModal, setRefModal] = useState({ show: false, tipe: "", label: "" });
 
   const fetchItems = async () => {
     setLoading(true);
@@ -129,25 +132,34 @@ function AdminAsetPage() {
             Cari
           </button>
         </form>
-        <div className="flex flex-wrap gap-2 md:gap-3">
-          <select
-            value={query.kategori_aset_id}
-            onChange={(e) =>
-              setQuery((q) => ({
-                ...q,
-                kategori_aset_id: e.target.value,
-                page: 1,
-              }))
-            }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
-          >
-            <option value="">Semua Kategori</option>
-            {kategoriOptions.map((k) => (
-              <option key={k.id} value={k.id}>
-                {k.nama}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-1.5">
+            <select
+              value={query.kategori_aset_id}
+              onChange={(e) =>
+                setQuery((q) => ({
+                  ...q,
+                  kategori_aset_id: e.target.value,
+                  page: 1,
+                }))
+              }
+              className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            >
+              <option value="">Semua Kategori</option>
+              {kategoriOptions.map((k) => (
+                <option key={k.id} value={k.id}>
+                  {k.nama}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => setRefModal({ show: true, tipe: 'kategori-aset', label: 'Kategori Aset' })}
+              className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2 text-gray-500 hover:border-(--primary) hover:bg-(--primary-lightest) hover:text-(--primary)"
+              title="Kelola Kategori Aset"
+            >
+              <RiSettings4Line className="size-4" />
+            </button>
+          </div>
           <select
             value={query.status_verifikasi}
             onChange={(e) =>
@@ -411,6 +423,17 @@ function AdminAsetPage() {
           }
         />
       )}
+
+      {/* Referensi Modal */}
+      <ReferensiModalManager
+        isOpen={refModal.show}
+        onClose={() => {
+          setRefModal({ ...refModal, show: false });
+          fetchKategori();
+        }}
+        tipe={refModal.tipe}
+        label={refModal.label}
+      />
     </div>
   );
 }

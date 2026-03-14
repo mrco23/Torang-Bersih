@@ -44,7 +44,7 @@ class AsetService:
 
         if 'kategori_aset_id' in data:
             ref = db.session.get(RefKategoriAset, data['kategori_aset_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Kategori aset tidak valid")
 
         if 'nama_aset' in data and data['nama_aset'] is not None:
@@ -131,7 +131,7 @@ class AsetService:
 
         if 'kategori_aset_id' in data:
             ref = db.session.get(RefKategoriAset, data['kategori_aset_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Kategori aset tidak valid")
 
         # Duplicate check if nama/kota changed

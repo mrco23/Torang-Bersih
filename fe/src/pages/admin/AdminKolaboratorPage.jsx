@@ -4,6 +4,8 @@ import { referensiAPI } from "../../services/api/routes/referensi.route";
 import toaster from "../../utils/toaster";
 import StatusBadge from "../../components/shared/kolaborator/StatusBadge";
 import KolaboratorDetailModal from "../../components/shared/kolaborator/KolaboratorDetailModal";
+import ReferensiModalManager from "../../components/ui/ReferensiModalManager";
+import { RiSettings4Line } from "react-icons/ri";
 
 function AdminKolaboratorPage() {
   const [items, setItems] = useState([]);
@@ -23,6 +25,7 @@ function AdminKolaboratorPage() {
 
   const [selectedKolaborator, setSelectedKolaborator] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [refModal, setRefModal] = useState({ show: false, tipe: "", label: "" });
 
   const fetchItems = async () => {
     setLoading(true);
@@ -138,25 +141,34 @@ function AdminKolaboratorPage() {
             Cari
           </button>
         </form>
-        <div className="flex flex-wrap gap-2 md:gap-3">
-          <select
-            value={query.jenis_kolaborator_id}
-            onChange={(e) =>
-              setQuery((q) => ({
-                ...q,
-                jenis_kolaborator_id: e.target.value,
-                page: 1,
-              }))
-            }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
-          >
-            <option value="">Semua Jenis</option>
-            {jenisOptions.map((j) => (
-              <option key={j.id} value={j.id}>
-                {j.nama}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-1.5">
+            <select
+              value={query.jenis_kolaborator_id}
+              onChange={(e) =>
+                setQuery((q) => ({
+                  ...q,
+                  jenis_kolaborator_id: e.target.value,
+                  page: 1,
+                }))
+              }
+              className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            >
+              <option value="">Semua Jenis</option>
+              {jenisOptions.map((j) => (
+                <option key={j.id} value={j.id}>
+                  {j.nama}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => setRefModal({ show: true, tipe: 'jenis-kolaborator', label: 'Jenis Kolaborator' })}
+              className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2 text-gray-500 hover:border-(--primary) hover:bg-(--primary-lightest) hover:text-(--primary)"
+              title="Kelola Jenis Kolaborator"
+            >
+              <RiSettings4Line className="size-4" />
+            </button>
+          </div>
           <select
             value={query.status_verifikasi}
             onChange={(e) =>
@@ -437,6 +449,17 @@ function AdminKolaboratorPage() {
           }
         />
       )}
+
+      {/* Referensi Modal */}
+      <ReferensiModalManager
+        isOpen={refModal.show}
+        onClose={() => {
+          setRefModal({ ...refModal, show: false });
+          fetchJenis();
+        }}
+        tipe={refModal.tipe}
+        label={refModal.label}
+      />
     </div>
   );
 }
