@@ -1,6 +1,17 @@
 # Torang Bersih
 
-Satu platform untuk menghubungkan warga, komunitas, dan pemerintah dalam menjaga lingkungan Sulawesi Utara dari ancaman sampah. Laporkan. Pantau. Bergerak Bersama.
+<!-- Logo: letakkan file di docs/images/logo.png. Isi gambar: logo resmi Torang Bersih (ikon atau teks), background transparan atau selaras tema, rekomendasi lebar 200-400px -->
+<p align="center">
+  <img src="docs/images/logo.png" alt="Torang Bersih" width="280">
+</p>
+
+<p align="center">
+  <strong>Laporkan. Pantau. Bergerak Bersama.</strong>
+</p>
+
+<p align="center">
+  Satu platform untuk menghubungkan warga, komunitas, dan pemerintah dalam menjaga lingkungan Sulawesi Utara dari ancaman sampah.
+</p>
 
 ---
 
@@ -8,6 +19,7 @@ Satu platform untuk menghubungkan warga, komunitas, dan pemerintah dalam menjaga
 
 - [Tentang](#tentang)
 - [Fitur Utama](#fitur-utama)
+- [Preview](#preview)
 - [Teknologi](#teknologi)
 - [Struktur Proyek](#struktur-proyek)
 - [Prasyarat](#prasyarat)
@@ -40,62 +52,44 @@ Torang Bersih adalah inisiatif digital yang bertujuan menciptakan Sulawesi Utara
 
 ---
 
-## Screenshots
+## Preview
 
-Tambahkan screenshot di bawah ini ke folder `docs/images/` (atau sesuaikan path). Ganti `docs/images/` dengan path yang Anda gunakan.
+Letakkan screenshot di folder `docs/images/`. Setelah file ada, gambar akan tampil di bawah.
 
-| Deskripsi | Path yang disarankan |
-|-----------|----------------------|
-| Landing page: hero section "Laporkan. Pantau. Bergerak Bersama." dengan empat kartu fitur (Kolaborator, Aset, Laporan Sampah, Barang Daur Ulang) dan CTA Daftar Kolaborator | `docs/images/landing-hero.png` |
-| Blok "Hadir untuk Sulawesi Utara" dengan empat poin tujuan (laporkan sampah ilegal, temukan titik pilahan, bagikan barang bekas, daftar kolaborator) | `docs/images/landing-tujuan.png` |
-| Peta interaktif penuh: sidebar filter (Kolaborator, Aset, Laporan Sampah, Barang Daur Ulang) dan peta dengan marker berbagai tipe di Sulawesi Utara | `docs/images/peta-interaktif.png` |
-| Halaman daftar laporan sampah: tab status (Semua, Diterima, Ditindak, Selesai), search, filter jenis sampah, dan kartu laporan | `docs/images/laporan-daftar.png` |
-| Wizard buat laporan: salah satu langkah (foto bukti, lokasi di peta, atau detail laporan) | `docs/images/laporan-buat.png` |
-| Halaman detail laporan: info lokasi, jenis sampah, foto bukti, status, dan deskripsi | `docs/images/laporan-detail.png` |
-| Daftar kolaborator: kartu profil kolaborator dengan nama, jenis, lokasi, dan status | `docs/images/kolaborator-daftar.png` |
-| Daftar aset: kartu aset (bank sampah, TPS, dll) dengan nama, kategori, alamat, dan gambar | `docs/images/aset-daftar.png` |
-| Marketplace barang bekas: grid barang dengan foto, nama, kategori, kondisi, dan lokasi | `docs/images/barang-bekas-daftar.png` |
-| Form multi-step jual barang bekas: langkah detail barang atau langkah lokasi dengan peta | `docs/images/barang-bekas-input.png` |
-| Dashboard pengguna: greeting, kartu statistik, panel status, daftar laporan dan artikel saya | `docs/images/dashboard-user.png` |
-| Dashboard admin: statistik agregat (user, laporan, artikel, marketplace), status group, tabel aktivitas terbaru | `docs/images/dashboard-admin.png` |
-| Halaman artikel publik: daftar artikel dengan kartu dan filter kategori | `docs/images/artikel-daftar.png` |
-| Halaman detail artikel: judul, kategori, penulis, tanggal, isi artikel (rich text), like dan komentar | `docs/images/artikel-detail.png` |
+**Landing page** — Hero "Laporkan. Pantau. Bergerak Bersama.", empat kartu fitur, CTA Daftar Kolaborator.
 
-Contoh penggunaan di README (setelah gambar diisi):
+<!-- Isi gambar: landing page lengkap dengan hero dan kartu fitur. File: docs/images/landing-hero.png -->
+<p align="center">
+  <img src="docs/images/landing-hero.png" alt="Landing page Torang Bersih" width="800">
+</p>
 
-```markdown
-### Landing Page
+**Peta interaktif** — Sidebar filter dan peta dengan marker Kolaborator, Aset, Laporan Sampah, Barang Daur Ulang.
 
-![Landing hero](docs/images/landing-hero.png)
+<!-- Isi gambar: halaman peta penuh dengan sidebar dan peta Sulawesi Utara. File: docs/images/peta-interaktif.png -->
+<p align="center">
+  <img src="docs/images/peta-interaktif.png" alt="Peta interaktif" width="800">
+</p>
 
-### Peta Interaktif
+**Daftar screenshot lain** (opsional, isi file sesuai deskripsi):
 
-![Peta interaktif](docs/images/peta-interaktif.png)
-```
+- `docs/images/landing-tujuan.png` — Blok "Hadir untuk Sulawesi Utara" dan empat poin tujuan.
+- `docs/images/laporan-daftar.png` — Daftar laporan dengan tab status, search, filter, kartu laporan.
+- `docs/images/laporan-buat.png` — Wizard buat laporan (foto / lokasi / detail).
+- `docs/images/kolaborator-daftar.png` — Daftar kolaborator dengan kartu profil.
+- `docs/images/aset-daftar.png` — Daftar aset (bank sampah, TPS, dll).
+- `docs/images/barang-bekas-daftar.png` — Grid barang bekas.
+- `docs/images/dashboard-user.png` — Dashboard pengguna (statistik, panel status).
+- `docs/images/dashboard-admin.png` — Dashboard admin (statistik agregat, aktivitas).
+- `docs/images/artikel-daftar.png` — Daftar artikel publik.
+- `docs/images/artikel-detail.png` — Detail artikel dengan like dan komentar.
 
 ---
 
 ## Teknologi
 
-**Frontend**
+**Frontend:** React 19, Vite (rolldown-vite), React Router v7, Tailwind CSS v4, Axios, React Hot Toast, Leaflet / react-leaflet, Lucide React, React Icons, Google OAuth (@react-oauth/google).
 
-- React 19, Vite (rolldown-vite)
-- React Router v7, Tailwind CSS v4
-- Axios, React Hot Toast
-- Leaflet / react-leaflet (peta)
-- Lucide React, React Icons
-- Google OAuth (@react-oauth/google)
-
-**Backend**
-
-- Flask 3
-- Flask-SQLAlchemy, Flask-Migrate
-- Flask-JWT-Extended, Flask-Cors, Flask-Limiter
-- Flask-Mail (verifikasi email, reset password)
-- Marshmallow (validasi request)
-- PostgreSQL (psycopg2-binary)
-- Cloudinary (unggahan gambar)
-- Gunicorn / Waitress (production)
+**Backend:** Flask 3, Flask-SQLAlchemy, Flask-Migrate, Flask-JWT-Extended, Flask-Cors, Flask-Limiter, Flask-Mail, Marshmallow, PostgreSQL (psycopg2-binary), Cloudinary, Gunicorn / Waitress.
 
 ---
 
@@ -130,6 +124,8 @@ Torang-Bersih/
 │   ├── server.py
 │   ├── requirements.txt
 │   └── .env.example
+├── docs/
+│   └── images/            # Logo dan screenshot (logo.png, landing-hero.png, dll.)
 └── README.md
 ```
 
@@ -137,68 +133,56 @@ Torang-Bersih/
 
 ## Prasyarat
 
-- Node.js (untuk frontend, disarankan LTS)
-- Python 3.10+ (untuk backend)
+- Node.js (frontend, disarankan LTS)
+- Python 3.10+ (backend)
 - PostgreSQL
 - Akun Cloudinary (unggahan gambar)
-- (Opsional) Akun Google Cloud untuk OAuth dan SMTP untuk email
+- Opsional: Google Cloud (OAuth), SMTP (email)
 
 ---
 
 ## Instalasi
 
-### 1. Clone repositori
+**1. Clone**
 
 ```bash
 git clone https://github.com/<org>/Torang-Bersih.git
 cd Torang-Bersih
 ```
 
-### 2. Backend
+**2. Backend**
 
 ```bash
 cd be
 python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS/Linux
-source .venv/bin/activate
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS/Linux
 
 pip install -r requirements.txt
 cp .env.example .env
-# Edit .env dengan nilai yang sesuai (database, JWT, mail, Cloudinary)
+# Edit .env (database, JWT, mail, Cloudinary)
 
 flask db upgrade
 ```
 
-### 3. Frontend
+**3. Frontend**
 
 ```bash
 cd fe
 npm install
 cp .env.example .env
-# Edit .env: VITE_API_URL dan (opsional) VITE_GOOGLE_CLIENT_ID
+# Edit .env: VITE_API_URL, VITE_GOOGLE_CLIENT_ID (opsional)
 ```
 
 ---
 
 ## Variabel Lingkungan
 
-**Backend (`be/.env`)**
+**Backend (`be/.env`):** `FLASK_ENV`, `PORT`, `HOST`, `SECRET_KEY`, `JWT_SECRET_KEY`, `DATABASE_URL`, `CORS_ORIGINS`, `FRONTEND_URL`, `MAIL_*`, `CLOUDINARY_*`.
 
-- `FLASK_ENV` — development / production
-- `PORT`, `HOST` — server
-- `SECRET_KEY`, `JWT_SECRET_KEY` — rahasia aplikasi dan JWT
-- `DATABASE_URL` — connection string PostgreSQL
-- `CORS_ORIGINS` — origin frontend yang diizinkan (mis. http://localhost:5173)
-- `FRONTEND_URL` — URL frontend untuk link di email
-- `MAIL_*` — SMTP (verifikasi email, reset password)
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+**Frontend (`fe/.env`):** `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`.
 
-**Frontend (`fe/.env`)**
-
-- `VITE_API_URL` — base URL API backend (mis. http://127.0.0.1:5000/api)
-- `VITE_GOOGLE_CLIENT_ID` — Client ID Google OAuth (opsional)
+Detail nama variabel dan contoh nilai ada di `be/.env.example` dan `fe/.env.example`.
 
 ---
 
@@ -208,11 +192,11 @@ cp .env.example .env
 
 ```bash
 cd be
-.venv\Scripts\activate   # atau source .venv/bin/activate
+.venv\Scripts\activate
 python server.py
 ```
 
-Server API berjalan pada `http://localhost:5000` (atau sesuai `HOST` dan `PORT` di `.env`).
+API: `http://localhost:5000` (atau sesuai `HOST`/`PORT` di `.env`).
 
 **Frontend**
 
@@ -221,66 +205,44 @@ cd fe
 npm run dev
 ```
 
-Aplikasi web berjalan pada `http://localhost:5173` (atau port yang ditampilkan Vite). Pastikan `VITE_API_URL` mengarah ke backend yang sedang berjalan.
+Web: `http://localhost:5173`. Pastikan `VITE_API_URL` mengarah ke backend.
 
-**Production**
-
-- Backend: `gunicorn server:app --bind 0.0.0.0:5000`
-- Frontend: `npm run build` lalu deploy hasil `dist/` ke layanan static (Nginx, Vercel, dsb.)
+**Production:** Backend `gunicorn server:app --bind 0.0.0.0:5000`. Frontend `npm run build` lalu deploy isi `dist/`.
 
 ---
 
 ## Dokumentasi API
 
-Dokumentasi detail endpoint API tersedia di:
-
-- `be/docs/API.md` (jika ada)
-- Koleksi Bruno di `be/bruno/` untuk pengujian request
-
-Health check: `GET /health` (atau root) pada base URL backend.
+- Detail endpoint: `be/docs/API.md` (jika ada).
+- Koleksi request: `be/bruno/`.
+- Health check: `GET /health` pada base URL backend.
 
 ---
 
 ## Skrip
 
-**Seed database (data contoh)**
-
 ```bash
-cd be
-python -m scripts.db.seed
-```
+# Seed database
+cd be && python -m scripts.db.seed
 
-**Buat akun admin baru**
+# Buat admin baru
+cd be && python -m scripts.db.create_admin
 
-```bash
-cd be
-python -m scripts.db.create_admin
-```
+# Tes backend
+cd be && pytest
 
-**Jalankan tes backend**
-
-```bash
-cd be
-pytest
-# atau: pytest tests/auth/test_auth.py -v
-```
-
-**Lint frontend**
-
-```bash
-cd fe
-npm run lint
-npm run format
+# Lint frontend
+cd fe && npm run lint && npm run format
 ```
 
 ---
 
 ## Lisensi
 
-Proyek ini dikembangkan oleh Lasalle Vibers. Hak cipta dilindungi. Untuk penggunaan dan lisensi lebih lanjut, hubungi pemilik repositori.
+Proyek dikembangkan oleh Lasalle Vibers. Hak cipta dilindungi. Untuk penggunaan dan lisensi, hubungi pemilik repositori.
 
 ---
 
 ## Kontribusi
 
-Untuk kontribusi (bug report, fitur, dokumentasi), silakan buka issue atau pull request di repositori ini. Pastikan backend dan frontend mengikuti struktur dan konvensi yang ada.
+Silakan buka issue atau pull request. Ikuti struktur dan konvensi kode yang ada di backend dan frontend.
