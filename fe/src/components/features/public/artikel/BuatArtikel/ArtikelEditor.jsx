@@ -22,13 +22,15 @@ import {
   RiLightbulbFlashLine,
   RiLeafLine,
   RiMegaphoneLine,
+  RiText,
 } from "react-icons/ri";
+import { ProseStyles } from "../../../../ui/ProsesStyles";
 
 /* ==============================
    Toolbar Definition
 ============================== */
 
-const makeToolbar = (insertLink) => [
+const makeToolbar = (insertLink, clearFormatBlock) => [
   {
     group: "Teks",
     items: [
@@ -40,8 +42,9 @@ const makeToolbar = (insertLink) => [
   {
     group: "Judul",
     items: [
-      { icon: <RiH1 />, cmd: "formatBlock", val: "h2", label: "Judul Besar" },
-      { icon: <RiH2 />, cmd: "formatBlock", val: "h3", label: "Judul Kecil" },
+      { icon: <RiH1 />, cmd: "formatBlock", val: "H2", label: "Judul Besar" },
+      { icon: <RiH2 />, cmd: "formatBlock", val: "H3", label: "Judul Kecil" },
+      { icon: <RiText />, fn: clearFormatBlock, label: "Teks Biasa" },
     ],
   },
   {
@@ -52,7 +55,11 @@ const makeToolbar = (insertLink) => [
         cmd: "insertUnorderedList",
         label: "• Poin",
       },
-      { icon: <RiListOrdered />, cmd: "insertOrderedList", label: "1. Nomor" },
+      {
+        icon: <RiListOrdered />,
+        cmd: "insertOrderedList",
+        label: "1. Nomor",
+      },
     ],
   },
   {
@@ -61,7 +68,7 @@ const makeToolbar = (insertLink) => [
       {
         icon: <RiDoubleQuotesL />,
         cmd: "formatBlock",
-        val: "blockquote",
+        val: "BLOCKQUOTE",
         label: "Kutipan",
       },
       { icon: <RiLinkM />, fn: insertLink, label: "Link" },
@@ -81,7 +88,11 @@ const HELP_ITEMS = [
   { label: "Garis Bawah", key: "Ctrl + U", desc: "Beri garis bawah" },
   { label: "Judul Besar", key: "Klik H1", desc: "Sub judul utama" },
   { label: "Judul Kecil", key: "Klik H2", desc: "Sub judul kecil" },
+  { label: "Teks Biasa", key: "Klik T", desc: "Kembali ke teks biasa" },
   { label: "Kutipan", key: "Klik Quote", desc: "Menampilkan kutipan" },
+  { label: "Poin", key: "Klik • Poin", desc: "Daftar berpoin (tekan Enter 2x untuk keluar)" },
+  { label: "Nomor", key: "Klik 1. Nomor", desc: "Daftar bernomor (tekan Enter 2x untuk keluar)" },
+  { label: "Kutipan", key: "Klik Kutipan", desc: "Kutipan (tekan Enter 2x untuk keluar)" },
 ];
 
 /* ==============================
@@ -109,19 +120,16 @@ const PROMPT_QUESTIONS = [
 
 const ArtikelEditor = forwardRef(function ArtikelEditor(
   { judul, konten, onJudulChange, onKontenChange },
-  ref,
+  ref
 ) {
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 });
   const [showHelp, setShowHelp] = useState(false);
   const [activePrompt, setActivePrompt] = useState(0);
-
   const editorRef = useRef(null);
 
-  // Menyambungkan forwardRef dengan elemen DOM internal
   useImperativeHandle(ref, () => editorRef.current);
 
-  // Menangani sinkronisasi prop 'konten' ke dalam contentEditable secara aman (mencegah kursor melompat)
   useEffect(() => {
     if (editorRef.current && konten !== undefined) {
       if (
@@ -141,27 +149,24 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
     (cmd, value = null) => {
       document.execCommand(cmd, false, value);
       editorRef.current?.focus();
-
       if (editorRef.current) {
         onKontenChange(editorRef.current.innerHTML);
       }
     },
-    [onKontenChange],
+    [onKontenChange]
   );
 
   const insertLink = useCallback(() => {
     const url = prompt("Masukkan URL\nContoh: https://google.com");
-
     if (url) execCmd("createLink", url);
   }, [execCmd]);
 
   const insertImage = useCallback(() => {
     const url = prompt("Masukkan URL gambar");
-
     if (url) {
       execCmd(
         "insertHTML",
-        `<img src="${url}" style="max-width:100%;border-radius:8px;margin:16px 0;" /><p><br/></p>`,
+        `<img src="${url}" style="max-width:100%;border-radius:8px;margin:16px 0;" /><p><br/></p>`
       );
     }
   }, [execCmd]);
@@ -170,34 +175,156 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
     execCmd("insertHTML", "<hr/><p><br/></p>");
   }, [execCmd]);
 
-  const TOOLBAR = makeToolbar(insertLink);
+  // Untuk kembali ke format teks biasa dari heading/blockquote
+  const clearFormatBlock = useCallback(() => {
+    execCmd("formatBlock", "P");
+  }, [execCmd]);
+
+  // Fungsi untuk keluar dari list UL/OL atau blok kutipan dengan 2x Enter pada baris kosong
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (
+        (e.key === "Enter" || e.keyCode === 13) &&
+        editorRef.current &&
+        window.getSelection
+      ) {
+        const sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+
+        let anchorNode = sel.anchorNode;
+        // Naik ke element node (bukan text node)
+        while (anchorNode && anchorNode.nodeType !== 1) {
+          anchorNode = anchorNode.parentNode;
+        }
+        if (!anchorNode) return;
+
+        // --- Handling keluar dari LIST (ul/ol) ---
+        let liNode =
+          anchorNode.tagName === "LI"
+            ? anchorNode
+            : anchorNode.closest && anchorNode.closest("li");
+        let listNode =
+          liNode &&
+          (liNode.parentNode.tagName === "UL" || liNode.parentNode.tagName === "OL")
+            ? liNode.parentNode
+            : null;
+
+        if (liNode && listNode) {
+          // Jika di li kosong, keluar dari ul/ol
+          if (liNode.textContent === "" || /^\s*$/.test(liNode.textContent)) {
+            e.preventDefault();
+
+            // Sisipkan <p><br/></p> setelah list
+            const brPara = document.createElement("p");
+            brPara.innerHTML = "<br/>";
+            if (listNode.parentNode) {
+              if (listNode.nextSibling) {
+                listNode.parentNode.insertBefore(brPara, listNode.nextSibling);
+              } else {
+                listNode.parentNode.appendChild(brPara);
+              }
+            }
+            // Tempatkan kursor di <p>
+            const range = document.createRange();
+            range.setStart(brPara, 0);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+            // Hapus LI kosong
+            liNode.parentNode.removeChild(liNode);
+
+            // Kalau list kosong, hapus list-nya juga
+            if (listNode.childNodes.length === 0) {
+              listNode.parentNode.removeChild(listNode);
+            }
+
+            setTimeout(() => {
+              if (editorRef.current) {
+                onKontenChange(editorRef.current.innerHTML);
+              }
+            }, 0);
+            return;
+          }
+        }
+
+        // --- Handling keluar dari blockquote ---
+        let blockquoteNode =
+          anchorNode.tagName === "BLOCKQUOTE"
+            ? anchorNode
+            : anchorNode.closest && anchorNode.closest("blockquote");
+        if (blockquoteNode) {
+          // Pastikan hanya trigger kalau baris sekarang kosong
+          if (
+            anchorNode.textContent === "" ||
+            /^\s*$/.test(anchorNode.textContent)
+          ) {
+            e.preventDefault();
+
+            // Sisipkan <p><br/></p> setelah blockquote
+            const brPara = document.createElement("p");
+            brPara.innerHTML = "<br/>";
+            if (blockquoteNode.parentNode) {
+              if (blockquoteNode.nextSibling) {
+                blockquoteNode.parentNode.insertBefore(
+                  brPara,
+                  blockquoteNode.nextSibling
+                );
+              } else {
+                blockquoteNode.parentNode.appendChild(brPara);
+              }
+            }
+            // Tempatkan kursor di <p>
+            const range = document.createRange();
+            range.setStart(brPara, 0);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+            // Hapus P kosong di blockquote (current node)
+            if (
+              anchorNode.parentNode === blockquoteNode &&
+              anchorNode.tagName === "P"
+            ) {
+              anchorNode.parentNode.removeChild(anchorNode);
+            }
+
+            setTimeout(() => {
+              if (editorRef.current) {
+                onKontenChange(editorRef.current.innerHTML);
+              }
+            }, 0);
+            return;
+          }
+        }
+      }
+    },
+    [onKontenChange]
+  );
+
+  const TOOLBAR = makeToolbar(insertLink, clearFormatBlock);
 
   const handleToolbarClick = (item) => {
     if (item.fn === "img") {
       insertImage();
       return;
     }
-
     if (item.fn === "hr") {
       insertDivider();
       return;
     }
-
     if (item.fn) {
       item.fn();
       return;
     }
-
     execCmd(item.cmd, item.val ?? null);
   };
 
   /* ==============================
      Floating Toolbar (Seleksi Teks)
   ============================== */
-
   const handleSelect = () => {
     const sel = window.getSelection();
-
     if (!sel || sel.isCollapsed || !sel.toString().trim()) {
       setToolbarVisible(false);
       return;
@@ -206,9 +333,10 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
 
-    const wrapRect = editorRef.current
-      ?.closest(".editor-wrap")
-      ?.getBoundingClientRect() ?? { top: 0, left: 0 };
+    const wrapRect =
+      editorRef.current
+        ?.closest(".editor-wrap")
+        ?.getBoundingClientRect() ?? { top: 0, left: 0 };
 
     setToolbarPos({
       top: rect.top - wrapRect.top - 56,
@@ -224,7 +352,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
     }
   };
 
-  // Logika pengecekan kosong yang disempurnakan (menangani tag default dari browser)
+  // Logika pengecekan kosong yang disempurnakan
   const isEmpty =
     !konten ||
     konten.trim() === "" ||
@@ -233,8 +361,13 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
 
   return (
     <div className="editor-wrap relative rounded-sm">
+      {/* =========================
+         JUDUL
+      ========================= */}
+      <ProseStyles />
+
       <div className="mb-2">
-        <label className="mb-2 block text-lg font-semibold tracking-widest text-gray-400 uppercase">
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-widest text-gray-400">
           Judul Artikel
         </label>
 
@@ -257,7 +390,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
          TOOLBAR
       ========================= */}
 
-      <div className="sticky top-[64px] z-20 mb-4 rounded-lg border border-gray-100 bg-white shadow-sm">
+      <div className="sticky top-[64px] z-20 mb-4 rounded-xl border border-gray-100 bg-white shadow-sm">
         <div className="flex flex-wrap items-center gap-1 p-2">
           {TOOLBAR.map((group, gi) => (
             <div
@@ -274,7 +407,6 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
                   className="flex min-w-[42px] flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1.5 text-gray-600 hover:bg-[#1e1f78]/5 hover:text-[#1e1f78]"
                 >
                   <span className="text-base">{item.icon}</span>
-
                   <span className="hidden text-[9px] sm:block">
                     {item.label}
                   </span>
@@ -338,6 +470,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
           contentEditable
           suppressContentEditableWarning
           onInput={handleInput}
+          onKeyDown={handleKeyDown}
           onMouseUp={handleSelect}
           onClick={() =>
             setActivePrompt((p) => (p + 1) % PROMPT_QUESTIONS.length)
@@ -350,6 +483,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
       <p className="mt-2 text-center text-[11px] text-gray-400">
         Pilih teks untuk membuka menu format cepat
       </p>
+
     </div>
   );
 });

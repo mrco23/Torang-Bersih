@@ -4,8 +4,9 @@ import { Sidebar } from "../../components/features/public/artikel/Sidebar";
 import { artikelAPI } from "../../services/api/routes/artikel.route";
 import { useAuth } from "../../contexts/AuthContext";
 import toaster from "../../utils/toaster";
+import { ProseStyles } from "../../components/ui/ProsesStyles";
 
-const ArticleDetailPage = () => {
+const DetailArticlePage = () => {
   const { id } = useParams();
   const { isAuthenticated } = useAuth();
 
@@ -228,6 +229,7 @@ const ArticleDetailPage = () => {
   // ── Render ───────────────────────────────────────────────────────
   return (
     <div className="relative bg-white pt-20 pb-20 text-gray-900">
+      <ProseStyles />
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
           {/* Kolom tengah */}
@@ -350,4 +352,4 @@ const ArticleDetailPage = () => {
   );
 };
 
-export default ArticleDetailPage;
+export default DetailArticlePage;

@@ -40,7 +40,7 @@ export default function DashboardGreeting({ namaUser }) {
       label: "Jual Barang",
       desc: "Marketplace barang bekas",
       Icon: RiStore2Line,
-      path: "/marketplace/jual",
+      path: "/barang-bekas/jual",
       bg: "bg-white",
       hover: "hover:bg-[#f3f3fc]",
       text: "text-[#1e1f78]",

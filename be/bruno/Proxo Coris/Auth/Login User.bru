@@ -17,6 +17,10 @@ body:json {
   }
 }
 
+vars:pre-request {
+  base_url: http://127.0.0.1:5000/api
+}
+
 script:post-response {
   if (res.status === 200) {
     bru.setVar("user_access_token", res.body.data.access_token);
