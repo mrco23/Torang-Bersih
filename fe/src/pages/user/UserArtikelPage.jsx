@@ -1,7 +1,11 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { RiAddLine, RiArticleLine, RiAlertLine, RiCloseCircleLine } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiArticleLine,
+  RiAlertLine,
+  RiCloseCircleLine,
+} from "react-icons/ri";
 
 import { useArtikelSaya } from "../../hooks/UserArtikelSaya";
 import ArtikelCard from "../../components/features/user/UserMyArtikelPage/ArtikelCard";
@@ -9,7 +13,10 @@ import ArtikelToolbar from "../../components/features/user/UserMyArtikelPage/Art
 import ArtikelPagination from "../../components/features/user/UserMyArtikelPage/ArtikelPagnition";
 import ArtikelDeleteModal from "../../components/features/user/UserMyArtikelPage/ArtikelDeleteModal";
 import ArtikelEditModal from "../../components/features/user/UserMyArtikelPage/ArtikelEditModal";
-import { ArtikelSkeleton, ArtikelEmpty } from "../../components/features/user/UserMyArtikelPage/ArtikelStates";
+import {
+  ArtikelSkeleton,
+  ArtikelEmpty,
+} from "../../components/features/user/UserMyArtikelPage/ArtikelStates";
 
 export default function UserArtikelPage() {
   const navigate = useNavigate();
@@ -86,7 +93,10 @@ export default function UserArtikelPage() {
         <div className="mb-5 flex flex-col items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 sm:flex-row sm:items-center sm:gap-3 sm:px-4 sm:py-3">
           <RiAlertLine className="h-4 w-4 shrink-0 text-red-500" />
           <p className="flex-1 text-xs text-red-700 sm:text-sm">{error}</p>
-          <button onClick={() => setError("")} className="text-red-400 hover:text-red-600">
+          <button
+            onClick={() => setError("")}
+            className="text-red-400 hover:text-red-600"
+          >
             <RiCloseCircleLine className="h-4 w-4" />
           </button>
         </div>
@@ -124,15 +134,7 @@ export default function UserArtikelPage() {
           onWrite={() => navigate("/dashboard/artikel/buat")}
         />
       ) : (
-        <div className="
-          grid grid-cols-1 gap-4
-          xs:grid-cols-2
-          sm:gap-5
-          sm:grid-cols-2
-          md:grid-cols-3
-          xl:grid-cols-3
-          "
-        >
+        <div className="xs:grid-cols-2 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-3">
           {articles.map((art) => (
             <ArtikelCard
               key={art.id}
@@ -147,7 +149,11 @@ export default function UserArtikelPage() {
 
       {/* Pagination */}
       <div className="mt-8 flex justify-center">
-        <ArtikelPagination page={page} totalPages={totalPages} goPage={goPage} />
+        <ArtikelPagination
+          page={page}
+          totalPages={totalPages}
+          goPage={goPage}
+        />
       </div>
     </div>
   );

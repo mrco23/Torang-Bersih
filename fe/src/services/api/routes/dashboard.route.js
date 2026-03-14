@@ -5,4 +5,7 @@ export const getAdminStats = async () => {
   return response.data;
 };
 
-// Add other admin-related API calls here as needed
+export const getUserStats = async () => {
+  const response = await api.get("/dashboard/user");
+  return response.data;
+};

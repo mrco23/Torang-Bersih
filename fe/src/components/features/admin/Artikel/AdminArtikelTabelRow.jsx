@@ -2,24 +2,29 @@
 import React from "react";
 import { RiEyeLine, RiEditLine, RiDeleteBinLine } from "react-icons/ri";
 import StatusBadge from "../../../ui/StatusBadge";
-import { formatDate, formatTime, getAvatarUrl } from "../../../../utils/ArtikelHelpers";
+import {
+  formatDate,
+  formatTime,
+  getAvatarUrl,
+} from "../../../../utils/ArtikelHelpers";
 
 const AdminArtikelTabelRow = ({ item, onView, onEdit, onDelete }) => {
   return (
-    <tr className="group border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+    <tr className="group border-b border-gray-100 transition-colors hover:bg-gray-50/50">
       {/* Organisasi/Artikel */}
       <td className="px-6 py-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center 
-                         text-xs font-bold text-gray-500 shrink-0">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-xs font-bold text-gray-500">
             {item.judul_artikel?.charAt(0).toUpperCase() || "A"}
           </div>
           <div>
-            <p className="text-sm font-bold text-gray-900 line-clamp-1" 
-               style={{ color: "var(--dark-text)" }}>
+            <p
+              className="line-clamp-1 text-sm font-bold text-gray-900"
+              style={{ color: "var(--dark-text)" }}
+            >
               {item.judul_artikel}
             </p>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="mt-0.5 text-xs text-gray-500">
               {item.kategori?.nama || "Umum"}
             </p>
           </div>
@@ -31,7 +36,7 @@ const AdminArtikelTabelRow = ({ item, onView, onEdit, onDelete }) => {
         <div className="flex items-center gap-3">
           <img
             src={getAvatarUrl(item.penulis)}
-            className="w-8 h-8 rounded-full object-cover"
+            className="h-8 w-8 rounded-full object-cover"
             alt="avatar"
           />
           <div>
@@ -87,6 +92,7 @@ const AdminArtikelTabelRow = ({ item, onView, onEdit, onDelete }) => {
 };
 
 // Sub-component untuk action button
+// eslint-disable-next-line no-unused-vars
 const ActionButton = ({ icon: Icon, title, onClick, variant = "primary" }) => {
   const variants = {
     primary: {
@@ -103,9 +109,7 @@ const ActionButton = ({ icon: Icon, title, onClick, variant = "primary" }) => {
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-lg text-xs font-medium 
-                 transition-all flex items-center gap-1.5
-                 ${variants[variant].base}`}
+      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${variants[variant].base}`}
       title={title}
     >
       <Icon size={14} />

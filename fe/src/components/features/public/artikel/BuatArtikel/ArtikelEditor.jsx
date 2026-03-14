@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useImperativeHandle,
 } from "react";
+import { useLocation } from "react-router-dom";
 import {
   RiBold,
   RiItalic,
@@ -90,9 +91,21 @@ const HELP_ITEMS = [
   { label: "Judul Kecil", key: "Klik H2", desc: "Sub judul kecil" },
   { label: "Teks Biasa", key: "Klik T", desc: "Kembali ke teks biasa" },
   { label: "Kutipan", key: "Klik Quote", desc: "Menampilkan kutipan" },
-  { label: "Poin", key: "Klik • Poin", desc: "Daftar berpoin (tekan Enter 2x untuk keluar)" },
-  { label: "Nomor", key: "Klik 1. Nomor", desc: "Daftar bernomor (tekan Enter 2x untuk keluar)" },
-  { label: "Kutipan", key: "Klik Kutipan", desc: "Kutipan (tekan Enter 2x untuk keluar)" },
+  {
+    label: "Poin",
+    key: "Klik • Poin",
+    desc: "Daftar berpoin (tekan Enter 2x untuk keluar)",
+  },
+  {
+    label: "Nomor",
+    key: "Klik 1. Nomor",
+    desc: "Daftar bernomor (tekan Enter 2x untuk keluar)",
+  },
+  {
+    label: "Kutipan",
+    key: "Klik Kutipan",
+    desc: "Kutipan (tekan Enter 2x untuk keluar)",
+  },
 ];
 
 /* ==============================
@@ -120,13 +133,16 @@ const PROMPT_QUESTIONS = [
 
 const ArtikelEditor = forwardRef(function ArtikelEditor(
   { judul, konten, onJudulChange, onKontenChange },
-  ref
+  ref,
 ) {
   const [toolbarVisible, setToolbarVisible] = useState(false);
   const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 });
   const [showHelp, setShowHelp] = useState(false);
   const [activePrompt, setActivePrompt] = useState(0);
   const editorRef = useRef(null);
+
+  const location = useLocation();
+  const isPopup = location.pathname.includes("/admin/artikel");
 
   useImperativeHandle(ref, () => editorRef.current);
 
@@ -153,7 +169,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
         onKontenChange(editorRef.current.innerHTML);
       }
     },
-    [onKontenChange]
+    [onKontenChange],
   );
 
   const insertLink = useCallback(() => {
@@ -166,7 +182,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
     if (url) {
       execCmd(
         "insertHTML",
-        `<img src="${url}" style="max-width:100%;border-radius:8px;margin:16px 0;" /><p><br/></p>`
+        `<img src="${url}" style="max-width:100%;border-radius:8px;margin:16px 0;" /><p><br/></p>`,
       );
     }
   }, [execCmd]);
@@ -205,7 +221,8 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
             : anchorNode.closest && anchorNode.closest("li");
         let listNode =
           liNode &&
-          (liNode.parentNode.tagName === "UL" || liNode.parentNode.tagName === "OL")
+          (liNode.parentNode.tagName === "UL" ||
+            liNode.parentNode.tagName === "OL")
             ? liNode.parentNode
             : null;
 
@@ -268,7 +285,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
               if (blockquoteNode.nextSibling) {
                 blockquoteNode.parentNode.insertBefore(
                   brPara,
-                  blockquoteNode.nextSibling
+                  blockquoteNode.nextSibling,
                 );
               } else {
                 blockquoteNode.parentNode.appendChild(brPara);
@@ -299,7 +316,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
         }
       }
     },
-    [onKontenChange]
+    [onKontenChange],
   );
 
   const TOOLBAR = makeToolbar(insertLink, clearFormatBlock);
@@ -333,10 +350,9 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
 
-    const wrapRect =
-      editorRef.current
-        ?.closest(".editor-wrap")
-        ?.getBoundingClientRect() ?? { top: 0, left: 0 };
+    const wrapRect = editorRef.current
+      ?.closest(".editor-wrap")
+      ?.getBoundingClientRect() ?? { top: 0, left: 0 };
 
     setToolbarPos({
       top: rect.top - wrapRect.top - 56,
@@ -367,7 +383,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
       <ProseStyles />
 
       <div className="mb-2">
-        <label className="mb-2 block text-xs font-semibold uppercase tracking-widest text-gray-400">
+        <label className="mb-2 block text-xs font-semibold tracking-widest text-gray-400 uppercase">
           Judul Artikel
         </label>
 
@@ -390,7 +406,9 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
          TOOLBAR
       ========================= */}
 
-      <div className="sticky top-[64px] z-20 mb-4 rounded-xl border border-gray-100 bg-white shadow-sm">
+      <div
+        className={`sticky ${isPopup ? "top-0" : "top-7"} z-20 mb-4 rounded-xl border border-gray-100 bg-white shadow-sm`}
+      >
         <div className="flex flex-wrap items-center gap-1 p-2">
           {TOOLBAR.map((group, gi) => (
             <div
@@ -483,7 +501,6 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
       <p className="mt-2 text-center text-[11px] text-gray-400">
         Pilih teks untuk membuka menu format cepat
       </p>
-
     </div>
   );
 });

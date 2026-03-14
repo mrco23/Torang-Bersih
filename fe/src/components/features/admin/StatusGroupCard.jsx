@@ -1,7 +1,13 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { motion } from "motion/react";
 
-const StatusGroupCard = ({ title, stats, icon: Icon, colorClass = "primary" }) => {
+const StatusGroupCard = ({
+  title,
+  stats,
+  icon: Icon,
+  colorClass = "primary",
+}) => {
   const statusColors = {
     // Artikel
     published: "bg-green-100 text-green-700",
@@ -29,14 +35,14 @@ const StatusGroupCard = ({ title, stats, icon: Icon, colorClass = "primary" }) =
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm"
+      className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
     >
-      <div className="flex items-center gap-3 mb-4">
-        <div 
-          className="p-2 rounded-lg"
-          style={{ 
+      <div className="mb-4 flex items-center gap-3">
+        <div
+          className="rounded-lg p-2"
+          style={{
             backgroundColor: `color-mix(in srgb, var(--${colorClass}) 10%, transparent)`,
-            color: `var(--${colorClass})`
+            color: `var(--${colorClass})`,
           }}
         >
           <Icon size={20} />
@@ -44,19 +50,25 @@ const StatusGroupCard = ({ title, stats, icon: Icon, colorClass = "primary" }) =
         <h3 className="font-bold text-gray-800">{title}</h3>
       </div>
 
-      <div className="space-y-0 divide-y divide-gray-100 border-t border-gray-50 -mx-5 -mb-5 mt-4">
-        {stats && Object.entries(stats).map(([label, count]) => (
-          <div key={label} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50/50 transition-colors">
-            <span className="text-sm font-medium text-gray-600">{formatLabel(label)}</span>
-            <span
-              className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                statusColors[label] || "bg-gray-100 text-gray-600"
-              }`}
+      <div className="-mx-5 mt-4 -mb-5 space-y-0 divide-y divide-gray-100 border-t border-gray-50">
+        {stats &&
+          Object.entries(stats).map(([label, count]) => (
+            <div
+              key={label}
+              className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-gray-50/50"
             >
-              {count}
-            </span>
-          </div>
-        ))}
+              <span className="text-sm font-medium text-gray-600">
+                {formatLabel(label)}
+              </span>
+              <span
+                className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                  statusColors[label] || "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {count}
+              </span>
+            </div>
+          ))}
       </div>
     </motion.div>
   );

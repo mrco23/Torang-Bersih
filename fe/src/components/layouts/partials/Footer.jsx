@@ -3,10 +3,10 @@ import { HiOutlineLocationMarker } from "react-icons/hi";
 
 function Footer() {
   const fiturLinks = [
-    { label: "Kolaborator", path: "/fitur/kolaborator" },
-    { label: "Aset Sampah", path: "/fitur/aset" },
-    { label: "Laporan Sampah", path: "/fitur/laporan-sampah" },
-    { label: "Barang Daur Ulang", path: "/fitur/barang-bekas" },
+    { label: "Kolaborator", path: "/kolaborator" },
+    { label: "Aset Sampah", path: "/aset" },
+    { label: "Laporan Sampah", path: "/laporan" },
+    { label: "Barang Daur Ulang", path: "/barang-bekas" },
   ];
 
   return (

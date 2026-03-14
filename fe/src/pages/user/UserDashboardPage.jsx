@@ -1,10 +1,6 @@
-/**
- * UserDashboardPage.jsx
- * Halaman dashboard utama — assembles semua sub-komponen.
- */
-
 import React, { useState, useEffect } from "react";
-import { getToken } from "../../utils/storage";
+import { getUserStats } from "../../services/api/routes/dashboard.route";
+import { useAuth } from "../../contexts/AuthContext";
 
 import DashboardGreeting from "../../components/features/user/UserDashboardPage/DashboardGreating";
 import DashboardStatCards from "../../components/features/user/UserDashboardPage/DashboardStatsCard";
@@ -42,7 +38,7 @@ function LoadingState() {
 }
 
 // ─── Error state ──────────────────────────────────────────────────
-function ErrorState({ message }) {
+function ErrorState({ refetch, message }) {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
       <div className="flex size-20 items-center justify-center rounded-3xl bg-red-50">
@@ -66,7 +62,7 @@ function ErrorState({ message }) {
       </div>
       <button
         type="button"
-        onClick={() => window.location.reload()}
+        onClick={refetch}
         className="rounded-xl bg-[#1e1f78] px-6 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-[#1a1b65]"
       >
         Coba Lagi
@@ -77,55 +73,41 @@ function ErrorState({ message }) {
 
 // ─── Main page ────────────────────────────────────────────────────
 export default function UserDashboardPage() {
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const token = getToken();
-        console.log("[Dashboard] Token:", token);
-
-        const res = await fetch("http://127.0.0.1:5000/api/dashboard/user", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const json = await res.json();
-
-        if (res.ok && json.success) {
-          setData(json.data);
-        } else {
-          setErrorMsg(json.message || "Gagal memuat data dashboard.");
-        }
-      } catch (err) {
-        console.error("[Dashboard] Fetch error:", err);
-        setErrorMsg(
-          "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDashboard();
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getUserStats();
+      if (data.success) {
+        setData(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      setErrorMsg(error.message || "Gagal mengambil data statistik dashboard");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // ── Loading ──
   if (isLoading) return <LoadingState />;
 
   // ── Error ──
-  if (errorMsg) return <ErrorState message={errorMsg} />;
+  if (errorMsg) return <ErrorState refetch={fetchStats} message={errorMsg} />;
 
   // ── Dashboard ──
   return (
     <div className="space-y-4 md:space-y-6">
       {/* 1. Hero greeting + quick actions (Sub-komponen) */}
-      <DashboardGreeting namaUser={data.nama_user} />
+      <DashboardGreeting namaUser={user.full_name} />
 
       {/* 2. Stat cards utama + mini aktivitas (Sub-komponen) */}
       <DashboardStatCards data={data} />

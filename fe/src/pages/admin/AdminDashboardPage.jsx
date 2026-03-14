@@ -1,26 +1,89 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Users, 
-  FileText, 
-  MapPin, 
-  Store, 
-  Package, 
-  ThumbsUp, 
+import {
+  Users,
+  FileText,
+  MapPin,
+  Store,
+  Package,
+  ThumbsUp,
   MessageSquare,
   AlertTriangle,
   TrendingUp,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
-import { getAdminStats } from "../../services/api/routes/admin.route";
+import { getAdminStats } from "../../services/api/routes/dashboard.route";
 import StatsCard from "../../components/ui/StatsCard";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import StatusGroupCard from "../../components/features/admin/StatusGroupCard";
 import RecentActivityTable from "../../components/features/admin/RecentActivityTable";
-import toast from "react-hot-toast";
+
+function Skeleton({ className = "" }) {
+  return (
+    <div className={`animate-pulse rounded-2xl bg-gray-100 ${className}`} />
+  );
+}
+
+function LoadingState() {
+  return (
+    <div className="space-y-5 p-4 sm:p-6 lg:p-8">
+      <Skeleton className="h-[120px]" />
+      <div className="grid grid-cols-3 gap-3">
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-24" />
+      </div>
+      <div className="grid grid-cols-6 gap-2">
+        {[...Array(6)].map((_, i) => (
+          <Skeleton key={i} className="h-20" />
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <Skeleton className="h-52" />
+        <Skeleton className="h-52" />
+      </div>
+      <Skeleton className="h-[280px]" />
+    </div>
+  );
+}
+
+// ─── Error state ──────────────────────────────────────────────────
+function ErrorState({ refetch, message }) {
+  return (
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+      <div className="flex size-20 items-center justify-center rounded-3xl bg-red-50">
+        <svg
+          className="size-10 text-red-400"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+          />
+        </svg>
+      </div>
+      <div>
+        <p className="text-[17px] font-bold text-gray-900">Gagal Memuat Data</p>
+        <p className="mt-1 text-[13px] text-gray-500">{message}</p>
+      </div>
+      <button
+        type="button"
+        onClick={refetch}
+        className="rounded-xl bg-[#1e1f78] px-6 py-2.5 text-[13px] font-bold text-white shadow-sm transition hover:bg-[#1a1b65]"
+      >
+        Coba Lagi
+      </button>
+    </div>
+  );
+}
 
 const AdminDashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     fetchStats();
@@ -35,34 +98,37 @@ const AdminDashboardPage = () => {
       }
     } catch (error) {
       console.error("Error fetching admin stats:", error);
-      toast.error("Gagal mengambil data statistik dashboard");
+      setErrorMsg(error.message || "Gagal mengambil data statistik dashboard");
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <LoadingSpinner size="lg" />
-        <p className="text-gray-500 font-medium animate-pulse">Memuat data dashboard...</p>
-      </div>
-    );
+    return <LoadingState />;
+  }
+
+  if (errorMsg) {
+    return <ErrorState refetch={fetchStats} message={errorMsg} />;
   }
 
   if (!stats) return null;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="animate-in fade-in space-y-8 duration-500">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-6">
+      <div className="flex flex-col justify-between gap-4 border-b border-gray-100 pb-6 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Dashboard Admin</h1>
-          <p className="text-gray-500 mt-1">Ringkasan aktivitas dan performa sistem Torang-Bersih.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+            Dashboard Admin
+          </h1>
+          <p className="mt-1 text-gray-500">
+            Ringkasan aktivitas dan performa sistem Torang-Bersih.
+          </p>
         </div>
-        <button 
+        <button
           onClick={fetchStats}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm"
+          className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm transition-all hover:bg-gray-50"
         >
           <TrendingUp size={16} className="text-primary" />
           Refresh Data
@@ -70,128 +136,163 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Primary Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard 
-          title="Total Pengguna" 
-          value={stats.total_users} 
-          icon={Users} 
-          colorVar="--primary" 
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          title="Total Pengguna"
+          value={stats.total_users}
+          icon={Users}
+          colorVar="--primary"
           subtitle="Pengguna terdaftar"
         />
-        <StatsCard 
-          title="Total Laporan" 
-          value={stats.total_laporan} 
-          icon={AlertTriangle} 
-          colorVar="--red" 
+        <StatsCard
+          title="Total Laporan"
+          value={stats.total_laporan}
+          icon={AlertTriangle}
+          colorVar="--red"
           subtitle="Laporan sampah ilegal"
         />
-        <StatsCard 
-          title="Total Artikel" 
-          value={stats.total_artikel} 
-          icon={FileText} 
-          colorVar="--indigo" 
+        <StatsCard
+          title="Total Artikel"
+          value={stats.total_artikel}
+          icon={FileText}
+          colorVar="--indigo"
           subtitle="Edukasi & Berita"
         />
-        <StatsCard 
-          title="Marketplace" 
-          value={stats.total_marketplace} 
-          icon={Store} 
-          colorVar="--green" 
+        <StatsCard
+          title="Marketplace"
+          value={stats.total_marketplace}
+          icon={Store}
+          colorVar="--green"
           subtitle="Barang daur ulang"
         />
       </div>
 
       {/* Engagement Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-indigo-50/50 rounded-2xl p-6 border border-indigo-100 flex items-center gap-4 group hover:bg-indigo-50 transition-all cursor-default">
-          <div className="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-200 ring-4 ring-indigo-50">
-            <ThumbsUp size={24} className="group-hover:scale-110 transition-transform" />
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="group flex cursor-default items-center gap-4 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-6 transition-all hover:bg-indigo-50">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-lg ring-4 shadow-indigo-200 ring-indigo-50">
+            <ThumbsUp
+              size={24}
+              className="transition-transform group-hover:scale-110"
+            />
           </div>
           <div>
-            <p className="text-2xl font-bold text-indigo-900 leading-none mb-1">{stats.total_artikel_likes}</p>
-            <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Total Likes Artikel</p>
+            <p className="mb-1 text-2xl leading-none font-bold text-indigo-900">
+              {stats.total_artikel_likes}
+            </p>
+            <p className="text-xs font-bold tracking-wider text-indigo-600 uppercase">
+              Total Likes Artikel
+            </p>
           </div>
         </div>
 
-        <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100 flex items-center gap-4 group hover:bg-blue-50 transition-all cursor-default">
-          <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-200 ring-4 ring-blue-50">
-            <MessageSquare size={24} className="group-hover:scale-110 transition-transform" />
+        <div className="group flex cursor-default items-center gap-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-6 transition-all hover:bg-blue-50">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg ring-4 shadow-blue-200 ring-blue-50">
+            <MessageSquare
+              size={24}
+              className="transition-transform group-hover:scale-110"
+            />
           </div>
           <div>
-            <p className="text-2xl font-bold text-blue-900 leading-none mb-1">{stats.total_artikel_komentar}</p>
-            <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Total Komentar</p>
+            <p className="mb-1 text-2xl leading-none font-bold text-blue-900">
+              {stats.total_artikel_komentar}
+            </p>
+            <p className="text-xs font-bold tracking-wider text-blue-600 uppercase">
+              Total Komentar
+            </p>
           </div>
         </div>
 
-        <div className="bg-teal-50/50 rounded-2xl p-6 border border-teal-100 flex items-center gap-4 group hover:bg-teal-50 transition-all cursor-default">
-          <div className="w-12 h-12 rounded-xl bg-teal-500 flex items-center justify-center text-white shadow-lg shadow-teal-200 ring-4 ring-teal-50">
-            <ArrowRight size={24} className="group-hover:scale-110 transition-transform" />
+        <div className="group flex cursor-default items-center gap-4 rounded-2xl border border-teal-100 bg-teal-50/50 p-6 transition-all hover:bg-teal-50">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-500 text-white shadow-lg ring-4 shadow-teal-200 ring-teal-50">
+            <ArrowRight
+              size={24}
+              className="transition-transform group-hover:scale-110"
+            />
           </div>
           <div>
-            <p className="text-2xl font-bold text-teal-900 leading-none mb-1">{stats.total_tindak_lanjut}</p>
-            <p className="text-xs font-bold text-teal-600 uppercase tracking-wider">Laporan Ditindaklanjuti</p>
+            <p className="mb-1 text-2xl leading-none font-bold text-teal-900">
+              {stats.total_tindak_lanjut}
+            </p>
+            <p className="text-xs font-bold tracking-wider text-teal-600 uppercase">
+              Laporan Ditindaklanjuti
+            </p>
           </div>
         </div>
       </div>
 
       {/* Detailed Status Breakdown */}
       <div>
-        <div className="flex items-center gap-2 mb-6">
-          <div className="h-6 w-1 bg-primary rounded-full"></div>
-          <h2 className="text-xl font-bold text-gray-800">Detail Status Konten</h2>
+        <div className="mb-6 flex items-center gap-2">
+          <div className="bg-primary h-6 w-1 rounded-full"></div>
+          <h2 className="text-xl font-bold text-gray-800">
+            Detail Status Konten
+          </h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatusGroupCard 
-            title="Laporan" 
-            stats={stats.laporan_per_status} 
-            icon={AlertTriangle} 
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StatusGroupCard
+            title="Laporan"
+            stats={stats.laporan_per_status}
+            icon={AlertTriangle}
             colorClass="red"
           />
-          <StatusGroupCard 
-            title="Kolaborator" 
-            stats={stats.kolaborator_per_status} 
-            icon={MapPin} 
+          <StatusGroupCard
+            title="Kolaborator"
+            stats={stats.kolaborator_per_status}
+            icon={MapPin}
             colorClass="primary"
           />
-          <StatusGroupCard 
-            title="Artikel" 
-            stats={stats.artikel_per_status} 
-            icon={FileText} 
+          <StatusGroupCard
+            title="Artikel"
+            stats={stats.artikel_per_status}
+            icon={FileText}
             colorClass="indigo"
           />
-          <StatusGroupCard 
-            title="Aset" 
-            stats={stats.aset_per_status} 
-            icon={Package} 
+          <StatusGroupCard
+            title="Aset"
+            stats={stats.aset_per_status}
+            icon={Package}
             colorClass="orange"
           />
         </div>
       </div>
 
       {/* Recent Activity Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
         <div>
-          <div className="flex items-center gap-2 mb-6 text-gray-800">
+          <div className="mb-6 flex items-center gap-2 text-gray-800">
             <AlertTriangle size={20} className="text-red-500" />
             <h2 className="text-xl font-bold">Laporan Terbaru</h2>
           </div>
-          <RecentActivityTable items={stats.recent_laporan} type="laporan" title="Daftar Laporan Terakhir" />
+          <RecentActivityTable
+            items={stats.recent_laporan}
+            type="laporan"
+            title="Daftar Laporan Terakhir"
+          />
         </div>
 
         <div>
-          <div className="flex items-center gap-2 mb-6 text-gray-800">
+          <div className="mb-6 flex items-center gap-2 text-gray-800">
             <FileText size={20} className="text-indigo-500" />
             <h2 className="text-xl font-bold">Artikel Terbaru</h2>
           </div>
-          <RecentActivityTable items={stats.recent_artikel} type="artikel" title="Daftar Artikel Terakhir" />
+          <RecentActivityTable
+            items={stats.recent_artikel}
+            type="artikel"
+            title="Daftar Artikel Terakhir"
+          />
         </div>
 
         <div className="xl:col-span-2">
-          <div className="flex items-center gap-2 mb-6 text-gray-800">
+          <div className="mb-6 flex items-center gap-2 text-gray-800">
             <Users size={20} className="text-primary" />
             <h2 className="text-xl font-bold">Kolaborator Terbaru</h2>
           </div>
-          <RecentActivityTable items={stats.recent_kolaborator} type="kolaborator" title="Pendaftaran Kolaborator Baru" />
+          <RecentActivityTable
+            items={stats.recent_kolaborator}
+            type="kolaborator"
+            title="Pendaftaran Kolaborator Baru"
+          />
         </div>
       </div>
     </div>
