@@ -49,7 +49,7 @@ export default function ArtikelEditModal({
     if (isOpen) {
       const fetchCategories = async () => {
         try {
-          const res = await referensiAPI.getAll("kategori-artikel");
+          const res = await referensiAPI.getAll("kategori-artikel", { include_inactive: true });
           setCategories(res.data?.data || []);
         } catch (err) {
           console.error("Gagal memuat kategori:", err);
@@ -207,11 +207,13 @@ export default function ArtikelEditModal({
                     className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#1e1f78]"
                   >
                     <option value="">Pilih Kategori...</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.nama}
-                      </option>
-                    ))}
+                    {categories
+                      .filter((cat) => cat.is_active || cat.id === form.kategori_id)
+                      .map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.nama} {!cat.is_active && "(Nonaktif)"}
+                        </option>
+                      ))}
                   </select>
                 </div>
 

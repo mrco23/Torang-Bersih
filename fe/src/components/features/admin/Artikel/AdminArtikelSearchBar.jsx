@@ -1,6 +1,6 @@
 // components/features/admin/artikel/AdminArtikelSearchBar.jsx
 import React, { useState, useRef, useEffect } from "react";
-import { RiSearchLine, RiArrowDownSLine } from "react-icons/ri";
+import { RiSearchLine, RiArrowDownSLine, RiSettings4Line } from "react-icons/ri";
 
 function useDebouncePerWordEffect(callback, value, delay) {
   const handler = useRef();
@@ -37,6 +37,7 @@ const AdminArtikelSearchBar = ({
   filters,
   onFilterChange,
   categories,
+  onManageRef,
 }) => {
   const [searchDraft, setSearchDraft] = useState(search ?? "");
 
@@ -105,6 +106,13 @@ const AdminArtikelSearchBar = ({
             })),
           ]}
         />
+        <button 
+          onClick={onManageRef}
+          className="flex items-center justify-center rounded-xl border border-gray-300 bg-white p-2.5 text-gray-500 transition-all hover:border-[#1e1f78] hover:bg-indigo-50 hover:text-[#1e1f78]"
+          title="Kelola Daftar Kategori"
+        >
+          <RiSettings4Line size={20} />
+        </button>
 
         <FilterDropdown
           label="Semua Status"

@@ -273,11 +273,13 @@ function AsetEditModal({
                 className={inputCls}
               >
                 <option value="">-- Pilih --</option>
-                {kategoriOptions.map((k) => (
-                  <option key={k.id} value={k.id}>
-                    {k.nama}
-                  </option>
-                ))}
+                {kategoriOptions
+                  .filter((k) => k.is_active || k.id === form.kategori_aset_id)
+                  .map((k) => (
+                    <option key={k.id} value={k.id}>
+                      {k.nama} {!k.is_active && "(Nonaktif)"}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>

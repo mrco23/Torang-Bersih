@@ -4,11 +4,14 @@ import { RiAddLine, RiDashboardLine } from "react-icons/ri";
 import AdminArtikelStats from "../../components/features/admin/Artikel/AdminArtikelStats";
 import AdminArtikelTable from "../../components/features/admin/Artikel/AdminArtikelTabel";
 import AdminArtikelDeleteModal from "../../components/features/admin/Artikel/AdminArtikelDeleteModal";
+
 import AdminArtikelViewModal from "../../components/features/admin/Artikel/AdminArtikelViewModal";
 import ArtikelEditModal from "../../components/features/user/UserMyArtikelPage/ArtikelEditModal";
 import { artikelAPI } from "../../services/api/routes/artikel.route";
 import { referensiAPI } from "../../services/api/routes/referensi.route";
 import toaster from "../../utils/toaster";
+import ReferensiModalManager from "../../components/ui/ReferensiModalManager";
+import AdminArtikelSearchBar from "../../components/features/admin/Artikel/AdminArtikelSearchBar";
 
 const AdminArtikelPage = () => {
   // --- States ---
@@ -24,6 +27,11 @@ const AdminArtikelPage = () => {
   const [createModal, setCreateModal] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
+  const [refModal, setRefModal] = useState({
+    show: false,
+    tipe: "",
+    label: "",
+  });
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -69,15 +77,16 @@ const AdminArtikelPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
+  const fetchCategories = async () => {
+    try {
+      const res = await referensiAPI.getAll("kategori-artikel");
+      setCategories(res.data.data || []);
+    } catch (err) {
+      console.error("Gagal memuat kategori", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await referensiAPI.getAll("kategori-artikel");
-        setCategories(res.data.data || []);
-      } catch (err) {
-        console.error("Gagal memuat kategori", err);
-      }
-    };
     fetchCategories();
   }, []);
 
@@ -222,15 +231,27 @@ const AdminArtikelPage = () => {
         {/* <AdminArtikelStats meta={meta} articles={articles} /> */}
       </div>
 
+      {/* Search and Filters */}
+      <AdminArtikelSearchBar
+        search={searchQuery}
+        onSearchChange={setSearchQuery}
+        filters={query}
+        onFilterChange={handleFilterChange}
+        categories={categories}
+        onManageRef={() =>
+          setRefModal({
+            show: true,
+            tipe: "kategori-artikel",
+            label: "Kategori Artikel",
+          })
+        }
+      />
+
       {/* ── TABLE ── */}
       <AdminArtikelTable
         articles={articles}
         categories={categories}
         loading={loading}
-        search={searchQuery}
-        onSearchChange={setSearchQuery}
-        filters={query}
-        onFilterChange={handleFilterChange}
         page={query.page}
         meta={meta}
         onPageChange={(page) => setQuery((prev) => ({ ...prev, page }))}
@@ -271,6 +292,17 @@ const AdminArtikelPage = () => {
         article={{}} // empty for creation
         onSave={handleSaveCreate}
         updating={updating}
+      />
+
+      {/* ── REFERENSI MODAL ── */}
+      <ReferensiModalManager
+        isOpen={refModal.show}
+        onClose={() => {
+          setRefModal({ ...refModal, show: false });
+          fetchCategories(); // Refresh categories in dropdown
+        }}
+        tipe={refModal.tipe}
+        label={refModal.label}
       />
     </div>
   );

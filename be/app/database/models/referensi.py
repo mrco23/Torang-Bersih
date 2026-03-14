@@ -24,6 +24,7 @@ class RefJenisKolaborator(db.Model):
             'id': self.id,
             'nama': self.nama,
             'is_active': self.is_active,
+            'usage_count': self.kolaborator.count(),
         }
 
 
@@ -46,6 +47,7 @@ class RefKategoriAset(db.Model):
             'id': self.id,
             'nama': self.nama,
             'is_active': self.is_active,
+            'usage_count': self.aset.count(),
         }
 
 
@@ -68,6 +70,7 @@ class RefJenisSampah(db.Model):
             'id': self.id,
             'nama': self.nama,
             'is_active': self.is_active,
+            'usage_count': self.laporan.count(),
         }
 
 
@@ -90,6 +93,7 @@ class RefKategoriBarang(db.Model):
             'id': self.id,
             'nama': self.nama,
             'is_active': self.is_active,
+            'usage_count': self.marketplace_items.count(),
         }
 
 
@@ -112,4 +116,5 @@ class RefKategoriArtikel(db.Model):
             'id': self.id,
             'nama': self.nama,
             'is_active': self.is_active,
+            'usage_count': self.artikel.count(),
         }

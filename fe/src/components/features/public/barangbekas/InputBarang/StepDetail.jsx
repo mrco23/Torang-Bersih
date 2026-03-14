@@ -16,7 +16,7 @@ export const StepDetail = ({ form, setForm }) => {
   useEffect(() => {
     const fetchKategori = async () => {
       try {
-        const res = await referensiAPI.getAll("kategori-barang");
+        const res = await referensiAPI.getAll("kategori-barang", { include_inactive: true });
         setKategoriOptions(res.data.data || []);
       } catch {
         /* ignore */
@@ -48,34 +48,41 @@ export const StepDetail = ({ form, setForm }) => {
         <div>
           <Label req>Kategori Barang</Label>
           <div className="grid grid-cols-5 gap-1.5">
-            {kategoriOptions.map((k) => (
-              <button
-                key={k.id}
-                type="button"
-                onClick={() =>
-                  setForm((p) => ({ ...p, kategori_barang_id: k.id }))
-                }
-                className={`flex flex-col items-center gap-1 rounded-xl border-2 py-2.5 text-center transition-all ${
-                  form.kategori_barang_id === k.id
-                    ? "border-[#1e1f78] bg-[#eef0ff]"
-                    : "border-gray-200 bg-white hover:border-gray-300"
-                }`}
-              >
-                <RiRecycleLine
-                  size={16}
-                  className={
-                    form.kategori_barang_id === k.id
-                      ? "text-[#1e1f78]"
-                      : "text-gray-400"
+            {kategoriOptions
+              .filter((k) => k.is_active || k.id === form.kategori_barang_id)
+              .map((k) => (
+                <button
+                  key={k.id}
+                  type="button"
+                  onClick={() =>
+                    setForm((p) => ({ ...p, kategori_barang_id: k.id }))
                   }
-                />
-                <span
-                  className={`text-[10px] font-bold ${form.kategori_barang_id === k.id ? "text-[#1e1f78]" : "text-gray-500"}`}
+                  className={`flex flex-col items-center gap-1 rounded-xl border-2 py-2.5 text-center transition-all ${
+                    form.kategori_barang_id === k.id
+                      ? "border-[#1e1f78] bg-[#eef0ff]"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
+                  title={!k.is_active ? "Kategori ini sudah tidak aktif" : ""}
                 >
-                  {k.nama}
-                </span>
-              </button>
-            ))}
+                  <RiRecycleLine
+                    size={16}
+                    className={
+                      form.kategori_barang_id === k.id
+                        ? "text-[#1e1f78]"
+                        : "text-gray-400"
+                    }
+                  />
+                  <span
+                    className={`text-[10px] font-bold ${
+                      form.kategori_barang_id === k.id
+                        ? "text-[#1e1f78]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {k.nama} {!k.is_active && "(Nonaktif)"}
+                  </span>
+                </button>
+              ))}
           </div>
         </div>
 

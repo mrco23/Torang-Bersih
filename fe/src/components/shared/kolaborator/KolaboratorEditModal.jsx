@@ -226,11 +226,13 @@ function KolaboratorEditModal({
                 className={inputCls}
               >
                 <option value="">-- Pilih --</option>
-                {jenisOptions.map((j) => (
-                  <option key={j.id} value={j.id}>
-                    {j.nama}
-                  </option>
-                ))}
+                {jenisOptions
+                  .filter((j) => j.is_active || j.id === form.jenis_kolaborator_id)
+                  .map((j) => (
+                    <option key={j.id} value={j.id}>
+                      {j.nama} {!j.is_active && "(Nonaktif)"}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>

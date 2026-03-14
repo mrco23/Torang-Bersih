@@ -46,7 +46,7 @@ class MarketplaceService:
 
         if 'kategori_barang_id' in data:
             ref = db.session.get(RefKategoriBarang, data['kategori_barang_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Kategori barang tidak valid")
 
         if 'nama_barang' in data and data['nama_barang'] is not None:
@@ -132,7 +132,7 @@ class MarketplaceService:
 
         if 'kategori_barang_id' in data:
             ref = db.session.get(RefKategoriBarang, data['kategori_barang_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Kategori barang tidak valid")
 
         # Normalize & duplicate check if nama/kota changed

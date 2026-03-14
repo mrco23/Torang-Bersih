@@ -6,34 +6,35 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { artikelAPI } from "../services/api/routes/artikel.route";
+import toaster from "../utils/toaster";
 
 const PER_PAGE = 9;
 
 export function useArtikelSaya() {
   // ── Data ──────────────────────────────────────────────────
-  const [articles,   setArticles]   = useState([]);
-  const [total,      setTotal]      = useState(0);
+  const [articles, setArticles] = useState([]);
+  const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
   // ── UI State ──────────────────────────────────────────────
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // ── Query Params ──────────────────────────────────────────
-  const [page,      setPage]      = useState(1);
-  const [search,    setSearch]    = useState("");
-  const [draft,     setDraft]     = useState(""); // nilai input sebelum di-submit
-  const [sortBy,    setSortBy]    = useState("created_at");
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [draft, setDraft] = useState(""); // nilai input sebelum di-submit
+  const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState("desc");
 
   // ── Delete State ──────────────────────────────────────────
   const [confirmId, setConfirmId] = useState(null);
-  const [deleting,  setDeleting]  = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // ── Edit State ────────────────────────────────────────────
-  const [editId,     setEditId]     = useState(null);
+  const [editId, setEditId] = useState(null);
   const [editingArt, setEditingArt] = useState(null);
-  const [updating,   setUpdating]   = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   // ── Fetch ─────────────────────────────────────────────────
   const load = useCallback(async () => {
@@ -42,26 +43,30 @@ export function useArtikelSaya() {
     try {
       const { data: body } = await artikelAPI.getMyArtikel({
         page,
-        per_page:   PER_PAGE,   // ← per_page, bukan limit
+        per_page: PER_PAGE, // ← per_page, bukan limit
         search,
-        sort_by:    sortBy,
+        sort_by: sortBy,
         sort_order: sortOrder,
       });
 
       setArticles(body.data ?? []);
 
       const pg = body.meta?.pagination ?? {};
-      setTotal(      pg.total       ?? 0);
-      setTotalPages( pg.total_pages ?? 1);
+      setTotal(pg.total ?? 0);
+      setTotalPages(pg.total_pages ?? 1);
     } catch (err) {
-      const msg = err?.response?.data?.message ?? "Gagal memuat artikel. Periksa koneksi.";
+      const msg =
+        err?.response?.data?.message ??
+        "Gagal memuat artikel. Periksa koneksi.";
       setError(msg);
     } finally {
       setLoading(false);
     }
   }, [page, search, sortBy, sortOrder]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   // ── Handlers ──────────────────────────────────────────────
   const submitSearch = (e) => {
@@ -78,7 +83,10 @@ export function useArtikelSaya() {
 
   const toggleSort = (field) => {
     if (sortBy === field) setSortOrder((o) => (o === "desc" ? "asc" : "desc"));
-    else { setSortBy(field); setSortOrder("desc"); }
+    else {
+      setSortBy(field);
+      setSortOrder("desc");
+    }
     setPage(1);
   };
 
@@ -123,7 +131,10 @@ export function useArtikelSaya() {
       load();
       return true;
     } catch (err) {
-      setError(err?.response?.data?.message || "Gagal memperbarui artikel.");
+      setError("Gagal memperbarui artikel.");
+      toaster.error(
+        err?.response?.data?.message || "Gagal memperbarui artikel.",
+      );
       return false;
     } finally {
       setUpdating(false);
@@ -132,19 +143,39 @@ export function useArtikelSaya() {
 
   return {
     // data
-    articles, total, totalPages, page,
+    articles,
+    total,
+    totalPages,
+    page,
     // ui
-    loading, error, setError,
+    loading,
+    error,
+    setError,
     // search
-    draft, setDraft, search, submitSearch, clearSearch,
+    draft,
+    setDraft,
+    search,
+    submitSearch,
+    clearSearch,
     // sort
-    sortBy, sortOrder, toggleSort,
+    sortBy,
+    sortOrder,
+    toggleSort,
     // pagination
     goPage,
     // delete
-    confirmId, setConfirmId, deleting, doDelete,
+    confirmId,
+    setConfirmId,
+    deleting,
+    doDelete,
     // edit
-    editId, setEditId, editingArt, setEditingArt, updating, openEdit, doUpdate,
+    editId,
+    setEditId,
+    editingArt,
+    setEditingArt,
+    updating,
+    openEdit,
+    doUpdate,
     // refresh
     load,
   };

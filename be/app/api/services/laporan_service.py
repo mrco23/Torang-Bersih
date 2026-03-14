@@ -31,7 +31,7 @@ class LaporanService:
 
         if 'jenis_sampah_id' in data:
             ref = db.session.get(RefJenisSampah, data['jenis_sampah_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Jenis sampah tidak valid")
 
         return item, data
@@ -155,7 +155,7 @@ class LaporanService:
 
         if 'jenis_sampah_id' in data:
             ref = db.session.get(RefJenisSampah, data['jenis_sampah_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Jenis sampah tidak valid")
 
         # Convert string enum values

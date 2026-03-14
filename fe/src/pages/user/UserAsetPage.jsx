@@ -37,7 +37,7 @@ function UserAsetPage() {
   useEffect(() => {
     if (editing && kategoriOptions.length === 0) {
       referensiAPI
-        .getAll("kategori-aset")
+        .getAll("kategori-aset", { include_inactive: true })
         .then((res) => setKategoriOptions(res.data.data || []))
         .catch(() => {});
     }

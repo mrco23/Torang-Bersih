@@ -1,17 +1,11 @@
 // components/features/admin/artikel/AdminArtikelTabel.jsx
 import React from "react";
-import AdminArtikelSearchBar from "./AdminArtikelSearchBar";
 import AdminArtikelTabelRow from "./AdminArtikelTabelRow";
 import AdminArtikelPagination from "./AdminArtikelPagnation";
 
 const AdminArtikelTabel = ({
   articles,
-  categories,
   loading,
-  search,
-  onSearchChange,
-  filters,
-  onFilterChange,
   page,
   meta,
   onPageChange,
@@ -21,15 +15,6 @@ const AdminArtikelTabel = ({
 }) => {
   return (
     <div className="space-y-6">
-      {/* Search & Filters */}
-      <AdminArtikelSearchBar
-        search={search}
-        onSearchChange={onSearchChange}
-        filters={filters}
-        onFilterChange={onFilterChange}
-        categories={categories}
-      />
-
       {/* Table Container */}
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">

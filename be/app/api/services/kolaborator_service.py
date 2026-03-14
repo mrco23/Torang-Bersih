@@ -38,7 +38,7 @@ class KolaboratorService:
 
         if 'jenis_kolaborator_id' in data:
             ref = db.session.get(RefJenisKolaborator, data['jenis_kolaborator_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Jenis kolaborator tidak valid")
 
         if 'nama_organisasi' in data and data['nama_organisasi'] is not None:
@@ -118,7 +118,7 @@ class KolaboratorService:
 
         if 'jenis_kolaborator_id' in data:
             ref = db.session.get(RefJenisKolaborator, data['jenis_kolaborator_id'])
-            if not ref or not ref.is_active:
+            if not ref:
                 raise NotFoundError("Jenis kolaborator tidak valid")
 
         if 'nama_organisasi' in data and data['nama_organisasi'] is not None:

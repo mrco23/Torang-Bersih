@@ -40,7 +40,7 @@ function UserKolaboratorPage() {
   useEffect(() => {
     if (editing && jenisOptions.length === 0) {
       referensiAPI
-        .getAll("jenis-kolaborator")
+        .getAll("jenis-kolaborator", { include_inactive: true })
         .then((res) => setJenisOptions(res.data.data || []))
         .catch(() => {});
     }
