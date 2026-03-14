@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { marketplaceAPI } from "../../services/api/routes/marketplace.route";
-import { KONDISI_LABELS, STATUS_LABELS, formatHarga } from "../../components/features/public/barangbekas/InputBarang/Constant";
+import {
+  KONDISI_LABELS,
+  STATUS_LABELS,
+  formatHarga,
+} from "../../components/features/public/barangbekas/InputBarang/Constant";
 import EditBarangBekasModal from "../../components/features/public/barangbekas/EditBarangBekasModal";
 
 const STATUS_OPTIONS = [
@@ -33,7 +37,7 @@ const UserBarangBekasPage = () => {
     setError(null);
     try {
       const params = Object.fromEntries(
-        Object.entries(query).filter(([, v]) => v !== "")
+        Object.entries(query).filter(([, v]) => v !== ""),
       );
       const res = await marketplaceAPI.getMyMarketplace(params);
       setItems(res.data.data || []);
@@ -62,10 +66,8 @@ const UserBarangBekasPage = () => {
       });
       setItems((prev) =>
         prev.map((item) =>
-          item.id === id
-            ? { ...item, status_ketersediaan: newStatus }
-            : item
-        )
+          item.id === id ? { ...item, status_ketersediaan: newStatus } : item,
+        ),
       );
     } catch (err) {
       alert(err.response?.data?.message || "Gagal memperbarui status");
@@ -91,13 +93,28 @@ const UserBarangBekasPage = () => {
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Barang Saya</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Barang Saya</h1>
+          <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
+            Kelola barangmu — pantau status, edit, atau hapus kapan saja.
+          </p>
+        </div>
         <Link
           to="/barang-bekas/jual"
-          className="flex items-center gap-2 rounded-lg bg-(--primary) px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-(--primary-dark)"
+          className="flex items-center gap-2 rounded-xl bg-[#1e1f78] px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-[#1a1b65] hover:shadow-md active:scale-95 sm:px-5 sm:py-2.5 sm:text-sm"
         >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2.5"
+              d="M12 4v16m8-8H4"
+            />
           </svg>
           Jual Barang
         </Link>
@@ -110,8 +127,10 @@ const UserBarangBekasPage = () => {
             type="text"
             placeholder="Cari nama barang..."
             value={query.search}
-            onChange={(e) => setQuery((q) => ({ ...q, search: e.target.value }))}
-            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-(--primary) md:px-4"
+            onChange={(e) =>
+              setQuery((q) => ({ ...q, search: e.target.value }))
+            }
+            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
           />
           <button
             type="submit"
@@ -124,13 +143,19 @@ const UserBarangBekasPage = () => {
           <select
             value={query.status_ketersediaan}
             onChange={(e) =>
-              setQuery((q) => ({ ...q, status_ketersediaan: e.target.value, page: 1 }))
+              setQuery((q) => ({
+                ...q,
+                status_ketersediaan: e.target.value,
+                page: 1,
+              }))
             }
-            className="rounded-lg border px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-(--primary) md:px-3"
+            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="">Semua Status</option>
             {STATUS_OPTIONS.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
             ))}
           </select>
           <select
@@ -138,7 +163,7 @@ const UserBarangBekasPage = () => {
             onChange={(e) =>
               setQuery((q) => ({ ...q, sort_order: e.target.value, page: 1 }))
             }
-            className="rounded-lg border px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-(--primary) md:px-3"
+            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="desc">Terbaru</option>
             <option value="asc">Terlama</option>
@@ -159,13 +184,24 @@ const UserBarangBekasPage = () => {
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-10 text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
-              <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              <svg
+                className="h-6 w-6 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                />
               </svg>
             </div>
             <p className="font-semibold text-gray-700">Belum ada barang</p>
-            <p className="mt-1 text-sm text-gray-400">Mulai jual barang bekasmu sekarang.</p>
+            <p className="mt-1 text-sm text-gray-400">
+              Mulai jual barang bekasmu sekarang.
+            </p>
             <Link
               to="/barang-bekas/jual"
               className="mt-4 rounded-lg bg-(--primary) px-5 py-2 text-sm font-bold text-white transition hover:bg-(--primary-dark)"
@@ -180,20 +216,36 @@ const UserBarangBekasPage = () => {
               <table className="w-full text-sm">
                 <thead className="border-b border-gray-100 bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Barang</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Kategori</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Harga</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Kondisi</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-600">Status Ketersediaan</th>
-                    <th className="px-4 py-3 text-right font-medium text-gray-600">Aksi</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">
+                      Barang
+                    </th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">
+                      Kategori
+                    </th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">
+                      Harga
+                    </th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">
+                      Kondisi
+                    </th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-600">
+                      Status Ketersediaan
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium text-gray-600">
+                      Aksi
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {items.map((item) => {
                     const kondisi = KONDISI_LABELS[item.kondisi] || {};
-                    const status = STATUS_LABELS[item.status_ketersediaan] || {};
+                    const status =
+                      STATUS_LABELS[item.status_ketersediaan] || {};
                     return (
-                      <tr key={item.id} className="group transition hover:bg-gray-50">
+                      <tr
+                        key={item.id}
+                        className="group transition hover:bg-gray-50"
+                      >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             {item.foto_barang_urls?.[0] && (
@@ -204,9 +256,13 @@ const UserBarangBekasPage = () => {
                               />
                             )}
                             <div>
-                              <p className="font-medium text-gray-800">{item.nama_barang}</p>
+                              <p className="font-medium text-gray-800">
+                                {item.nama_barang}
+                              </p>
                               {item.berat_estimasi_kg && (
-                                <p className="text-xs text-gray-400">~{item.berat_estimasi_kg} kg</p>
+                                <p className="text-xs text-gray-400">
+                                  ~{item.berat_estimasi_kg} kg
+                                </p>
                               )}
                             </div>
                           </div>
@@ -233,10 +289,12 @@ const UserBarangBekasPage = () => {
                             onChange={(e) =>
                               handleUpdateStatus(item.id, e.target.value)
                             }
-                            className={`rounded-full border px-2 py-1 text-xs font-medium transition ${status.bg} ${status.color} focus:outline-none focus:ring-1 focus:ring-(--primary) disabled:opacity-60`}
+                            className={`rounded-full border px-2 py-1 text-xs font-medium transition ${status.bg} ${status.color} focus:ring-1 focus:ring-(--primary) focus:outline-none disabled:opacity-60`}
                           >
                             {STATUS_OPTIONS.map((s) => (
-                              <option key={s.value} value={s.value}>{s.label}</option>
+                              <option key={s.value} value={s.value}>
+                                {s.label}
+                              </option>
                             ))}
                           </select>
                         </td>
@@ -259,7 +317,9 @@ const UserBarangBekasPage = () => {
                               disabled={deletingId === item.id}
                               className="text-xs font-medium text-red-500 transition hover:text-red-700 disabled:opacity-50"
                             >
-                              {deletingId === item.id ? "Menghapus..." : "Hapus"}
+                              {deletingId === item.id
+                                ? "Menghapus..."
+                                : "Hapus"}
                             </button>
                           </div>
                         </td>
@@ -286,12 +346,16 @@ const UserBarangBekasPage = () => {
                         />
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-gray-800">{item.nama_barang}</p>
+                        <p className="truncate font-medium text-gray-800">
+                          {item.nama_barang}
+                        </p>
                         <p className="mt-0.5 text-sm font-semibold text-(--primary)">
                           {formatHarga(item.harga)}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-1.5">
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${kondisi.bg} ${kondisi.color}`}>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${kondisi.bg} ${kondisi.color}`}
+                          >
                             {kondisi.text || item.kondisi}
                           </span>
                           <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-700">
@@ -314,7 +378,9 @@ const UserBarangBekasPage = () => {
                           className={`rounded-full border px-2 py-1 text-xs font-medium ${status.bg} ${status.color} focus:outline-none disabled:opacity-60`}
                         >
                           {STATUS_OPTIONS.map((s) => (
-                            <option key={s.value} value={s.value}>{s.label}</option>
+                            <option key={s.value} value={s.value}>
+                              {s.label}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -357,9 +423,7 @@ const UserBarangBekasPage = () => {
             <div className="flex gap-2">
               <button
                 disabled={!meta.has_prev}
-                onClick={() =>
-                  setQuery((q) => ({ ...q, page: q.page - 1 }))
-                }
+                onClick={() => setQuery((q) => ({ ...q, page: q.page - 1 }))}
                 className="rounded-lg border px-3 py-1 transition hover:bg-gray-50 disabled:opacity-40"
               >
                 ← Prev
@@ -369,9 +433,7 @@ const UserBarangBekasPage = () => {
               </span>
               <button
                 disabled={!meta.has_next}
-                onClick={() =>
-                  setQuery((q) => ({ ...q, page: q.page + 1 }))
-                }
+                onClick={() => setQuery((q) => ({ ...q, page: q.page + 1 }))}
                 className="rounded-lg border px-3 py-1 transition hover:bg-gray-50 disabled:opacity-40"
               >
                 Next →

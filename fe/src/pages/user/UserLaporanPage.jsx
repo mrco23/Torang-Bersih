@@ -45,6 +45,20 @@ function UserLaporanPage() {
     }
   };
 
+  const Button = () => {
+    return (
+      <button
+        onClick={() => navigate("/laporan/buat")}
+        className="flex shrink-0 items-center gap-2 rounded-xl bg-(--primary) px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-(--primary-dark) active:scale-95"
+      >
+        <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Buat Laporan
+      </button>
+    )
+  }
+
   // ── Empty State ──────────────────────────────────────────────────
   if (!loading && !error && items.length === 0) {
     return (
@@ -58,15 +72,7 @@ function UserLaporanPage() {
         <p className="mb-8 max-w-sm text-sm text-gray-500">
           Anda belum pernah melaporkan tumpukan sampah ilegal. Mari bantu bersihkan lingkungan!
         </p>
-        <button
-          onClick={() => navigate("/laporan/buat")}
-          className="flex items-center gap-2 rounded-xl bg-gray-900 px-8 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-gray-800 active:scale-95"
-        >
-          <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Buat Laporan Baru
-        </button>
+        <Button />
       </div>
     );
   }
@@ -81,15 +87,7 @@ function UserLaporanPage() {
             Daftar laporan tumpukan sampah ilegal yang telah Anda ajukan.
           </p>
         </div>
-        <button
-          onClick={() => navigate("/laporan/buat")}
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-gray-800 active:scale-95"
-        >
-          <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Buat Laporan
-        </button>
+        <Button />
       </div>
 
       {error && (
