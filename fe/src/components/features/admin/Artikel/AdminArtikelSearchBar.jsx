@@ -21,25 +21,23 @@ const AdminArtikelSearchBar = ({
         onSubmit={handleSearch}
         autoComplete="off"
       >
-        <RiSearchLine
-          className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400"
-          size={20}
-        />
-        <input
-          type="text"
-          placeholder="Cari judul artikel atau penulis..."
-          value={query.search}
-          onChange={(e) => setQuery((q) => ({ ...q, search: e.target.value }))}
-          className="w-full rounded-xl border border-gray-300 py-3 pr-4 pl-12 text-sm transition-all outline-none focus:border-[#1e1f78] focus:ring-4 focus:ring-[#1e1f78]/10"
-          style={{ color: "var(--dark-text)" }}
-        />
-        <button
-          type="submit"
-          className="absolute top-1/2 right-2 -translate-y-1/2 rounded-lg bg-[#1e1f78] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1a1b65]"
-          tabIndex={0}
-        >
-          Cari
-        </button>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="Cari judul artikel atau penulis..."
+            value={query.search}
+            onChange={(e) => setQuery((q) => ({ ...q, search: e.target.value }))}
+            className="flex-1 rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
+            style={{ color: "var(--dark-text)" }}
+          />
+          <button
+            type="submit"
+            className="cursor-pointer rounded-lg bg-(--primary) px-3 py-2 text-sm text-white transition hover:bg-(--primary-dark) md:px-4"
+            tabIndex={0}
+          >
+            Cari
+          </button>
+        </div>
       </form>
 
       {/* Filters */}
