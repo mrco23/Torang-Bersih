@@ -10,14 +10,14 @@ const AdminLaporanFilter = ({
   onManageRef,
 }) => {
   return (
-    <div className="space-y-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm md:p-4">
+    <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm md:p-4">
       <form onSubmit={handleSearch} className="flex gap-2">
         <input
           type="text"
           placeholder="Cari alamat lokasi..."
           value={query.search}
           onChange={(e) => setQuery((q) => ({ ...q, search: e.target.value }))}
-          className="flex-1 rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
+          className="flex-1 rounded-lg border-2 border-gray-200 px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
         />
         <button
           type="submit"
@@ -36,7 +36,7 @@ const AdminLaporanFilter = ({
               page: 1,
             }))
           }
-          className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+          className="rounded-lg border-2 border-gray-200 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
         >
           <option value="">Semua Status</option>
           {Object.entries(STATUS_LABELS).map(([key, val]) => (
@@ -55,9 +55,9 @@ const AdminLaporanFilter = ({
                 page: 1,
               }))
             }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg border-2 border-gray-200 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
-            <option value="">Semua Jenis Sampah</option>
+            <option value="" >Semua Jenis Sampah</option>
             {jenisOptions.map((j) => (
               <option key={j.id} value={j.id}>
                 {j.nama}
@@ -67,7 +67,7 @@ const AdminLaporanFilter = ({
           <button
             type="button"
             onClick={onManageRef}
-            className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2 text-gray-500 hover:border-(--primary) hover:bg-(--primary-lightest) hover:text-(--primary)"
+            className="cursor-pointer rounded-lg border-2 border-gray-200 bg-white p-2 text-gray-500 hover:border-(--primary) hover:bg-(--primary-lightest) hover:text-(--primary)"
             title="Kelola Jenis Sampah"
           >
             <RiSettings4Line className="size-4" />
@@ -78,7 +78,7 @@ const AdminLaporanFilter = ({
           onChange={(e) =>
             setQuery((q) => ({ ...q, sort_order: e.target.value, page: 1 }))
           }
-          className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+          className="rounded-lg border-2 border-gray-200 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
         >
           <option value="desc">Terbaru</option>
           <option value="asc">Terlama</option>
