@@ -118,7 +118,7 @@ function AdminAsetPage() {
     <div className="space-y-4 md:space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Manajemen Aset</h1>
       {/* Filter & Search */}
-      <div className="space-y-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm md:p-4">
+      <div className="space-y-3 rounded-xl ring ring-gray-300 bg-white p-3 shadow-sm md:p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
@@ -127,7 +127,7 @@ function AdminAsetPage() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, search: e.target.value }))
             }
-            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
+            className="flex-1 rounded-lg ring ring-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
           />
           <button
             type="submit"
@@ -147,7 +147,7 @@ function AdminAsetPage() {
                   page: 1,
                 }))
               }
-              className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+              className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
             >
               <option value="">Semua Kategori</option>
               {kategoriOptions.map((k) => (
@@ -179,7 +179,7 @@ function AdminAsetPage() {
                 page: 1,
               }))
             }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="">Semua Status</option>
             <option value="menunggu">Menunggu Verifikasi</option>
@@ -191,7 +191,7 @@ function AdminAsetPage() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, sort_order: e.target.value, page: 1 }))
             }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="desc">Terbaru</option>
             <option value="asc">Terlama</option>
@@ -241,7 +241,7 @@ function AdminAsetPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {item.pictures_urls &&
-                          item.pictures_urls.length > 0 ? (
+                            item.pictures_urls.length > 0 ? (
                             <img
                               src={item.pictures_urls[0]}
                               alt="Aset"
