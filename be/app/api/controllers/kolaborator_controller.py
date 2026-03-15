@@ -16,7 +16,7 @@ def get_all():
         params = KolaboratorQuerySchema().load(request.args)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -64,7 +64,7 @@ def create():
         data = KolaboratorCreateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -107,7 +107,7 @@ def update(item_id):
         data = KolaboratorUpdateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -150,7 +150,7 @@ def verify(item_id):
         data = KolaboratorVerifySchema().load(request.get_json() or {})
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -170,7 +170,7 @@ def my_kolaborator():
         params = KolaboratorQuerySchema().load(request.args)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )

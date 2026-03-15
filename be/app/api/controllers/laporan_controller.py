@@ -16,7 +16,7 @@ def get_all():
         params = LaporanQuerySchema().load(request.args)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -69,7 +69,7 @@ def create():
         data = LaporanCreateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -110,7 +110,7 @@ def update(item_id):
         data = LaporanUpdateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -152,7 +152,7 @@ def update_status(item_id):
         data = LaporanUpdateStatusSchema().load(request.get_json() or {})
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -193,7 +193,7 @@ def create_tindak_lanjut(laporan_id):
         data = TindakLanjutCreateSchema().load(raw_data)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
@@ -224,7 +224,7 @@ def my_laporan():
         params = MyLaporanQuerySchema().load(request.args)
     except ValidationError as err:
         return error_response(
-            message="Validasi gagal",
+            message=f"Validasi gagal: {', '.join([f'Kolom {k} tidak dikenal' if 'tidak dikenal' in v[0].lower() or 'unknown field' in v[0].lower() else v[0] for k, v in err.messages.items()])}",
             errors=[{"field": k, "message": v[0]} for k, v in err.messages.items()],
             status_code=422
         )
