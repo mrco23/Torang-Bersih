@@ -1,9 +1,18 @@
-"""Email service using Flask-Mail"""
-from flask import current_app, render_template_string
+from threading import Thread
+from flask import current_app, render_template_string, copy_current_request_context
 from flask_mail import Message
 
 from app.config.extensions import mail
 from app.utils.logger import logger
+
+
+def send_email_async(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+            logger.info(f"Email sent successfully to {msg.recipients}")
+        except Exception as e:
+            logger.error(f"Failed to send email in background: {e}")
 
 
 def send_email(to, subject, html_body, text_body=None):
@@ -14,11 +23,21 @@ def send_email(to, subject, html_body, text_body=None):
             html=html_body,
             body=text_body or "Silakan buka email ini di aplikasi yang mendukung HTML."
         )
-        mail.send(msg)
-        logger.info(f"Email sent to {to}: {subject}")
+        
+        # Kirim email di background thread agar tidak memblokir process utama
+        # copy_current_request_context agar thread memiliki akses ke app context
+        @copy_current_request_context
+        def send_msg(message):
+            mail.send(message)
+            logger.info(f"Background email sent to {to}: {subject}")
+
+        thread = Thread(target=send_msg, args=(msg,))
+        thread.start()
+        
+        logger.info(f"Email sending task started in background for {to}")
         return True
     except Exception as e:
-        logger.error(f"Failed to send email to {to}: {e}")
+        logger.error(f"Failed to start background email task for {to}: {e}")
         return False
 
 

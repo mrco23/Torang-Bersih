@@ -16,7 +16,6 @@ import StatsCard from "../../components/ui/StatsCard";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import StatusGroupCard from "../../components/features/admin/StatusGroupCard";
 import RecentActivityTable from "../../components/features/admin/RecentActivityTable";
-import toaster from "../../utils/toaster";
 
 function Skeleton({ className = "" }) {
   return (
@@ -61,17 +60,11 @@ const AdminDashboardPage = () => {
       const data = await getAdminStats();
       if (data.success) {
         setStats(data.data);
-        toaster.success("Data statistik berhasil diperbarui");
       } else {
-        toaster.error(
-          data?.message || "Gagal mengambil data statistik dashboard",
-        );
+        console.error("Error fetching admin stats:", data);
       }
     } catch (error) {
       console.error("Error fetching admin stats:", error);
-      toaster.error(
-        error.message || "Gagal mengambil data statistik dashboard",
-      );
     } finally {
       setLoading(false);
     }
