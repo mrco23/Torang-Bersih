@@ -8,13 +8,13 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/30"
+      className="fixed inset-0 z-10000 flex items-center justify-center bg-black/30"
       style={{ minHeight: "100vh" }} // untuk memastikan min-height 100vh
     >
       {/* Modal Box */}
-      <div className="relative w-full max-w-sm rounded-xl bg-white px-6 pt-8 pb-6 shadow-2xl border-gray-200">
+      <div className="relative w-full max-w-sm rounded-xl border-gray-200 bg-white px-6 pt-8 pb-6 shadow-2xl">
         {/* Header/Icon */}
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 ring-2 ring-red-300 mb-5">
+        <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 ring-2 ring-red-300">
           {/* Exclamation icon */}
           <svg
             className="h-6 w-6 text-red-600"
@@ -42,14 +42,14 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-gray-200 py-2 text-gray-700 hover:bg-gray-100 transition text-sm font-semibold"
+            className="flex-1 rounded-lg border border-gray-200 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
           >
             Batal
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="flex-1 rounded-lg bg-red-600 py-2 text-white hover:bg-red-700 transition text-sm font-semibold"
+            className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
           >
             Ya, Lanjutkan
           </button>
@@ -87,6 +87,7 @@ function AdminDashboard() {
     setError(null);
     try {
       const params = Object.fromEntries(
+        // eslint-disable-next-line no-unused-vars
         Object.entries(query).filter(([_, v]) => v !== ""),
       );
       const res = await userAPI.getAll(params);
@@ -163,10 +164,10 @@ function AdminDashboard() {
           confirm.type === "deactivate"
             ? "Konfirmasi Nonaktifkan User"
             : confirm.type === "activate"
-            ? "Konfirmasi Aktifkan User"
-            : confirm.type === "delete"
-            ? "Konfirmasi Hapus User"
-            : ""
+              ? "Konfirmasi Aktifkan User"
+              : confirm.type === "delete"
+                ? "Konfirmasi Hapus User"
+                : ""
         }
         message={confirm.message}
         onConfirm={handleConfirmYes}
@@ -176,7 +177,7 @@ function AdminDashboard() {
       <h1 className="text-2xl font-bold text-gray-800">Manajemen User</h1>
 
       {/* Filter & Search */}
-      <div className="space-y-3 rounded-xl ring ring-gray-300 border-gray-100 bg-white p-3 shadow-sm md:p-4">
+      <div className="space-y-3 rounded-xl border-gray-100 bg-white p-3 shadow-sm ring ring-gray-300 md:p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
@@ -185,7 +186,7 @@ function AdminDashboard() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, search: e.target.value }))
             }
-            className="flex-1 rounded-lg ring ring-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
+            className="flex-1 rounded-lg px-3 py-2 text-sm ring ring-gray-300 focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
           />
           <button
             type="submit"
@@ -201,7 +202,7 @@ function AdminDashboard() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, role: e.target.value, page: 1 }))
             }
-            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg px-2 py-2 text-sm ring ring-gray-300 focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="">Semua Role</option>
             <option value="user">User</option>
@@ -213,7 +214,7 @@ function AdminDashboard() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, is_verified: e.target.value, page: 1 }))
             }
-            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg px-2 py-2 text-sm ring ring-gray-300 focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="">Semua Status</option>
             <option value="true">Terverifikasi</option>
@@ -225,7 +226,7 @@ function AdminDashboard() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, sort_order: e.target.value, page: 1 }))
             }
-            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg px-2 py-2 text-sm ring ring-gray-300 focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="desc">Terbaru</option>
             <option value="asc">Terlama</option>
@@ -234,7 +235,7 @@ function AdminDashboard() {
       </div>
 
       {/* Table / Card view */}
-      <div className="overflow-hidden rounded-xl ring ring-gray-300 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl bg-white shadow-sm ring ring-gray-300">
         {error && (
           <div className="bg-red-50 p-4 text-sm text-red-600">{error}</div>
         )}
@@ -307,10 +308,11 @@ function AdminDashboard() {
                       <td className="px-4 py-3">{user.full_name || "-"}</td>
                       <td className="px-4 py-3">
                         <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${user.role === "admin"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-gray-100 text-gray-600"
-                            }`}
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${
+                            user.role === "admin"
+                              ? "bg-purple-100 text-purple-700"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
                         >
                           {user.role}
                         </span>
@@ -348,7 +350,8 @@ function AdminDashboard() {
                                 openConfirm({
                                   type: "deactivate",
                                   userId: user.id,
-                                  message: "Yakin ingin menonaktifkan user ini?",
+                                  message:
+                                    "Yakin ingin menonaktifkan user ini?",
                                 })
                               }
                               className="text-xs text-yellow-600 transition hover:text-yellow-800"
@@ -421,10 +424,11 @@ function AdminDashboard() {
                   {/* Badges */}
                   <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${user.role === "admin"
-                        ? "bg-purple-100 text-purple-700"
-                        : "bg-gray-100 text-gray-600"
-                        }`}
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${
+                        user.role === "admin"
+                          ? "bg-purple-100 text-purple-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
                     >
                       {user.role}
                     </span>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Sidebar } from "../../components/features/public/artikel/Sidebar";
 import { artikelAPI } from "../../services/api/routes/artikel.route";
@@ -12,9 +12,12 @@ const DetailArticlePage = () => {
   const { id } = useParams();
   const { isAuthenticated } = useAuth();
 
+  // Ref untuk section komentar
+  const komentarSectionRef = useRef(null);
+
   // Responsive state for controlling "Buat Artikel" button placement
   const [isTabletOrAbove, setIsTabletOrAbove] = useState(
-    typeof window !== "undefined" ? window.innerWidth >= 1024 : true // lg breakpoint (tailwind = 1024px)
+    typeof window !== "undefined" ? window.innerWidth >= 1024 : true, // lg breakpoint (tailwind = 1024px)
   );
 
   useEffect(() => {
@@ -172,6 +175,20 @@ const DetailArticlePage = () => {
     }
   };
 
+  // Handle scroll ke komentar section di bawah (mobile)
+  const handleScrollToComments = () => {
+    // Mobile only
+    if (!isTabletOrAbove && komentarSectionRef.current) {
+      // Sedikit delay agar smooth pada beberapa devices/layouting
+      setTimeout(() => {
+        komentarSectionRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 10);
+    }
+  };
+
   // ── Loading ────────────────────────────
   if (loading) {
     return (
@@ -242,7 +259,7 @@ const DetailArticlePage = () => {
       {!isTabletOrAbove && (
         <Link
           to="/artikel/buat"
-          className="fixed z-50 bottom-6 right-5 md:right-8 bg-(--primary) hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-full shadow-lg transition text-base"
+          className="fixed right-5 bottom-6 z-50 rounded-full bg-(--primary) px-5 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-blue-700 md:right-8"
           style={{
             boxShadow:
               "0 4px 32px 0 rgba(30,41,255,0.10),0 1.5px 3px -1.5px rgba(16, 30, 255, 0.07)",
@@ -317,8 +334,15 @@ const DetailArticlePage = () => {
                 <span className="text-sm font-medium">{likesCount}</span>
               </button>
 
-              {/* Tombol Komentar Baru (Buka Drawer) */}
-              <div className="flex items-center gap-2 text-gray-500 transition-all">
+              {/* Tombol Komentar Baru (Buka Drawer/pindah ke komen jika mobile) */}
+              <button
+                type="button"
+                className="flex items-center gap-2 text-gray-500 transition-all focus:outline-none"
+                onClick={handleScrollToComments}
+                aria-label="Komentar"
+                // tombol hanya akan scroll di mobile, di desktop tidak efek
+                tabIndex={0}
+              >
                 <svg
                   className="h-6 w-6"
                   fill="none"
@@ -333,7 +357,7 @@ const DetailArticlePage = () => {
                   />
                 </svg>
                 <span className="text-sm font-medium">{commentsCount}</span>
-              </div>
+              </button>
             </div>
 
             {/* Konten artikel */}
@@ -349,6 +373,30 @@ const DetailArticlePage = () => {
                 dangerouslySetInnerHTML={{ __html: artikel.konten_teks ?? "" }}
               />
             </article>
+
+            {/* Section komentar (hanya untuk mobile/tablet, di bawah artikel) */}
+            {!isTabletOrAbove && (
+              <div
+                ref={komentarSectionRef}
+                id="komentar-section"
+                className="mt-12"
+              >
+                <Sidebar
+                  comments={komentarList}
+                  commentsCount={commentsCount}
+                  komentarTeks={komentarTeks}
+                  onKomentarChange={(e) => setKomentarTeks(e.target.value)}
+                  onKomentarSubmit={handleKomentar}
+                  komentarLoading={komentarLoading}
+                  komentarError={komentarError}
+                  replyTo={replyTo}
+                  onReplyClick={(id, name) => setReplyTo({ id, name })}
+                  onCancelReply={() => setReplyTo(null)}
+                  onKomentarDelete={handleDeleteKomentar}
+                  isDetail={true}
+                />
+              </div>
+            )}
           </main>
 
           {/* Sidebar kanan */}
@@ -357,7 +405,7 @@ const DetailArticlePage = () => {
             {isTabletOrAbove && (
               <Link
                 to="/artikel/buat"
-                className="block mb-6 w-full bg-(--primary) hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-full shadow-lg transition text-base text-center"
+                className="mb-6 block w-full rounded-full bg-(--primary) px-5 py-3 text-center text-base font-semibold text-white shadow-lg transition hover:bg-blue-700"
                 style={{
                   boxShadow:
                     "0 4px 32px 0 rgba(30,41,255,0.10),0 1.5px 3px -1.5px rgba(16, 30, 255, 0.07)",
@@ -366,20 +414,23 @@ const DetailArticlePage = () => {
                 + Buat Artikel
               </Link>
             )}
-            <Sidebar
-              comments={komentarList}
-              commentsCount={commentsCount}
-              komentarTeks={komentarTeks}
-              onKomentarChange={(e) => setKomentarTeks(e.target.value)}
-              onKomentarSubmit={handleKomentar}
-              komentarLoading={komentarLoading}
-              komentarError={komentarError}
-              replyTo={replyTo}
-              onReplyClick={(id, name) => setReplyTo({ id, name })}
-              onCancelReply={() => setReplyTo(null)}
-              onKomentarDelete={handleDeleteKomentar}
-              isDetail={true}
-            />
+            {/* Sidebar hanya di desktop */}
+            {isTabletOrAbove && (
+              <Sidebar
+                comments={komentarList}
+                commentsCount={commentsCount}
+                komentarTeks={komentarTeks}
+                onKomentarChange={(e) => setKomentarTeks(e.target.value)}
+                onKomentarSubmit={handleKomentar}
+                komentarLoading={komentarLoading}
+                komentarError={komentarError}
+                replyTo={replyTo}
+                onReplyClick={(id, name) => setReplyTo({ id, name })}
+                onCancelReply={() => setReplyTo(null)}
+                onKomentarDelete={handleDeleteKomentar}
+                isDetail={true}
+              />
+            )}
           </div>
         </div>
       </div>

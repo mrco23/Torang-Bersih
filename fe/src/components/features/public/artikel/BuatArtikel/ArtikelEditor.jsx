@@ -27,7 +27,7 @@ import {
   RiDeleteBinLine,
   RiArrowLeftRightLine,
 } from "react-icons/ri";
-import toast from "react-hot-toast"; 
+import toast from "react-hot-toast";
 import { ProseStyles } from "../../../../ui/ProsesStyles";
 // --- Remove unresolved import ---
 // import PromptModal from "../../../../common/PromptModal";
@@ -36,9 +36,17 @@ import { ProseStyles } from "../../../../ui/ProsesStyles";
  * Simple Fallback Modal for Prompt Input (no external file)
  * ========================================
  */
-function PromptModal({ open, title, placeholder, submitLabel, onSubmit, onCancel }) {
+function PromptModal({
+  open,
+  title,
+  placeholder,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}) {
   const [value, setValue] = useState("");
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (open) setValue("");
   }, [open]);
   if (!open) return null;
@@ -94,12 +102,19 @@ function PromptModal({ open, title, placeholder, submitLabel, onSubmit, onCancel
           ×
         </button>
         {title && (
-          <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 15, color: "#1e1f78" }}>
+          <div
+            style={{
+              fontWeight: 700,
+              fontSize: 17,
+              marginBottom: 15,
+              color: "#1e1f78",
+            }}
+          >
             {title}
           </div>
         )}
         <form
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault();
             onSubmit(value);
           }}
@@ -108,7 +123,7 @@ function PromptModal({ open, title, placeholder, submitLabel, onSubmit, onCancel
             autoFocus
             type="text"
             value={value}
-            onChange={e => setValue(e.target.value)}
+            onChange={(e) => setValue(e.target.value)}
             placeholder={placeholder}
             style={{
               width: "100%",
@@ -179,15 +194,15 @@ const ImageToolbarOverlay = ({
   const overlayRef = useRef();
   const [rect, setRect] = useState(null);
   const [align, setAlign] = useState(
-    targetImg?.getAttribute("data-imgalign") || "center"
+    targetImg?.getAttribute("data-imgalign") || "center",
   );
   const [widthPct, setWidthPct] = useState(
     parseInt(
       targetImg?.style?.width && targetImg.style.width.includes("%")
         ? targetImg.style.width.replace("%", "")
         : 100,
-      10
-    )
+      10,
+    ),
   );
 
   useEffect(() => {
@@ -206,8 +221,8 @@ const ImageToolbarOverlay = ({
           targetImg.style.width && targetImg.style.width.includes("%")
             ? targetImg.style.width.replace("%", "")
             : 100,
-          10
-        )
+          10,
+        ),
       );
     };
 
@@ -226,6 +241,7 @@ const ImageToolbarOverlay = ({
       window.removeEventListener("resize", updateRect);
       if (observer) observer.disconnect();
       if (overlayRef.current && overlayRef.current._interval) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         clearInterval(overlayRef.current._interval);
       }
     };
@@ -321,7 +337,15 @@ const ImageToolbarOverlay = ({
         }}
       />
       <div style={toolbarStyle} className="image-toolbar-overlay-toolbar">
-        <div style={{ display: "flex", alignItems: "center", minWidth: 80, gap: 7, flex: "1 1 80px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            minWidth: 80,
+            gap: 7,
+            flex: "1 1 80px",
+          }}
+        >
           <RiArrowLeftRightLine style={{ fontSize: 16, opacity: 0.77 }} />
           <input
             type="range"
@@ -335,10 +359,16 @@ const ImageToolbarOverlay = ({
             }}
             style={{ width: 60, flex: "0 0 60px" }}
           />
-          <span style={{ fontSize: 13, color: "#222", minWidth: 38 }}>{widthPct}%</span>
+          <span style={{ fontSize: 13, color: "#222", minWidth: 38 }}>
+            {widthPct}%
+          </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-          {[{ key: "left", label: "Kiri" }, { key: "center", label: "Tengah" }, { key: "right", label: "Kanan" }].map((a) => (
+          {[
+            { key: "left", label: "Kiri" },
+            { key: "center", label: "Tengah" },
+            { key: "right", label: "Kanan" },
+          ].map((a) => (
             <button
               key={a.key}
               onClick={() => {
@@ -363,7 +393,9 @@ const ImageToolbarOverlay = ({
             </button>
           ))}
         </div>
-        <button style={closeBtnStyle} title="Selesai" onClick={onClose}>✕</button>
+        <button style={closeBtnStyle} title="Selesai" onClick={onClose}>
+          ✕
+        </button>
       </div>
     </div>
   );
@@ -392,14 +424,23 @@ const makeToolbar = (insertLink, clearFormatBlock) => [
   {
     group: "Daftar",
     items: [
-      { icon: <RiListUnordered />, cmd: "insertUnorderedList", label: "• Poin" },
+      {
+        icon: <RiListUnordered />,
+        cmd: "insertUnorderedList",
+        label: "• Poin",
+      },
       { icon: <RiListOrdered />, cmd: "insertOrderedList", label: "1. Nomor" },
     ],
   },
   {
     group: "Lainnya",
     items: [
-      { icon: <RiDoubleQuotesL />, cmd: "formatBlock", val: "BLOCKQUOTE", label: "Kutipan" },
+      {
+        icon: <RiDoubleQuotesL />,
+        cmd: "formatBlock",
+        val: "BLOCKQUOTE",
+        label: "Kutipan",
+      },
       { icon: <RiLinkM />, fn: insertLink, label: "Tautan" },
       { icon: <RiImageAddLine />, fn: "img", label: "Gambar" },
       { icon: <RiSeparator />, fn: "hr", label: "Pemisah" },
@@ -415,17 +456,46 @@ const HELP_ITEMS = [
   { label: "Judul Kecil", key: "Klik H2", desc: "Sub judul kecil" },
   { label: "Teks Biasa", key: "Klik T", desc: "Kembali ke teks biasa" },
   { label: "Kutipan", key: "Klik Quote", desc: "Menampilkan kutipan" },
-  { label: "Keluar Kutipan", key: "Shift + Enter", desc: "Keluar dari kotak kutipan" },
-  { label: "Poin", key: "Klik • Poin", desc: "Daftar berpoin (tekan Enter 2x untuk keluar)" },
-  { label: "Nomor", key: "Klik 1. Nomor", desc: "Daftar bernomor (tekan Enter 2x untuk keluar)" },
-  { label: "Setel gambar", key: "Klik gambar", desc: "Atur/hapus/resize gambar" },
-  { label: "Tautan", key: "Pilih teks + Klik Tautan", desc: "Menyisipkan tautan ke teks" },
+  {
+    label: "Keluar Kutipan",
+    key: "Shift + Enter",
+    desc: "Keluar dari kotak kutipan",
+  },
+  {
+    label: "Poin",
+    key: "Klik • Poin",
+    desc: "Daftar berpoin (tekan Enter 2x untuk keluar)",
+  },
+  {
+    label: "Nomor",
+    key: "Klik 1. Nomor",
+    desc: "Daftar bernomor (tekan Enter 2x untuk keluar)",
+  },
+  {
+    label: "Setel gambar",
+    key: "Klik gambar",
+    desc: "Atur/hapus/resize gambar",
+  },
+  {
+    label: "Tautan",
+    key: "Pilih teks + Klik Tautan",
+    desc: "Menyisipkan tautan ke teks",
+  },
 ];
 
 const PROMPT_QUESTIONS = [
-  { icon: <RiLightbulbFlashLine />, text: "Apa yang ingin kamu ceritakan hari ini?" },
-  { icon: <RiLeafLine />, text: "Masalah lingkungan apa yang kamu lihat di sekitarmu?" },
-  { icon: <RiMegaphoneLine />, text: "Ada tips menarik soal daur ulang atau sampah?" },
+  {
+    icon: <RiLightbulbFlashLine />,
+    text: "Apa yang ingin kamu ceritakan hari ini?",
+  },
+  {
+    icon: <RiLeafLine />,
+    text: "Masalah lingkungan apa yang kamu lihat di sekitarmu?",
+  },
+  {
+    icon: <RiMegaphoneLine />,
+    text: "Ada tips menarik soal daur ulang atau sampah?",
+  },
 ];
 
 /* ==============================
@@ -435,7 +505,9 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
   { judul, konten, onJudulChange, onKontenChange },
   ref,
 ) {
+  // eslint-disable-next-line no-unused-vars
   const [toolbarVisible, setToolbarVisible] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 });
   const [showHelp, setShowHelp] = useState(false);
   const [activePrompt, setActivePrompt] = useState(0);
@@ -471,7 +543,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
         onKontenChange(editorRef.current.innerHTML);
       }
     },
-    [onKontenChange]
+    [onKontenChange],
   );
 
   const insertLink = useCallback(() => {
@@ -483,9 +555,12 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
       !editorRef.current ||
       !editorRef.current.contains(sel.anchorNode)
     ) {
-      toast.error("Pilih (blok) kata atau kalimat yang ingin diberi tautan terlebih dahulu.", {
-        style: { borderRadius: '10px', background: '#333', color: '#fff' }
-      });
+      toast.error(
+        "Pilih (blok) kata atau kalimat yang ingin diberi tautan terlebih dahulu.",
+        {
+          style: { borderRadius: "10px", background: "#333", color: "#fff" },
+        },
+      );
       return;
     }
     setSavedRange(sel.getRangeAt(0).cloneRange());
@@ -498,9 +573,16 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
       if (promptModal.type === "link" && savedRange) {
         const MAX_URL = 2000;
         if (value.length > MAX_URL) {
-          toast.error("Tautan terlalu panjang. Mohon masukkan tautan dengan panjang maksimal 2000 karakter.", {
-            style: { borderRadius: '10px', background: '#333', color: '#fff' }
-          });
+          toast.error(
+            "Tautan terlalu panjang. Mohon masukkan tautan dengan panjang maksimal 2000 karakter.",
+            {
+              style: {
+                borderRadius: "10px",
+                background: "#333",
+                color: "#fff",
+              },
+            },
+          );
           return;
         }
         const sel = window.getSelection();
@@ -529,7 +611,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
       }
       setPromptModal(null);
     },
-    [promptModal, savedRange, onKontenChange]
+    [promptModal, savedRange, onKontenChange],
   );
 
   const insertImage = useCallback(() => {
@@ -539,7 +621,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
     }
   }, []);
 
-  const insertHTMLAtCursor = html => {
+  const insertHTMLAtCursor = (html) => {
     let sel, range;
     if (window.getSelection) {
       sel = window.getSelection();
@@ -573,7 +655,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
       if (!file) return;
       if (!file.type.startsWith("image/")) {
         toast.error("Mohon pilih file gambar!", {
-          style: { borderRadius: '10px', background: '#333', color: '#fff' }
+          style: { borderRadius: "10px", background: "#333", color: "#fff" },
         });
         return;
       }
@@ -592,7 +674,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
       };
       reader.readAsDataURL(file);
     },
-    [onKontenChange]
+    [onKontenChange],
   );
 
   const insertDivider = useCallback(() => {
@@ -606,10 +688,14 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
   // --- MODIFIKASI UX UNTUK TOMBOL ENTER & SHIFT+ENTER ---
   const handleKeyDown = useCallback(
     (e) => {
-      if ((e.key === "Enter" || e.keyCode === 13) && editorRef.current && window.getSelection) {
+      if (
+        (e.key === "Enter" || e.keyCode === 13) &&
+        editorRef.current &&
+        window.getSelection
+      ) {
         const sel = window.getSelection();
         if (!sel || sel.rangeCount === 0) return;
-        
+
         let anchorNode = sel.anchorNode;
         while (anchorNode && anchorNode.nodeType !== 1) {
           anchorNode = anchorNode.parentNode;
@@ -627,24 +713,27 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
           if (e.shiftKey) {
             // Jika user menekan SHIFT + ENTER, kita PAKSA keluar dari blockquote
             e.preventDefault();
-            
+
             // Buat paragraf normal baru di luar blockquote (di bawahnya)
             const brPara = document.createElement("p");
             brPara.innerHTML = "<br/>";
-            
+
             if (blockquoteNode.nextSibling) {
-              blockquoteNode.parentNode.insertBefore(brPara, blockquoteNode.nextSibling);
+              blockquoteNode.parentNode.insertBefore(
+                brPara,
+                blockquoteNode.nextSibling,
+              );
             } else {
               blockquoteNode.parentNode.appendChild(brPara);
             }
-            
+
             // Pindahkan kursor ke paragraf baru tersebut
             const range = document.createRange();
             range.setStart(brPara, 0);
             range.collapse(true);
             sel.removeAllRanges();
             sel.addRange(range);
-            
+
             // Simpan perubahan state editor
             setTimeout(() => {
               if (editorRef.current) {
@@ -653,12 +742,15 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
             }, 0);
             return;
           }
-          
+
           // Jika ENTER saja (tanpa shift), biarkan browser membuat baris baru di dalam blockquote.
           // Tapi jika barisnya sudah kosong, kita cegah perilaku aneh browser
-          if (anchorNode.textContent === "" || /^\s*$/.test(anchorNode.textContent)) {
-             // Dibiarkan berjalan normal (baris baru di dalam kutipan)
-             return; 
+          if (
+            anchorNode.textContent === "" ||
+            /^\s*$/.test(anchorNode.textContent)
+          ) {
+            // Dibiarkan berjalan normal (baris baru di dalam kutipan)
+            return;
           }
         }
 
@@ -711,7 +803,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
         }
       }
     },
-    [onKontenChange]
+    [onKontenChange],
   );
   // ----------------------------------------------------
 
@@ -741,11 +833,12 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
     }
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
-    const wrapRect =
-      editorRef.current?.closest(".editor-wrap")?.getBoundingClientRect() ?? {
-        top: 0,
-        left: 0,
-      };
+    const wrapRect = editorRef.current
+      ?.closest(".editor-wrap")
+      ?.getBoundingClientRect() ?? {
+      top: 0,
+      left: 0,
+    };
     setToolbarPos({
       top: rect.top - wrapRect.top - 56,
       left: rect.left - wrapRect.left + rect.width / 2,
@@ -794,6 +887,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
   const handleAlignChangePS = (align) => {
     if (!imgAligning) return;
     imgAligning.setAttribute("data-imgalign", align);
+    // eslint-disable-next-line react-hooks/immutability
     imgAligning.style.float = "";
     imgAligning.style.marginLeft = "";
     imgAligning.style.marginRight = "";
@@ -826,6 +920,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
 
   const handleImageWidthChange = (val) => {
     if (!imgAligning) return;
+    // eslint-disable-next-line react-hooks/immutability
     imgAligning.style.width = val + "%";
     setTimeout(() => {
       if (editorRef.current) {
@@ -899,7 +994,7 @@ const ArtikelEditor = forwardRef(function ArtikelEditor(
         </div>
       </div>
       <div
-        className={`sticky ${isPopup ? "top-0" : "top-7"} z-20 mb-4 rounded-xl border border-gray-100 bg-white shadow-sm`}
+        className={`sticky ${isPopup ? "top-0" : "top-5"} z-20 mb-4 rounded-xl border border-gray-100 bg-white shadow-sm`}
       >
         <div className="flex flex-wrap items-center gap-1 p-2">
           {TOOLBAR.map((group, gi) => (

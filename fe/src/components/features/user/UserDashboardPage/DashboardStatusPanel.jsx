@@ -89,6 +89,7 @@ function BarRow({ label, value, total, color, bg, text }) {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
 function PanelCard({ title, sub, linkLabel, linkPath, Icon, children }) {
   const navigate = useNavigate();
 

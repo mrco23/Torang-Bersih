@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LaporanVektor from "../../../public/images/DaftarKolabolatorVektor.png";
 import toaster from "../../utils/toaster";
 import { laporanAPI } from "../../services/api/routes/laporan.route";
 
@@ -124,18 +123,19 @@ const BuatLaporanPage = () => {
 
       {/* Card utama */}
       <div className="relative z-10 flex h-auto min-h-[600px] w-full max-w-[1000px] flex-col overflow-hidden rounded-2xl bg-white shadow-lg md:mt-0 md:h-[640px] md:flex-row">
-        
         {/* ── SIDEBAR KIRI ── */}
         <div className="relative flex w-full shrink-0 flex-col overflow-hidden bg-[#1e1f78] p-5 text-white sm:p-8 md:w-[35%] md:p-10">
-          
           {/* Label halaman */}
           <div className="relative z-10 mb-4 md:mb-8">
-            <p className="text-[10px] sm:text-[11px] font-semibold tracking-widest text-white/50 uppercase">
+            <p className="text-[10px] font-semibold tracking-widest text-white/50 uppercase sm:text-[11px]">
               Warga Peduli
             </p>
-            <h1 className="mt-1 text-lg sm:text-xl leading-tight font-bold">
+            <h1 className="mt-1 text-lg leading-tight font-bold sm:text-xl">
               Buat Laporan
-              <span className="hidden sm:inline"> <br /></span>
+              <span className="hidden sm:inline">
+                {" "}
+                <br />
+              </span>
               <span className="inline sm:hidden"> </span>
               Sampah Ilegal
             </h1>
@@ -147,12 +147,12 @@ const BuatLaporanPage = () => {
               const isDone = currentStep > step.num;
               const isActive = currentStep === step.num;
               return (
-                <div 
-                  key={step.num} 
+                <div
+                  key={step.num}
                   className="flex flex-1 flex-col items-center gap-1.5 md:flex-none md:flex-row md:items-center md:gap-4"
                 >
                   <div
-                    className={`flex size-8 md:size-[42px] shrink-0 items-center justify-center rounded-full border border-white text-xs md:text-sm font-bold transition-all ${
+                    className={`flex size-8 shrink-0 items-center justify-center rounded-full border border-white text-xs font-bold transition-all md:size-[42px] md:text-sm ${
                       isActive
                         ? "bg-white text-[#1e1f78]"
                         : isDone
@@ -176,14 +176,14 @@ const BuatLaporanPage = () => {
                       <span>{step.num}</span>
                     )}
                   </div>
-                  
+
                   <div
                     className={`flex flex-col items-center text-center transition-opacity md:items-start md:text-left ${isActive ? "opacity-100" : "opacity-70"}`}
                   >
                     <span className="hidden text-[12px] tracking-wide md:block">
                       Step {step.num}
                     </span>
-                    <span className="text-[10px] font-semibold leading-tight sm:text-xs md:text-[15px]">
+                    <span className="text-[10px] leading-tight font-semibold sm:text-xs md:text-[15px]">
                       {step.title}
                     </span>
                   </div>
@@ -194,9 +194,9 @@ const BuatLaporanPage = () => {
 
           {/* Vektor dekorasi — Disembunyikan di Mobile */}
           <img
-            src={LaporanVektor}
+            src="/images/DaftarKolabolatorVektor.png"
             alt=""
-            className="pointer-events-none absolute bottom-0 left-0 w-full object-cover opacity-80 hidden md:block"
+            className="pointer-events-none absolute bottom-0 left-0 hidden w-full object-cover opacity-80 md:block"
           />
         </div>
 
@@ -237,7 +237,7 @@ const BuatLaporanPage = () => {
               type="button"
               onClick={currentStep === 3 ? handleSubmit : handleNext}
               disabled={submitting}
-              className="flex items-center gap-2 rounded bg-[#1e1f78] px-6 py-2 sm:px-10 sm:py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#16175e] disabled:opacity-60"
+              className="flex items-center gap-2 rounded bg-[#1e1f78] px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-[#16175e] disabled:opacity-60 sm:px-10 sm:py-2.5"
             >
               {submitting ? (
                 <>

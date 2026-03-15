@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -14,6 +13,7 @@ import {
 } from "react-icons/ri";
 
 // ─── Big stat card ────────────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
 function BigStatCard({ icon: Icon, label, value, sub, accent, path }) {
   const navigate = useNavigate();
   return (
@@ -52,6 +52,7 @@ function BigStatCard({ icon: Icon, label, value, sub, accent, path }) {
 }
 
 // ─── Mini activity cell ───────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
 function MiniCell({ icon: Icon, label, value, accent }) {
   return (
     <div className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm">
@@ -134,26 +135,25 @@ export default function DashboardStatCards({ data }) {
       label: "Tindak Lanjut",
       value: data?.my_tindak_lanjut,
       accent: "#f59e0b",
-    }
-  
+    },
   ];
 
   return (
-    <div className="space-y-4">git 
+    <div className="space-y-4">
+      git
       {/* Big cards — 3 col */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {MAIN.map((c) => (
           <BigStatCard key={c.label} {...c} />
         ))}
       </div>
-
       {/* Activity mini grid — 6 col */}
       <div>
         <p className="mb-2.5 text-[12px] font-bold tracking-widest text-gray-400 uppercase">
           Aktivitas Lainnya
         </p>
-        <div className="grid grid-cols-3 gap-5  sm:grid-cols-5">
-          {MINI.map((m) => ( 
+        <div className="grid grid-cols-3 gap-5 sm:grid-cols-5">
+          {MINI.map((m) => (
             <MiniCell key={m.label} {...m} />
           ))}
         </div>
