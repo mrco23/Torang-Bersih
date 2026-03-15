@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { marketplaceAPI } from "../../services/api/routes/marketplace.route";
 import {
   KONDISI_LABELS,
