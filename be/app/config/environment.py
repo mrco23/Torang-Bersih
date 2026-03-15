@@ -48,6 +48,10 @@ class Config:
     MAIL_USERNAME = get_env('MAIL_USERNAME')
     MAIL_PASSWORD = get_env('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = get_env('MAIL_DEFAULT_SENDER')
+
+    # Resend
+    RESEND_API_KEY = get_env('RESEND_API_KEY')
+    MAIL_FROM = get_env('MAIL_FROM')
     
     # Cloudinary
     CLOUDINARY_CLOUD_NAME = get_env('CLOUDINARY_CLOUD_NAME')
