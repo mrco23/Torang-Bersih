@@ -1,3 +1,4 @@
+import resend
 from threading import Thread
 from flask import current_app, render_template_string, copy_current_request_context
 from flask_mail import Message
@@ -6,17 +7,36 @@ from app.config.extensions import mail
 from app.utils.logger import logger
 
 
-def send_email_async(app, msg):
-    with app.app_context():
-        try:
-            mail.send(msg)
-            logger.info(f"Email sent successfully to {msg.recipients}")
-        except Exception as e:
-            logger.error(f"Failed to send email in background: {e}")
-
-
 def send_email(to, subject, html_body, text_body=None):
     try:
+        resend_api_key = current_app.config.get('RESEND_API_KEY')
+        
+        if resend_api_key:
+            resend.api_key = resend_api_key
+            
+            @copy_current_request_context
+            def send_resend():
+                try:
+                    params = {
+                        "from": current_app.config.get('MAIL_FROM', 'onboarding@resend.dev'),
+                        "to": [to],
+                        "subject": subject,
+                        "html": html_body,
+                    }
+                    if text_body:
+                        params["text"] = text_body
+                        
+                    resend.Emails.send(params)
+                    logger.info(f"Email sent via Resend to {to}: {subject}")
+                except Exception as e:
+                    logger.error(f"Failed to send email via Resend to {to}: {e}")
+
+            thread = Thread(target=send_resend)
+            thread.start()
+            logger.info(f"Resend email task started in background for {to}")
+            return True
+
+        # Fallback to Flask-Mail if Resend is not configured
         msg = Message(
             subject=subject,
             recipients=[to],
@@ -24,17 +44,18 @@ def send_email(to, subject, html_body, text_body=None):
             body=text_body or "Silakan buka email ini di aplikasi yang mendukung HTML."
         )
         
-        # Kirim email di background thread agar tidak memblokir process utama
-        # copy_current_request_context agar thread memiliki akses ke app context
         @copy_current_request_context
         def send_msg(message):
-            mail.send(message)
-            logger.info(f"Background email sent to {to}: {subject}")
+            try:
+                mail.send(message)
+                logger.info(f"Background email sent via Flask-Mail to {to}: {subject}")
+            except Exception as e:
+                logger.error(f"Failed to send email via Flask-Mail to {to}: {e}")
 
         thread = Thread(target=send_msg, args=(msg,))
         thread.start()
         
-        logger.info(f"Email sending task started in background for {to}")
+        logger.info(f"Flask-Mail task started in background for {to}")
         return True
     except Exception as e:
         logger.error(f"Failed to start background email task for {to}: {e}")
