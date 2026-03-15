@@ -41,9 +41,7 @@ const PetaPage = () => {
         const res = await petaAPI.getMarkers();
         setAllLocations(res.data.data || []);
       } catch (error) {
-        toaster.error(
-          error.response?.data?.message || "Gagal memuat data peta",
-        );
+        console.log(error);
       } finally {
         setLoading(false);
       }

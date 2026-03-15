@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeaderLogo from "./HeaderLogo";
 import HeaderNav from "./HeaderNav";
 import HeaderAuth from "./HeaderAuth";
@@ -11,14 +11,27 @@ function Header({ isAuthenticated, user, onLogout }) {
   const isLandingPage = location.pathname === "/";
 
   const [scrolled, setScrolled] = useState(false);
-  const handleScroll = () => {
-    setScrolled(window.scrollY > 50);
-  };
-  window.addEventListener("scroll", handleScroll);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
     <nav
-      className={`fixed top-0 right-0 left-0 z-999 flex h-24 w-full justify-center px-4 py-2 shadow-sm md:px-6 ${menuOpen || !isLandingPage ? "bg-white shadow-md" : scrolled ? "bg-transparent shadow-md backdrop-blur-sm" : "bg-transparent backdrop-blur-sm"}`}
+      className={`fixed top-0 right-0 left-0 z-999 flex h-24 justify-center px-4 py-2 shadow-sm md:px-6 ${
+        menuOpen || !isLandingPage
+          ? "bg-white shadow-md"
+          : scrolled
+            ? "bg-transparent shadow-md backdrop-blur-sm"
+            : "bg-transparent backdrop-blur-sm"
+      }`}
     >
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between">
         <HeaderLogo />

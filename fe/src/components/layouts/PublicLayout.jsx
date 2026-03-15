@@ -10,7 +10,7 @@ function PublicLayout() {
   const pagesWithoutFooter = ["/peta", "/profile"];
 
   return (
-    <div className="flex min-h-screen flex-col bg-white transition-colors duration-200">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-white transition-colors duration-200">
       <Header isAuthenticated={isAuthenticated} user={user} onLogout={logout} />
 
       {/* Content fill empty space*/}

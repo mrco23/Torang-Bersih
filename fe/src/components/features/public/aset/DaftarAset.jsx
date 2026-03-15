@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { asetAPI } from "../../../../services/api/routes/aset.route";
 import { referensiAPI } from "../../../../services/api/routes/referensi.route";
-import toaster from "../../../../utils/toaster";
 
 function DaftarAset() {
   const [items, setItems] = useState([]);
@@ -34,8 +33,8 @@ function DaftarAset() {
       setItems(res.data.data || []);
       setMeta(res.data.meta?.pagination);
     } catch (err) {
+      console.log(err);
       setError("Gagal memuat data aset.");
-      toaster.error(err.message || "Gagal memuat data aset.");
     } finally {
       setLoading(false);
     }
