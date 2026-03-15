@@ -127,7 +127,7 @@ function AdminKolaboratorPage() {
       </h1>
 
       {/* Filter & Search */}
-      <div className="space-y-3 rounded-xl ring-2 ring-gray-300 bg-white p-3 shadow-sm md:p-4">
+      <div className="space-y-3 rounded-xl ring ring-gray-300 bg-white p-3 shadow-sm md:p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
@@ -136,7 +136,7 @@ function AdminKolaboratorPage() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, search: e.target.value }))
             }
-            className="flex-1 rounded-lg ring-2 ring-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
+            className="flex-1 rounded-lg ring ring-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
           />
           <button
             type="submit"
@@ -156,7 +156,7 @@ function AdminKolaboratorPage() {
                   page: 1,
                 }))
               }
-              className="rounded-lg ring-2 ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+              className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
             >
               <option value="">Semua Jenis</option>
               {jenisOptions.map((j) => (
@@ -173,7 +173,7 @@ function AdminKolaboratorPage() {
                   label: "Jenis Kolaborator",
                 })
               }
-              className="cursor-pointer rounded-lg ring-2 ring-gray-300 bg-white p-2 text-gray-500 hover:border-(--primary) hover:bg-(--primary-lightest) hover:text-(--primary)"
+              className="cursor-pointer rounded-lg ring ring-gray-300 bg-white p-2 text-gray-500 hover:border-(--primary) hover:bg-(--primary-lightest) hover:text-(--primary)"
               title="Kelola Jenis Kolaborator"
             >
               <RiSettings4Line className="size-4" />
@@ -188,7 +188,7 @@ function AdminKolaboratorPage() {
                 page: 1,
               }))
             }
-            className="rounded-lg ring-2 ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="">Semua Status</option>
             <option value="menunggu">Menunggu Verifikasi</option>
@@ -200,7 +200,7 @@ function AdminKolaboratorPage() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, sort_order: e.target.value, page: 1 }))
             }
-            className="rounded-lg ring-2 ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="desc">Terbaru</option>
             <option value="asc">Terlama</option>
@@ -209,7 +209,7 @@ function AdminKolaboratorPage() {
       </div>
 
       {/* Content */}
-      <div className="overflow-hidden rounded-xl ring-2 ring-gray-300 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl ring ring-gray-300 bg-white shadow-sm">
         {error && (
           <div className="bg-red-50 p-4 text-sm text-red-600">{error}</div>
         )}

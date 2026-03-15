@@ -82,7 +82,7 @@ function AdminDashboard() {
       <h1 className="text-2xl font-bold text-gray-800">Manajemen User</h1>
 
       {/* Filter & Search */}
-      <div className="space-y-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm md:p-4">
+      <div className="space-y-3 rounded-xl ring ring-gray-300 border-gray-100 bg-white p-3 shadow-sm md:p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
@@ -91,7 +91,7 @@ function AdminDashboard() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, search: e.target.value }))
             }
-            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
+            className="flex-1 rounded-lg ring ring-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-4"
           />
           <button
             type="submit"
@@ -107,7 +107,7 @@ function AdminDashboard() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, role: e.target.value, page: 1 }))
             }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="">Semua Role</option>
             <option value="user">User</option>
@@ -119,7 +119,7 @@ function AdminDashboard() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, is_verified: e.target.value, page: 1 }))
             }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="">Semua Status</option>
             <option value="true">Terverifikasi</option>
@@ -131,7 +131,7 @@ function AdminDashboard() {
             onChange={(e) =>
               setQuery((q) => ({ ...q, sort_order: e.target.value, page: 1 }))
             }
-            className="rounded-lg border px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
+            className="rounded-lg ring ring-gray-300 px-2 py-2 text-sm focus:ring-1 focus:ring-(--primary) focus:outline-none md:px-3"
           >
             <option value="desc">Terbaru</option>
             <option value="asc">Terlama</option>
@@ -140,7 +140,7 @@ function AdminDashboard() {
       </div>
 
       {/* Table / Card view */}
-      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl ring ring-gray-300 bg-white shadow-sm">
         {error && (
           <div className="bg-red-50 p-4 text-sm text-red-600">{error}</div>
         )}
@@ -213,11 +213,10 @@ function AdminDashboard() {
                       <td className="px-4 py-3">{user.full_name || "-"}</td>
                       <td className="px-4 py-3">
                         <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${
-                            user.role === "admin"
-                              ? "bg-purple-100 text-purple-700"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${user.role === "admin"
+                            ? "bg-purple-100 text-purple-700"
+                            : "bg-gray-100 text-gray-600"
+                            }`}
                         >
                           {user.role}
                         </span>
@@ -309,11 +308,10 @@ function AdminDashboard() {
                   {/* Badges */}
                   <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        user.role === "admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${user.role === "admin"
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-gray-100 text-gray-600"
+                        }`}
                     >
                       {user.role}
                     </span>
