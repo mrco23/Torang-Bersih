@@ -79,6 +79,7 @@ function HeaderNav() {
           </div>
         )}
       </div>
+      <Link to="Tentang-Kami">Tentang Kami</Link>
     </div>
   );
 }

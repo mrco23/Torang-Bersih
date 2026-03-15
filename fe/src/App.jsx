@@ -38,6 +38,7 @@ import DetailLaporan from "./pages/public/DetailLaporan";
 import ArtikelPage from "./pages/public/ArtikelPage";
 import ArticleDetailPage from "./pages/public/DetailArticle";
 import BuatArtikelPage from "./pages/public/BuatArtikelPage";
+import AboutPage from "./pages/public/AboutPage";
 
 /* user pages */
 import UserDashboardPage from "./pages/user/UserDashboardPage";
@@ -92,6 +93,7 @@ function App() {
         <Route path="peta" element={<PetaPage />} />
         <Route path="kolaborator" element={<KolaboratorPage />} />
         <Route path="kolaborator/:id" element={<DetailKolaboratorPage />} />
+        <Route path="tentang-kami" element={<AboutPage/>}/>
 
         <Route path="aset" element={<AsetPage />} />
         <Route path="aset/:id" element={<DetailAsetPage />} />
