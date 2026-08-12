@@ -5,6 +5,11 @@ Run with gunicorn: gunicorn server:app --bind 0.0.0.0:5000
 Run with waitress: waitress-serve --host=0.0.0.0 --port=5000 server:app
 """
 import os
+import sys
+
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 from app import create_app
 from app.config.extensions import db
 
